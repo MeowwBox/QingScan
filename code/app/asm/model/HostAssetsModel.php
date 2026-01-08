@@ -72,6 +72,12 @@ class HostAssetsModel extends BaseModel
             ->find();
     }
     
+    // 批量更新所有主机资产
+    public static function updateAll($data)
+    {
+        return Db::table('asm_host_assets')->update($data);
+    }
+    
     // 更新HIDS状态
     public static function updateHidsStatus($id, $installed, $version = '', $lastCheck = null)
     {
