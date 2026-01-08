@@ -66,21 +66,24 @@ table a {
 }
 
 .nav-active {
-    background-color: #fff!important;
-    border-radius: 10px;
-    color: #999 !important;
-    font-weight: bold;
+    background-color: rgba(24, 144, 255, 0.1)!important;
+    border-radius: 6px;
+    color: #1890ff !important;
+    font-weight: 500;
 }
 
 a.nav-link{
-    border-radius: 10px;
+    color: rgba(0, 0, 0, 0.65) !important;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 0 4px;
 }
 
 a.nav-link:hover {
-    background-color: #fff!important;
-    border-radius: 10px;
-    color: #999 !important;
-    font-weight: bold;
+    background-color: rgba(24, 144, 255, 0.1)!important;
+    border-radius: 6px;
+    color: #1890ff !important;
+    font-weight: 500;
 }
 
  .truncate-td {

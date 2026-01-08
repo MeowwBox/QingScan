@@ -1,54 +1,45 @@
 {include file='public/LeftMenuStyle' /}
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
-    <ul id="leftMenu" style="list-style: none;padding-left:0px;">
+    <ul id="leftMenu">
         <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/index/index.html">
-                目标管理 </a>
+            <a href="/webscan/index/index.html">
+                <img src="/icon/scan.svg" class="icon">
+                目标管理
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
         </li>
         <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/xray/index.html">
-                Xray </a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/bug/awvs.html">
-                AWVS </a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/sqlmap/index.html">
-                SqlMap </a>
-        </li>
-
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/vulmap/index.html">
-                vulmap </a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/one_for_all/index.html">
-                OneForAll</a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/hydra/index.html">
-                hydra </a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/dirmap/index.html">
-                DirMap </a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/whatweb/index.html">
-                whatWeb</a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/app_nuclei/index.html">
-                nuclei </a>
-        </li>
-        <li>
-            <a class="btn btn-sm btn-outline-secondary" href="/webscan/app_crawlergo/index.html">
-                crawlergo </a>
+            <a href="#">
+                <img src="/icon/tools.svg" class="icon">
+                扫描工具
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu show">
+                <li><a href="/webscan/xray/index.html">Xray</a></li>
+                <li><a href="/webscan/bug/awvs.html">AWVS</a></li>
+                <li><a href="/webscan/sqlmap/index.html">SqlMap</a></li>
+                <li><a href="/webscan/vulmap/index.html">vulmap</a></li>
+                <li><a href="/webscan/one_for_all/index.html">OneForAll</a></li>
+                <li><a href="/webscan/hydra/index.html">hydra</a></li>
+                <li><a href="/webscan/dirmap/index.html">DirMap</a></li>
+                <li><a href="/webscan/whatweb/index.html">whatWeb</a></li>
+                <li><a href="/webscan/app_nuclei/index.html">nuclei</a></li>
+                <li><a href="/webscan/app_crawlergo/index.html">crawlergo</a></li>
+            </ul>
         </li>
     </ul>
 </div>
 
+<script type="text/javascript">
+    // 获取当前屏幕高度
+    var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+    // 设置要修改高度的DIV的ID，这里假设该DIV的ID为"myDiv"
+    var div = document.getElementById("leftMenu");
+    screenHeight -= 56;
+    // 设置DIV的高度为当前屏幕高度
+    div.style.height = screenHeight + "px";
+</script>
 <script type="text/javascript">
     $("#webscan").addClass("nav-active");
 </script>

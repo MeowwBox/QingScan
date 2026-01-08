@@ -8,11 +8,11 @@
     <script src="/static/bootstrap-5.3.0/js/bootstrap.min.js"></script>
 </head>
 <body style="background-color: #eeeeee; ">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="padding: 0px;">
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);">
 
     <div class="container">
         <div class="collapse navbar-collapse" id="navbarsExample08">
-            <ul class="navbar-nav me-auto">
+            <ul class="navbar-nav me-auto" style="gap: 8px;">
                 <?php
                 $rootPath = dirname(dirname(dirname(__DIR__)));
                 if (file_exists($rootPath.'/view/public/company_head.php')) {
@@ -79,4 +79,3 @@
 
 <div class="container-fluid" style="padding-left: 0;">
     <div class="row">
-
