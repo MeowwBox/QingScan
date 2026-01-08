@@ -559,20 +559,29 @@ class HostAssetsSyncModel extends BaseModel
                 $version = $host['version'] ?? '';
 
                 // 查找匹配的主机资产
-                $where = [];
-                if ($ip) {
-                    $where[] = ['private_ip', '=', $ip];
-                    if ($ip != $host['ip']) {
-                        $where[] = ['public_ip', '=', $ip];
+                // 使用闭包来实现OR连接的IP匹配条件
+                $where = function ($query) use ($ip, $hostname) {
+                    if ($ip) {
+                        // IP匹配条件使用OR连接
+                        $query->where(function ($q) use ($ip) {
+                            $q->where('private_ip', '=', $ip)
+                              ->whereOr('public_ip', '=', $ip)
+                              ->whereOr('private_ips', 'like', '%"' . $ip . '"%')
+                              ->whereOr('public_ips', 'like', '%"' . $ip . '"%');
+                        });
                     }
-                }
-
-                if ($hostname) {
-                    $where[] = ['instance_name', 'like', '%' . $hostname . '%'];
-                }
-
-                // 更新主机的HIDS状态
-                $hostAssets = HostAssetsModel::getHostAssetsList($where, 1, 10);
+                    
+                    if ($hostname) {
+                        // 主机名匹配条件
+                        $query->where('instance_name', 'like', '%' . $hostname . '%');
+                    }
+                };
+                
+                // 直接使用Db查询，因为HostAssetsModel::getHostAssetsList可能不支持闭包条件
+                $hostAssets = Db::table('asm_host_assets')
+                    ->where($where)
+                    ->limit(10)
+                    ->select();
                 $hostId = null;
                 foreach ($hostAssets as $asset) {
                     HostAssetsModel::updateHidsStatus(

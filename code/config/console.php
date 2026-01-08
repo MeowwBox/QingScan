@@ -7,6 +7,7 @@ return [
     'commands' => [
         'scan' => 'app\command\Scan',
         'install' => 'app\command\Install',
-        'asm' => 'app\command\asm',
+        'asm' => 'app\command\Asm',
+        'db:sql' => 'app\command\DbSql',
     ],
 ];

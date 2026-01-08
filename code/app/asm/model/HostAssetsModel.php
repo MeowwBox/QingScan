@@ -117,22 +117,55 @@ class HostAssetsModel extends BaseModel
         $hosts = [];
         $huoshanResources = [];
         foreach ($apiData['Result']['Instances'] as $instance) {
-            // 获取私有IP
-            $privateIp = '0.0.0.0'; // 默认值
-            if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces']) && count($instance['networkInterfaces']) > 0) {
-                $firstInterface = $instance['networkInterfaces'][0];
-                if (isset($firstInterface['primaryIpAddress'])) {
-                    $privateIp = $firstInterface['primaryIpAddress'];
+            // 获取所有私有IP
+            $privateIps = [];
+            if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces'])) {
+                foreach ($instance['networkInterfaces'] as $interface) {
+                    if (isset($interface['primaryIpAddress'])) {
+                        $privateIps[] = $interface['primaryIpAddress'];
+                    }
+                    if (isset($interface['privateIpSets']) && is_array($interface['privateIpSets'])) {
+                        foreach ($interface['privateIpSets'] as $ipSet) {
+                            if (isset($ipSet['privateIpAddress'])) {
+                                $privateIps[] = $ipSet['privateIpAddress'];
+                            }
+                        }
+                    }
                 }
             }
+            // 去重并保留唯一IP
+            $privateIps = array_unique($privateIps);
+            // 设置默认私有IP
+            $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
             
-            // 获取公网IP
-            $publicIp = '';
-            if (!empty($instance['eipAddress']) && is_object($instance['eipAddress']) && isset($instance['eipAddress']->ipAddress)) {
-                $publicIp = $instance['eipAddress']->ipAddress;
-            } else if (!empty($instance['eipAddress']) && is_array($instance['eipAddress']) && isset($instance['eipAddress']['ipAddress'])) {
-                $publicIp = $instance['eipAddress']['ipAddress'];
+            // 获取所有公网IP
+            $publicIps = [];
+            if (!empty($instance['eipAddress'])) {
+                if (is_object($instance['eipAddress']) && isset($instance['eipAddress']->ipAddress)) {
+                    $publicIps[] = $instance['eipAddress']->ipAddress;
+                } else if (is_array($instance['eipAddress']) && isset($instance['eipAddress']['ipAddress'])) {
+                    $publicIps[] = $instance['eipAddress']['ipAddress'];
+                }
             }
+            // 如果networkInterfaces中有公网IP，也添加到列表中
+            if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces'])) {
+                foreach ($instance['networkInterfaces'] as $interface) {
+                    if (isset($interface['publicIpAddress'])) {
+                        $publicIps[] = $interface['publicIpAddress'];
+                    }
+                    if (isset($interface['publicIpSets']) && is_array($interface['publicIpSets'])) {
+                        foreach ($interface['publicIpSets'] as $ipSet) {
+                            if (isset($ipSet['publicIpAddress'])) {
+                                $publicIps[] = $ipSet['publicIpAddress'];
+                            }
+                        }
+                    }
+                }
+            }
+            // 去重并保留唯一IP
+            $publicIps = array_unique($publicIps);
+            // 设置默认公网IP
+            $publicIp = !empty($publicIps) ? reset($publicIps) : '';
             
             // 获取MAC地址
             $macAddress = '';
@@ -161,6 +194,8 @@ class HostAssetsModel extends BaseModel
                 'status' => strtoupper($instance['status']),
                 'private_ip' => $privateIp,
                 'public_ip' => $publicIp,
+                'private_ips' => json_encode($privateIps),
+                'public_ips' => json_encode($publicIps),
                 'mac_address' => $macAddress,
                 'os_type' => $instance['osType'],
                 'os_name' => $instance['osName'],
@@ -185,6 +220,8 @@ class HostAssetsModel extends BaseModel
                 'status' => strtoupper($instance['status']),
                 'public_ip' => $publicIp,
                 'private_ip' => $privateIp,
+                'public_ips' => json_encode($publicIps),
+                'private_ips' => json_encode($privateIps),
                 'os_type' => $instance['osType'],
                 'os_name' => $instance['osName'],
                 'cpu' => $instance['cpus'],
@@ -236,11 +273,51 @@ class HostAssetsModel extends BaseModel
         
         $hosts = [];
         foreach ($apiData['returnObj']['results'] as $instance) {
-            // 获取私有IP
-            $privateIp = $instance['privateIP'];
+            // 获取所有私有IP
+            $privateIps = [];
+            if (!empty($instance['privateIP'])) {
+                // 处理单个IP的情况
+                $privateIps[] = $instance['privateIP'];
+            }
+            // 从addresses中获取所有私有IP
+            if (!empty($instance['addresses'])) {
+                foreach ($instance['addresses'] as $address) {
+                    if (!empty($address['addressList'])) {
+                        foreach ($address['addressList'] as $addr) {
+                            if ($addr['type'] == 'fixed') {
+                                $privateIps[] = $addr['ipAddress'];
+                            }
+                        }
+                    }
+                }
+            }
+            // 去重并保留唯一IP
+            $privateIps = array_unique($privateIps);
+            // 设置默认私有IP
+            $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
             
-            // 获取公网IP
-            $publicIp = $instance['floatingIP'] ?: '';
+            // 获取所有公网IP
+            $publicIps = [];
+            if (!empty($instance['floatingIP'])) {
+                // 处理单个IP的情况
+                $publicIps[] = $instance['floatingIP'];
+            }
+            // 从addresses中获取所有公网IP
+            if (!empty($instance['addresses'])) {
+                foreach ($instance['addresses'] as $address) {
+                    if (!empty($address['addressList'])) {
+                        foreach ($address['addressList'] as $addr) {
+                            if ($addr['type'] == 'floating') {
+                                $publicIps[] = $addr['ipAddress'];
+                            }
+                        }
+                    }
+                }
+            }
+            // 去重并保留唯一IP
+            $publicIps = array_unique($publicIps);
+            // 设置默认公网IP
+            $publicIp = !empty($publicIps) ? reset($publicIps) : '';
             
             // 获取MAC地址
             $macAddress = '';
@@ -272,6 +349,8 @@ class HostAssetsModel extends BaseModel
                 'status' => $instance['instanceStatus'],
                 'private_ip' => $privateIp,
                 'public_ip' => $publicIp,
+                'private_ips' => json_encode($privateIps),
+                'public_ips' => json_encode($publicIps),
                 'mac_address' => $macAddress,
                 'os_type' => $instance['osType'] == 1 ? 'Linux' : ($instance['osType'] == 2 ? 'Windows' : 'Other'),
                 'os_name' => $instance['image']['imageName'],
@@ -296,6 +375,8 @@ class HostAssetsModel extends BaseModel
                 'status' => $instance['instanceStatus'],
                 'public_ip' => $publicIp,
                 'private_ip' => $privateIp,
+                'public_ips' => json_encode($publicIps),
+                'private_ips' => json_encode($privateIps),
                 'create_time' => date('Y-m-d H:i:s', strtotime($instance['createdTime'])),
                 'update_time' => date('Y-m-d H:i:s', strtotime($instance['updatedTime'])),
                 'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
