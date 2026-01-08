@@ -1533,4 +1533,38 @@ CREATE TABLE IF NOT EXISTS `asm_cloud_tianyi` (
   UNIQUE INDEX `un_resource_id`(`resource_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
+-- 主机资产总表
+CREATE TABLE IF NOT EXISTS `asm_host_assets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `instance_id` varchar(100) NOT NULL COMMENT '实例ID',
+  `instance_name` varchar(100) NOT NULL COMMENT '实例名称',
+  `display_name` varchar(100) DEFAULT '' COMMENT '显示名称',
+  `cloud_platform` varchar(50) NOT NULL COMMENT '云平台: huoshan(火山云), tianyi(天翼云), idc(线下IDC)',
+  `status` varchar(20) NOT NULL COMMENT '实例状态',
+  `private_ip` varchar(50) NOT NULL COMMENT '私有IP地址',
+  `public_ip` varchar(50) DEFAULT '' COMMENT '公网IP地址',
+  `mac_address` varchar(50) DEFAULT '' COMMENT 'MAC地址',
+  `os_type` varchar(20) NOT NULL COMMENT '操作系统类型',
+  `os_name` varchar(100) NOT NULL COMMENT '操作系统名称',
+  `cpu` int(11) NOT NULL COMMENT 'CPU核心数',
+  `memory` int(11) NOT NULL COMMENT '内存大小(MB)',
+  `instance_type` varchar(50) DEFAULT '' COMMENT '实例类型',
+  `vpc_id` varchar(100) DEFAULT '' COMMENT 'VPC ID',
+  `vpc_name` varchar(100) DEFAULT '' COMMENT 'VPC名称',
+  `security_groups` text COMMENT '安全组(JSON格式)',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `expire_time` datetime NULL COMMENT '到期时间',
+  `hids_installed` tinyint(1) DEFAULT '0' COMMENT '是否安装HIDS(0:未安装, 1:已安装)',
+  `hids_version` varchar(50) DEFAULT '' COMMENT 'HIDS版本',
+  `hids_last_check` datetime NULL COMMENT 'HIDS最后检查时间',
+  `remark` text COMMENT '备注信息',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_instance_id_platform` (`instance_id`, `cloud_platform`) USING BTREE,
+  INDEX `idx_cloud_platform` (`cloud_platform`) USING BTREE,
+  INDEX `idx_status` (`status`) USING BTREE,
+  INDEX `idx_private_ip` (`private_ip`) USING BTREE,
+  INDEX `idx_hids_installed` (`hids_installed`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '主机资产总表' ROW_FORMAT = Dynamic;
+
 SET FOREIGN_KEY_CHECKS = 1;

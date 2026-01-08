@@ -1,11 +1,25 @@
 {include file='public/LeftMenuStyle' /}
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
     <ul id="leftMenu">
+        <!-- 云资产管理 -->
+        <li>
+            <a href="#">
+                <img src="/icon/asm.svg" class="icon">
+                主机资产
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu">
+                <li><a href="/asm/hostassets/index.html">主机汇总</a></li>
+                <li><a href="/asm/cloud/huoshan.html">火山云</a></li>
+                <li><a href="/asm/cloud/tianyi.html">天翼云</a></li>
+
+            </ul>
+        </li>
         <!-- 资产管理核心功能 -->
         <li>
             <a href="#">
                 <img src="/icon/asm.svg" class="icon">
-                资产管理
+                网络资产
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
@@ -16,18 +30,7 @@
             </ul>
         </li>
         
-        <!-- 云资产管理 -->
-        <li>
-            <a href="#">
-                <img src="/icon/asm.svg" class="icon">
-                云资产管理
-                <img src="/icon/right.svg" class="toggle-btn">
-            </a>
-            <ul class="submenu">
-                <li><a href="/asm/cloud/huoshan.html">火山云</a></li>
-                <li><a href="/asm/cloud/tianyi.html">天翼云</a></li>
-            </ul>
-        </li>
+
     </ul>
 </div>
 
