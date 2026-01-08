@@ -54,7 +54,6 @@ class HostAssets extends Common
         
         // 平台类型
         $platforms = [
-            '' => '全部',
             'huoshan' => '火山云',
             'tianyi' => '天翼云',
             'idc' => '线下IDC'
@@ -62,14 +61,12 @@ class HostAssets extends Common
         
         // HIDS安装状态
         $hids_status = [
-            '' => '全部',
             '0' => '未安装',
             '1' => '已安装'
         ];
         
         // 实例状态
         $instance_status = [
-            '' => '全部',
             'RUNNING' => '运行中',
             'STOPPED' => '已停止',
             'TERMINATED' => '已终止',

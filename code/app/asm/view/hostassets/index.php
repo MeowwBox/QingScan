@@ -50,11 +50,41 @@ $searchArr = [
                     <td><?php echo $value['id'] ?></td>
                     <td><?php echo $value['instance_name'] ?></td>
                     <td><?php echo $value['display_name'] ?></td>
-                    <td><?php echo $platforms[$value['cloud_platform']] ?></td>
-                    <td><?php echo $instance_status[$value['status']] ?? $value['status'] ?></td>
+                    <td>
+                        <span class="badge <?php 
+                            switch($value['cloud_platform']) {
+                                case 'huoshan': echo 'bg-primary bg-light text-primary'; break;
+                                case 'tianyi': echo 'bg-info bg-light text-info'; break;
+                                case 'idc': echo 'bg-secondary bg-light text-secondary'; break;
+                                default: echo 'bg-light text-dark';
+                            }
+                        ?>">
+                            <?php echo $platforms[$value['cloud_platform']] ?>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge <?php 
+                            switch($value['status']) {
+                                case 'RUNNING': echo 'bg-success bg-light text-success'; break;
+                                case 'STOPPED': case 'SHUTOFF': echo 'bg-warning bg-light text-warning'; break;
+                                case 'TERMINATED': echo 'bg-danger bg-light text-danger'; break;
+                                case 'CREATING': case 'STARTING': case 'REBOOTING': echo 'bg-info bg-light text-info'; break;
+                                case 'STOPPING': echo 'bg-warning bg-light text-warning'; break;
+                                default: echo 'bg-light text-dark';
+                            }
+                        ?>">
+                            <?php echo $instance_status[$value['status']] ?? $value['status'] ?>
+                        </span>
+                    </td>
                     <td><?php echo $value['private_ip'] ?></td>
                     <td><?php echo $value['public_ip'] ?></td>
-                    <td><?php echo $value['hids_installed'] ? '已安装' : '未安装' ?></td>
+                    <td>
+                        <span class="badge <?php 
+                            echo $value['hids_installed'] ? 'bg-success bg-light text-success' : 'bg-danger bg-light text-danger';
+                        ?>">
+                            <?php echo $value['hids_installed'] ? '已安装' : '未安装' ?>
+                        </span>
+                    </td>
                     <td><?php echo $value['create_time'] ?></td>
                     <td>
                         <a href="<?php echo url('asm/hostassets/detail', ['id' => $value['id']]) ?>" class="btn btn-sm btn-outline-secondary">查看详情</a>
@@ -104,7 +134,17 @@ $searchArr = [
                     <td><?php echo $value['hostname'] ?? '-' ?></td>
                     <td><?php echo $value['os_name'] ?? '-' ?></td>
                     <td><?php echo $value['kernel_version'] ?? '-' ?></td>
-                    <td><?php echo $value['online_status'] ?? '-' ?></td>
+                    <td>
+                        <span class="badge <?php 
+                            switch($value['online_status']) {
+                                case 'online': echo 'bg-success bg-light text-success'; break;
+                                case 'offline': echo 'bg-danger bg-light text-danger'; break;
+                                default: echo 'bg-light text-dark';
+                            }
+                        ?>">
+                            <?php echo $value['online_status'] ?? '-' ?>
+                        </span>
+                    </td>
                     <td><?php echo $value['sync_time'] ?? '-' ?></td>
                     <td>
                         <a href="<?php echo url('asm/hostassets/hidsDetail', ['id' => $value['id']]) ?>" class="btn btn-sm btn-outline-secondary">查看详情</a>
