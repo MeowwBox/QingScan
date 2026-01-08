@@ -45,86 +45,133 @@ class HostAssetsSyncModel extends BaseModel
 
         // 创建ECSApi实例和请求对象
         $apiInstance = new ECSApi($client, $configInstance, $selector);
-        $describeInstancesRequest = new DescribeInstancesRequest();
 
         // 恢复原来的错误报告级别
         error_reporting($errorReporting);
 
-        // 调用API获取实例列表
+        // 调用API获取实例列表，实现分页逻辑
         try {
-            $response = $apiInstance->describeInstances($describeInstancesRequest);
+            $allInstances = [];
+            $maxResults = 100; // 每次获取100条记录
+            $nextToken = null;
+            $pageNumber = 1;
 
-            // 检查API响应是否成功
-            if (!isset($response)) {
-                $output->writeln("<error>火山云API无响应</error>");
-                return;
-            }
+            do {
+                // 创建请求对象，设置max_results和next_token参数
+                $describeInstancesRequest = new DescribeInstancesRequest([
+                    'max_results' => $maxResults,
+                    'next_token' => $nextToken
+                ]);
 
-            // 根据响应类型处理数据
-            if (is_object($response)) {
-                // 使用对象的getter方法直接获取数据
-                if (method_exists($response, 'getInstances')) {
-                    $instances = $response->getInstances();
-                    $instanceCount = is_array($instances) ? count($instances) : 0;
-                    $output->writeln("<info>成功获取火山云主机实例列表，共 " . $instanceCount . " 台主机</info>");
+                $response = $apiInstance->describeInstances($describeInstancesRequest);
 
-                    // 检查是否有数据需要导入
-                    if ($instanceCount > 0) {
-                        // 使用反射和getter方法将所有实例转换为数组
-                        $instancesArray = [];
-                        foreach ($instances as $instance) {
-                            $instanceArray = [];
-                            $reflection = new \ReflectionClass($instance);
-                            $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+                // 检查API响应是否成功
+                if (!isset($response)) {
+                    $output->writeln("<error>火山云API无响应</error>");
+                    return;
+                }
 
-                            foreach ($methods as $method) {
-                                $methodName = $method->getName();
-                                // 只处理getter方法
-                                if (strpos($methodName, 'get') === 0 && $methodName !== 'getModelName') {
-                                    // 调用getter方法获取属性值
-                                    $value = $method->invoke($instance);
-                                    // 将getter方法名转换为驼峰式的属性名
-                                    $propertyName = lcfirst(substr($methodName, 3));
-                                    $instanceArray[$propertyName] = $value;
-                                }
-                            }
-
-                            $instancesArray[] = $instanceArray;
+                // 根据响应类型处理数据
+                if (is_object($response)) {
+                    // 使用对象的getter方法直接获取数据
+                    if (method_exists($response, 'getInstances')) {
+                        $pageInstances = $response->getInstances();
+                        $pageCount = is_array($pageInstances) ? count($pageInstances) : 0;
+                        
+                        if ($pageCount > 0) {
+                            $allInstances = array_merge($allInstances, $pageInstances);
+                            
+                            // 获取总实例数和下一页标记
+                            $totalCount = method_exists($response, 'getTotalCount') ? $response->getTotalCount() : count($allInstances);
+                            $nextToken = method_exists($response, 'getNextToken') ? $response->getNextToken() : null;
+                            
+                            $output->writeln("<info>已获取第 " . $pageNumber . " 页，共 " . count($allInstances) . "/" . $totalCount . " 台主机</info>");
                         }
+                    } else {
+                        $output->writeln("<error>火山云API响应对象没有getInstances方法</error>");
+                        return;
+                    }
+                } else if (is_array($response)) {
+                    // 如果是数组，保持原处理方式
+                    if (!isset($response['Result']) || !is_array($response['Result'])) {
+                        $output->writeln("<error>火山云API响应中缺少Result字段</error>");
+                        return;
+                    }
 
-                        // 创建符合HostAssetsModel预期格式的数组
-                        $formattedResponse = [
-                            'Result' => [
-                                'Instances' => $instancesArray
-                            ]
-                        ];
+                    if (!isset($response['Result']['Instances']) || !is_array($response['Result']['Instances'])) {
+                        $output->writeln("<error>火山云API响应中缺少Instances字段</error>");
+                        return;
+                    }
 
-                        HostAssetsModel::importFromHuoshanApi($formattedResponse);
+                    $pageInstances = $response['Result']['Instances'];
+                    $pageCount = count($pageInstances);
+                    
+                    if ($pageCount > 0) {
+                        $allInstances = array_merge($allInstances, $pageInstances);
+                        
+                        // 获取总实例数和下一页标记
+                        $totalCount = isset($response['Result']['TotalCount']) ? $response['Result']['TotalCount'] : count($allInstances);
+                        $nextToken = isset($response['Result']['NextToken']) ? $response['Result']['NextToken'] : null;
+                        
+                        $output->writeln("<info>已获取第 " . $pageNumber . " 页，共 " . count($allInstances) . "/" . $totalCount . " 台主机</info>");
                     }
                 } else {
-                    $output->writeln("<error>火山云API响应对象没有getInstances方法</error>");
-                    return;
-                }
-            } else if (is_array($response)) {
-                // 如果是数组，保持原处理方式
-                if (!isset($response['Result']) || !is_array($response['Result'])) {
-                    $output->writeln("<error>火山云API响应中缺少Result字段</error>");
+                    $output->writeln("<error>火山云API响应格式未知</error>");
                     return;
                 }
 
-                if (!isset($response['Result']['Instances']) || !is_array($response['Result']['Instances'])) {
-                    $output->writeln("<error>火山云API响应中缺少Instances字段</error>");
-                    return;
+                $pageNumber++;
+            } while ($nextToken);
+
+            $totalInstances = count($allInstances);
+            $output->writeln("<info>成功获取火山云主机实例列表，共 " . $totalInstances . " 台主机</info>");
+
+            // 检查是否有数据需要导入
+            if ($totalInstances > 0) {
+                // 构建最终的响应格式
+                $formattedResponse = null;
+                
+                if (is_object($response)) {
+                    // 使用反射和getter方法将所有实例转换为数组
+                    $instancesArray = [];
+                    foreach ($allInstances as $instance) {
+                        $instanceArray = [];
+                        $reflection = new \ReflectionClass($instance);
+                        $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+                        foreach ($methods as $method) {
+                            $methodName = $method->getName();
+                            // 只处理getter方法
+                            if (strpos($methodName, 'get') === 0 && $methodName !== 'getModelName') {
+                                // 调用getter方法获取属性值
+                                $value = $method->invoke($instance);
+                                // 将getter方法名转换为驼峰式的属性名
+                                $propertyName = lcfirst(substr($methodName, 3));
+                                $instanceArray[$propertyName] = $value;
+                            }
+                        }
+
+                        $instancesArray[] = $instanceArray;
+                    }
+
+                    // 创建符合HostAssetsModel预期格式的数组
+                    $formattedResponse = [
+                        'Result' => [
+                            'Instances' => $instancesArray
+                        ]
+                    ];
+                } else if (is_array($response)) {
+                    // 如果是数组响应，直接使用合并后的实例
+                    $formattedResponse = [
+                        'Result' => [
+                            'Instances' => $allInstances
+                        ]
+                    ];
                 }
 
-                $instanceCount = count($response['Result']['Instances']);
-                $output->writeln("<info>成功获取火山云主机实例列表，共 " . $instanceCount . " 台主机</info>");
-
-                // 导入到数据库
-                HostAssetsModel::importFromHuoshanApi($response);
-            } else {
-                $output->writeln("<error>火山云API响应格式未知</error>");
-                return;
+                if ($formattedResponse) {
+                    HostAssetsModel::importFromHuoshanApi($formattedResponse);
+                }
             }
 
             $output->writeln("<info>火山云主机资产导入数据库完成</info>");
@@ -155,40 +202,59 @@ class HostAssetsSyncModel extends BaseModel
         $endpoint = env('TIANYI.ENDPOINT') ?? 'ctecs-global.ctapi.ctyun.cn';
         $resourcePath = env('TIANYI.RESOURCE_PATH') ?? '/v4/ecs/list-instances';
 
-        // 使用天翼云API客户端类进行请求
-        $response = self::callTianyiApi($accessKeyId, $secretAccessKey, $regionId, $endpoint, $resourcePath);
-
-        if ($response['error']) {
-            $output->writeln("<error>天翼云API请求失败: " . $response['error'] . "</error>");
-            return;
-        }
-
-        if ($response['status_code'] != 200) {
-            $output->writeln("<error>天翼云API响应错误，状态码: " . $response['status_code'] . "</error>");
-            return;
-        }
-
-        // 解析API响应
-        $apiResponse = json_decode($response['body'], true);
-
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $output->writeln("<error>解析天翼云API响应失败: " . json_last_error_msg() . "</error>");
-            return;
-        }
-
-        // 检查API响应格式并提取实例数据
+        // 初始化实例数组
         $instances = [];
-        if (isset($apiResponse['returnObj']['results']) && is_array($apiResponse['returnObj']['results'])) {
-            $instances = $apiResponse['returnObj']['results'];
-        } elseif (isset($apiResponse['instances']) && is_array($apiResponse['instances'])) {
-            $instances = $apiResponse['instances'];
-        } elseif (isset($apiResponse['data']) && is_array($apiResponse['data'])) {
-            $instances = $apiResponse['data'];
-        } else {
-            // 根据实际API响应结构进行调整
-            $instances = [$apiResponse]; // 单个实例的情况
-        }
+        
+        // 设置分页参数
+        $pageSize = 50; // 每页获取50条记录，减少单次请求压力
+        $currentPage = 1;
+        $totalPages = 1;
+        $totalCount = 0;
+        
+        // 循环获取所有记录
+        do {
+            // 使用天翼云API客户端类进行请求，添加分页参数
+            $response = self::callTianyiApi($accessKeyId, $secretAccessKey, $regionId, $endpoint, $resourcePath, [
+                "pageNo" => $currentPage, // 当前页码
+                "pageSize" => $pageSize   // 每页记录数
+            ]);
+
+            if ($response['error']) {
+                $output->writeln("<error>天翼云API请求失败: " . $response['error'] . "</error>");
+                return;
+            }
+
+            if ($response['status_code'] != 200) {
+                $output->writeln("<error>天翼云API响应错误，状态码: " . $response['status_code'] . "</error>");
+                return;
+            }
+
+            // 解析API响应
+            $apiResponse = json_decode($response['body'], true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $output->writeln("<error>解析天翼云API响应失败: " . json_last_error_msg() . "</error>");
+                return;
+            }
+
+            // 提取实例数据
+            if (isset($apiResponse['returnObj']['results']) && is_array($apiResponse['returnObj']['results'])) {
+                $instances = array_merge($instances, $apiResponse['returnObj']['results']);
+            }
+            
+            // 更新分页信息
+            if ($currentPage == 1) {
+                $totalCount = isset($apiResponse['returnObj']['totalCount']) ? $apiResponse['returnObj']['totalCount'] : 0;
+                $totalPages = isset($apiResponse['returnObj']['totalPage']) ? $apiResponse['returnObj']['totalPage'] : 1;
+                $output->writeln("<info>发现天翼云主机实例总数: " . $totalCount . " 台</info>");
+            }
+            
+            $output->writeln("<info>已获取第 " . $currentPage . "/" . $totalPages . " 页，共 " . count($instances) . " 台主机</info>");
+            
+            // 进入下一页
+            $currentPage++;
+            
+        } while ($currentPage <= $totalPages);
 
         $instanceCount = count($instances);
         $output->writeln("<info>成功获取天翼云主机实例列表，共 " . $instanceCount . " 台主机</info>");
@@ -207,6 +273,20 @@ class HostAssetsSyncModel extends BaseModel
                 $status = strtoupper($instance['status'] ?? $instance['instanceStatus'] ?? 'unknown');
                 $publicIp = $instance['publicIp'] ?? $instance['floatingIP'] ?? $instance['eip'] ?? '';
                 $publicIp = $instance['publicIp'] ?? $instance['publicIPAddress'] ?? $instance['innerIP'] ?? '0.0.0.0';
+                // 获取私有IP
+                $privateIp = '0.0.0.0';
+                if (isset($instance['addresses']) && is_array($instance['addresses'])) {
+                    foreach ($instance['addresses'] as $address) {
+                        if (isset($address['addressList']) && is_array($address['addressList'])) {
+                            foreach ($address['addressList'] as $addrInfo) {
+                                if (isset($addrInfo['type']) && $addrInfo['type'] === 'fixed') {
+                                    $privateIp = $addrInfo['addr'] ?? '0.0.0.0';
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                }
                 // 使用convertDatetime方法处理创建时间
                 $createTime = self::convertDatetime($instance['createTime'] ?? $instance['create_time'] ?? $instance['createdTime'] ?? null) ?? date('Y-m-d H:i:s');
 
@@ -231,7 +311,7 @@ class HostAssetsSyncModel extends BaseModel
                     'cloud_platform' => 'tianyi',
                     'status' => $status,
                     'public_ip' => $publicIp,
-                    'public_ip' => $publicIp,
+                    'private_ip' => $privateIp,
                     'mac_address' => $instance['macAddress'] ?? $instance['mac'] ?? '',
                     'os_type' => $instance['osType'] ?? $instance['os'] ?? 'Unknown',
                     'os_name' => $instance['osName'] ?? $instance['imageName'] ?? 'Unknown',
@@ -264,14 +344,22 @@ class HostAssetsSyncModel extends BaseModel
 
             // 导入到主机资产总表
             foreach ($hosts as $host) {
-                $existing = HostAssetsModel::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
-                if ($existing) {
-                    // 更新现有记录
-                    unset($host['create_time']); // 不更新创建时间
-                    HostAssetsModel::updateByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform'], $host);
-                } else {
-                    // 添加新记录
-                    HostAssetsModel::addHostAssets($host);
+                try {
+                    $existing = HostAssetsModel::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
+                    if ($existing) {
+                        // 更新现有记录
+                        unset($host['create_time']); // 不更新创建时间
+                        HostAssetsModel::updateByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform'], $host);
+                    } else {
+                        // 添加新记录
+                        HostAssetsModel::addHostAssets($host);
+                    }
+                } catch (\Exception $e) {
+                    // 打印具体的错误信息
+                    $output->writeln("<error>处理主机资产失败: " . $e->getMessage() . "</error>");
+                    $output->writeln("<error>主机数据: " . json_encode($host, JSON_UNESCAPED_UNICODE) . "</error>");
+                    // 继续处理其他主机
+                    continue;
                 }
             }
         }
@@ -319,7 +407,7 @@ class HostAssetsSyncModel extends BaseModel
     /**
      * 调用天翼云API
      */
-    public static function callTianyiApi($ak, $sk, $regionId, $endpoint, $resourcePath)
+    public static function callTianyiApi($ak, $sk, $regionId, $endpoint, $resourcePath, $additionalParams = [])
     {
         // 生成32位的ctyun-eop-request-id（UUID4）
         $requestId = sprintf(
@@ -339,9 +427,9 @@ class HostAssetsSyncModel extends BaseModel
         $eopDate = date('Ymd\THis\Z');
 
         // 构建请求体
-        $requestBody = [
+        $requestBody = array_merge([
             "regionID" => $regionId
-        ];
+        ], $additionalParams);
 
         // 计算数据的SHA256摘要
         $bodySha256Hex = hash('sha256', json_encode($requestBody, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

@@ -27,7 +27,18 @@ class HostAssetsModel extends BaseModel
     // 添加主机资产
     public static function addHostAssets($data)
     {
-        return Db::table('asm_host_assets')->insertGetId($data);
+        try {
+            return Db::table('asm_host_assets')->insertGetId($data);
+        } catch (\Exception $e) {
+            // 记录错误信息
+            file_put_contents('/tmp/host_assets_error.log', 
+                date('Y-m-d H:i:s') . " - Error: " . $e->getMessage() . "\n" .
+                "Data: " . print_r($data, true) . "\n\n",
+                FILE_APPEND
+            );
+            // 重新抛出异常
+            throw $e;
+        }
     }
     
     // 批量添加主机资产
