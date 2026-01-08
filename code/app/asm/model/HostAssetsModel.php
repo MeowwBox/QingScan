@@ -4,6 +4,7 @@ namespace app\asm\model;
 
 use app\model\BaseModel;
 use think\facade\Db;
+use app\asm\model\CloudModel;
 
 class HostAssetsModel extends BaseModel
 {
@@ -97,57 +98,91 @@ class HostAssetsModel extends BaseModel
         }
         
         $hosts = [];
+        $huoshanResources = [];
         foreach ($apiData['Result']['Instances'] as $instance) {
             // 获取私有IP
-            $privateIp = '';
-            if (!empty($instance['NetworkInterfaces'])) {
-                $privateIp = $instance['NetworkInterfaces'][0]['PrimaryIpAddress'];
+            $privateIp = '0.0.0.0'; // 默认值
+            if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces']) && count($instance['networkInterfaces']) > 0) {
+                $firstInterface = $instance['networkInterfaces'][0];
+                if (isset($firstInterface['primaryIpAddress'])) {
+                    $privateIp = $firstInterface['primaryIpAddress'];
+                }
             }
             
             // 获取公网IP
             $publicIp = '';
-            if (!empty($instance['EipAddress'])) {
-                $publicIp = $instance['EipAddress']['IpAddress'];
+            if (!empty($instance['eipAddress']) && is_object($instance['eipAddress']) && isset($instance['eipAddress']->ipAddress)) {
+                $publicIp = $instance['eipAddress']->ipAddress;
+            } else if (!empty($instance['eipAddress']) && is_array($instance['eipAddress']) && isset($instance['eipAddress']['ipAddress'])) {
+                $publicIp = $instance['eipAddress']['ipAddress'];
             }
             
             // 获取MAC地址
             $macAddress = '';
-            if (!empty($instance['NetworkInterfaces'])) {
-                $macAddress = $instance['NetworkInterfaces'][0]['MacAddress'];
+            if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces']) && count($instance['networkInterfaces']) > 0) {
+                $firstInterface = $instance['networkInterfaces'][0];
+                if (isset($firstInterface['macAddress'])) {
+                    $macAddress = $firstInterface['macAddress'];
+                }
             }
             
             // 获取安全组
             $securityGroups = [];
-            if (!empty($instance['NetworkInterfaces'])) {
-                $securityGroups = $instance['NetworkInterfaces'][0]['SecurityGroupIds'];
+            if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces']) && count($instance['networkInterfaces']) > 0) {
+                $firstInterface = $instance['networkInterfaces'][0];
+                if (isset($firstInterface['securityGroupIds']) && is_array($firstInterface['securityGroupIds'])) {
+                    $securityGroups = $firstInterface['securityGroupIds'];
+                }
             }
             
+            // 构建主机资产数据
             $hosts[] = [
-                'instance_id' => $instance['InstanceId'],
-                'instance_name' => $instance['InstanceName'],
-                'display_name' => $instance['InstanceName'],
+                'instance_id' => $instance['instanceId'],
+                'instance_name' => $instance['instanceName'],
+                'display_name' => $instance['instanceName'],
                 'cloud_platform' => 'huoshan',
-                'status' => $instance['Status'],
+                'status' => $instance['status'],
                 'private_ip' => $privateIp,
                 'public_ip' => $publicIp,
                 'mac_address' => $macAddress,
-                'os_type' => $instance['OsType'],
-                'os_name' => $instance['OsName'],
-                'cpu' => $instance['Cpus'],
-                'memory' => $instance['MemorySize'],
-                'instance_type' => $instance['InstanceTypeId'],
-                'vpc_id' => $instance['VpcId'],
+                'os_type' => $instance['osType'],
+                'os_name' => $instance['osName'],
+                'cpu' => $instance['cpus'],
+                'memory' => $instance['memorySize'],
+                'instance_type' => $instance['instanceTypeId'],
+                'vpc_id' => $instance['vpcId'],
                 'vpc_name' => '',
                 'security_groups' => json_encode($securityGroups),
-                'create_time' => date('Y-m-d H:i:s', strtotime($instance['CreatedAt'])),
-                'update_time' => date('Y-m-d H:i:s', strtotime($instance['UpdatedAt'])),
-                'expire_time' => !empty($instance['ExpiredAt']) ? date('Y-m-d H:i:s', strtotime($instance['ExpiredAt'])) : null,
+                'create_time' => !empty($instance['createdAt']) ? date('Y-m-d H:i:s', strtotime($instance['createdAt'])) : null,
+                'update_time' => !empty($instance['updatedAt']) ? date('Y-m-d H:i:s', strtotime($instance['updatedAt'])) : null,
+                'expire_time' => !empty($instance['expiredAt']) ? date('Y-m-d H:i:s', strtotime($instance['expiredAt'])) : null,
                 'hids_installed' => 0,
+            ];
+            
+            // 构建火山云资源表数据
+            $huoshanResources[] = [
+                'resource_id' => $instance['instanceId'],
+                'resource_name' => $instance['instanceName'],
+                'resource_type' => 'instance',
+                'region' => $instance['region'] ?? '',
+                'status' => $instance['status'],
+                'public_ip' => $publicIp,
+                'private_ip' => $privateIp,
+                'os_type' => $instance['osType'],
+                'os_name' => $instance['osName'],
+                'cpu' => $instance['cpus'],
+                'memory' => $instance['memorySize'],
+                'instance_type' => $instance['instanceTypeId'],
+                'vpc_id' => $instance['vpcId'],
+                'create_time' => !empty($instance['createdAt']) ? date('Y-m-d H:i:s', strtotime($instance['createdAt'])) : null,
+                'update_time' => !empty($instance['updatedAt']) ? date('Y-m-d H:i:s', strtotime($instance['updatedAt'])) : null,
+                'expire_time' => !empty($instance['expiredAt']) ? date('Y-m-d H:i:s', strtotime($instance['expiredAt'])) : null,
             ];
         }
         
         // 批量导入或更新
-        foreach ($hosts as $host) {
+        foreach ($hosts as $index => $host) {
+            // 处理主机资产表
             $existing = self::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
             if ($existing) {
                 // 更新现有记录
@@ -156,6 +191,18 @@ class HostAssetsModel extends BaseModel
             } else {
                 // 添加新记录
                 self::addHostAssets($host);
+            }
+            
+            // 处理火山云资源表
+            $huoshanResource = $huoshanResources[$index];
+            $existingHuoshan = Db::table('asm_cloud_huoshan')->where('resource_id', $huoshanResource['resource_id'])->find();
+            if ($existingHuoshan) {
+                // 更新现有记录
+                unset($huoshanResource['create_time']); // 不更新创建时间
+                Db::table('asm_cloud_huoshan')->where('id', $existingHuoshan['id'])->update($huoshanResource);
+            } else {
+                // 添加新记录
+                CloudModel::addHuoshan($huoshanResource);
             }
         }
         

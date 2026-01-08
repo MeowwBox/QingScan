@@ -24,14 +24,14 @@
     "xaboy/form-builder": "^2.1",
     "rmccue/requests": "*",
     "jeremykendall/php-domain-parser": "^6.1",
-    "phpoffice/phpspreadsheet": "^1.20",
     "ext-json": "*",
     "topthink/think-multi-app": "^1.1",
-    "w7corp/easywechat": "^6.19",
     "ext-curl": "*",
     "zoujingli/ip2region": "^2.0",
     "symfony/yaml": "^6.3",
-    "topthink/think-migration": "^3.1"
+    "symfony/http-foundation": "^6.0",
+    "topthink/think-migration": "^3.1",
+    "volcengine/volcengine-php-sdk": "v1.0.94"
   },
   "require-dev": {
     "symfony/var-dumper": "^4.2",

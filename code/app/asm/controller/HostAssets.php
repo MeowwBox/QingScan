@@ -67,14 +67,14 @@ class HostAssets extends Common
         // 实例状态
         $instance_status = [
             '' => '全部',
-            'running' => '运行中',
-            'stopped' => '已停止',
-            'terminated' => '已终止',
-            'creating' => '创建中',
-            'starting' => '启动中',
-            'stopping' => '停止中',
-            'rebooting' => '重启中',
-            'shutoff' => '已关闭'
+            'RUNNING' => '运行中',
+            'STOPPED' => '已停止',
+            'TERMINATED' => '已终止',
+            'CREATING' => '创建中',
+            'STARTING' => '启动中',
+            'STOPPING' => '停止中',
+            'REBOOTING' => '重启中',
+            'SHUTOFF' => '已关闭'
         ];
         
         View::assign([
