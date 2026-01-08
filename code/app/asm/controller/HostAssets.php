@@ -3,7 +3,7 @@
 namespace app\asm\controller;
 
 use app\asm\model\HostAssetsModel;
-use app\base\BaseController;
+use app\asm\model\HidsQingtengModel;
 use app\controller\Common;
 use think\facade\View;
 use think\facade\Db;
@@ -40,7 +40,7 @@ class HostAssets extends Common
         $limit = Request::param('limit', 10, 'intval');
         
         // 获取数据
-        $page = Db::table('asm_host_assets')
+        $host_page = Db::table('asm_host_assets')
             ->where($where)
             ->order('create_time desc')
             ->paginate([
@@ -50,7 +50,7 @@ class HostAssets extends Common
             ]);
         
         // 获取分页数据列表
-        $list = $page->items();
+        $list = $host_page->items();
         
         // 平台类型
         $platforms = [
@@ -80,19 +80,93 @@ class HostAssets extends Common
             'SHUTOFF' => '已关闭'
         ];
         
+        // 获取当前tab参数，使用默认值避免未定义错误
+        $tab = Request::param('tab', 'host');
+        
+        // 将tab参数赋值给视图，以便在模板中使用
+        View::assign('tab', $tab);
+        
+        // HIDS列表数据
+        $hids_list = [];
+        if ($tab == 'hids') {
+            // 获取HIDS列表搜索条件
+            $hids_keyword = Request::param('keyword', '');
+            
+            // 构建HIDS查询条件
+            $hids_where = [];
+            if (!empty($hids_keyword)) {
+                $hids_where[] = ['ip_address', 'like', '%' . $hids_keyword . '%'];
+            }
+            
+            // 获取HIDS列表数据
+            $hids_list = HidsQingtengModel::getList($hids_where, $page, $limit);
+            
+            // 解析原始JSON数据，提取需要的字段
+            foreach ($hids_list as &$hids_item) {
+                if (!empty($hids_item['original_json'])) {
+                    $original_data = json_decode($hids_item['original_json'], true);
+                    if ($original_data) {
+                        // 提取系统信息
+                        if (isset($original_data['system'])) {
+                            $hids_item['os_name'] = $original_data['system']['os_name'] ?? '';
+                            $hids_item['kernel_version'] = $original_data['system']['kernel_version'] ?? '';
+                            $hids_item['hostname'] = $original_data['system']['hostname'] ?? '';
+                        }
+                        
+                        // 提取在线状态
+                        $hids_item['online_status'] = isset($original_data['online']) && $original_data['online'] ? '在线' : '离线';
+                        
+                        // 提取实例名称
+                        if (isset($original_data['instance_name'])) {
+                            $hids_item['instance_name'] = $original_data['instance_name'];
+                        }
+                    }
+                }
+            }
+        }
+        
         View::assign([
             'list' => $list,
-            'page' => $page,
+            'page' => $host_page,
+            'hids_list' => $hids_list,
             'platforms' => $platforms,
             'hids_status' => $hids_status,
             'instance_status' => $instance_status,
             'keyword' => $keyword,
             'cloud_platform' => $cloud_platform,
             'status' => $status,
-            'hids_installed' => $hids_installed
+            'hids_installed' => $hids_installed,
+            'tab' => $tab
         ]);
         
         return View::fetch();
+    }
+    
+    // HIDS详情页面
+    public function hidsDetail()
+    {
+        $id = Request::param('id', 0, 'intval');
+        
+        if (empty($id)) {
+            $this->error('参数错误');
+        }
+        
+        // 获取HIDS数据
+        $hids_data = HidsQingtengModel::getById($id);
+        
+        if (empty($hids_data)) {
+            $this->error('HIDS数据不存在');
+        }
+        
+        // 解析原始JSON数据
+        if (!empty($hids_data['original_json'])) {
+            $hids_data['original_data'] = json_decode($hids_data['original_json'], true);
+        } else {
+            $hids_data['original_data'] = [];
+        }
+        
+        View::assign('hids_data', $hids_data);
+        return View::fetch('hidsDetail');
     }
     
     // 更新HIDS状态
