@@ -230,7 +230,7 @@ class ImportHostAssets extends Command
                 $resourceName = $instance['instanceName'] ?? $instance['name'] ?? $instance['displayName'] ?? 'Unknown';
                 $resourceType = $instance['resourceType'] ?? $instance['type'] ?? $instance['instanceType'] ?? '云主机';
                 $region = $instance['region'] ?? env('TIANYI.REGION_ID') ?? 'default';
-                $status = $instance['status'] ?? $instance['instanceStatus'] ?? 'unknown';
+                $status = strtoupper($instance['status'] ?? $instance['instanceStatus'] ?? 'unknown');
                 $publicIp = $instance['publicIp'] ?? $instance['floatingIP'] ?? $instance['eip'] ?? '';
                 $privateIp = $instance['privateIp'] ?? $instance['privateIPAddress'] ?? $instance['innerIP'] ?? '0.0.0.0';
                 // 使用convertDatetime方法处理创建时间

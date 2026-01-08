@@ -38,7 +38,7 @@ $searchArr = [
                     <td><?php echo $value['instance_name'] ?></td>
                     <td><?php echo $value['display_name'] ?></td>
                     <td><?php echo $platforms[$value['cloud_platform']] ?></td>
-                    <td><?php echo $instance_status[$value['status']] ?></td>
+                    <td><?php echo $instance_status[$value['status']] ?? $value['status'] ?></td>
                     <td><?php echo $value['private_ip'] ?></td>
                     <td><?php echo $value['public_ip'] ?></td>
                     <td><?php echo $value['hids_installed'] ? '已安装' : '未安装' ?></td>
