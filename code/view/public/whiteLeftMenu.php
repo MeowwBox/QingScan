@@ -3,25 +3,42 @@
 <!-- 左侧菜单栏内容 -->
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
     <ul id="leftMenu">
-        <li>
-            <a href="/code/index.html">
-                <img src="/icon/repo.svg" class="icon">
-                仓库管理
-                <img src="/icon/right.svg" class="toggle-btn">
-            </a>
-        </li>
+        <!-- 代码仓库管理 -->
         <li>
             <a href="#">
-                <img src="/icon/code.svg" class="icon">
-                代码审计
+                <img src="/icon/repo.svg" class="icon">
+                代码仓库管理
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
-                <li><a href="/code/code_ql/index.html">CodeQL引擎</a></li>
+                <li><a href="/code/repos/index.html">Git仓库</a></li>
+            </ul>
+        </li>
+        
+        <!-- 代码审计工具 -->
+        <li>
+            <a href="#">
+                <img src="/icon/code.svg" class="icon">
+                代码审计工具
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu show">
+                <li><a href="/code/codeql/index.html">CodeQL引擎</a></li>
                 <li><a href="/code/fortify/index.html">Fortify</a></li>
                 <li><a href="/code/semgrep/index.html">SemGrep</a></li>
-                <li><a href="/code/murphysec/index.html">成份分析</a></li>
-                <li><a href="/code/code_webshell/index.html">WebShell</a></li>
+            </ul>
+        </li>
+        
+        <!-- 代码安全工具 -->
+        <li>
+            <a href="#">
+                <img src="/icon/code.svg" class="icon">
+                代码安全工具
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu show">
+                <li><a href="/code/sbom/index.html">成份分析</a></li>
+                <li><a href="/code/webshell/index.html">WebShell检测</a></li>
             </ul>
         </li>
     </ul>

@@ -1,6 +1,7 @@
 {include file='public/LeftMenuStyle' /}
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
     <ul id="leftMenu">
+        <!-- 安全情报与漏洞管理 -->
         <li>
             <a href="#">
                 <img src="/icon/cve.svg" class="icon">
@@ -9,9 +10,20 @@
             </a>
             <ul class="submenu show">
                 <li><a href="/vulnerable/index.html">漏洞情报</a></li>
-                <li><a href="/pocs_file/index.html">POC脚本</a></li>
-                <li><a href="/vul_target/index.html">检测任务</a></li>
                 <li><a href="/vulnerable/pocsuite.html">漏洞实例</a></li>
+            </ul>
+        </li>
+        
+        <!-- POC管理与检测 -->
+        <li>
+            <a href="#">
+                <img src="/icon/scan.svg" class="icon">
+                漏洞检测
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu show">
+                <li><a href="/pocs_file/index.html">POC脚本库</a></li>
+                <li><a href="/vul_target/index.html">检测任务管理</a></li>
             </ul>
         </li>
     </ul>

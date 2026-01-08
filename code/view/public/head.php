@@ -8,7 +8,7 @@
     <script src="/static/bootstrap-5.3.0/js/bootstrap.min.js"></script>
 </head>
 <body style="background-color: #eeeeee; ">
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);">
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff; padding: 8px 15px; border-radius: 8px; margin-right: 3px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);">
 
     <div class="container">
         <div class="collapse navbar-collapse" id="navbarsExample08">

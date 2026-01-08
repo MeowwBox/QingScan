@@ -1,6 +1,7 @@
 {include file='public/LeftMenuStyle' /}
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
     <ul id="leftMenu">
+        <!-- 资产管理核心功能 -->
         <li>
             <a href="#">
                 <img src="/icon/asm.svg" class="icon">
@@ -9,9 +10,9 @@
             </a>
             <ul class="submenu show">
                 <li><a href="/asm/Discover/index.html">自动发现</a></li>
-                <li><a href="/asm/domain/index.html">域名</a></li>
-                <li><a href="/asm/urls/index.html">URL</a></li>
-                <li><a href="/asm/ip_port/index.html">端口</a></li>
+                <li><a href="/asm/domain/index.html">域名管理</a></li>
+                <li><a href="/asm/urls/index.html">URL管理</a></li>
+                <li><a href="/asm/ip_port/index.html">端口管理</a></li>
             </ul>
         </li>
     </ul>

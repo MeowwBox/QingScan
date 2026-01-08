@@ -1,6 +1,7 @@
 {include file='public/LeftMenuStyle' /}
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
     <ul id="leftMenu">
+        <!-- 系统管理核心功能 -->
         <li>
             <a href="#">
                 <img src="/icon/setting.svg" class="icon">
@@ -8,9 +9,9 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
-                <li><a href="/system/task_scan/index.html">消费队列</a></li>
-                <li><a href="/config/index.html">配置信息</a></li>
-                <li><a href="/system/user_log/index.html">登录日志</a></li>
+                <li><a href="/config/index.html">系统配置</a></li>
+                <li><a href="/system/task_scan/index.html">任务队列</a></li>
+                <li><a href="/system/user_log/index.html">系统日志</a></li>
             </ul>
         </li>
     </ul>

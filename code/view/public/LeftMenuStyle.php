@@ -126,6 +126,8 @@
         transform: none;
     }
     
+
+    
     /* 响应式设计 */
     @media (max-width: 768px) {
         #leftMenu {
@@ -148,28 +150,63 @@
     }
 </style>
 <script type="text/javascript">
-    $(document).ready(function() {
-        // 折叠/展开功能
-        $('#leftMenu > li > a').click(function(e) {
-            if ($(this).next('ul.submenu').length > 0) {
-                e.preventDefault();
-                $(this).next('ul.submenu').toggleClass('show');
-                $(this).find('.toggle-btn').toggleClass('rotate');
-            }
+        // 折叠/展开菜单功能
+        document.querySelectorAll('#leftMenu .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const parentLi = this.closest('li');
+                const submenu = parentLi.querySelector('.submenu');
+                
+                if (submenu) {
+                    // 切换子菜单显示状态
+                    submenu.classList.toggle('show');
+                    
+                    // 更新箭头方向
+                    if (submenu.classList.contains('show')) {
+                        this.style.transform = 'translateY(-50%) rotate(90deg)';
+                        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    } else {
+                        this.style.transform = 'translateY(-50%) rotate(0deg)';
+                        submenu.style.maxHeight = '0';
+                    }
+                }
+            });
         });
         
-        // 设置当前活动菜单
-        var currentUrl = window.location.pathname;
-        $('#leftMenu a').each(function() {
-            var href = $(this).attr('href');
-            if (href && currentUrl.includes(href.replace(/^\//, ''))) {
-                $(this).addClass('active');
-                // 自动展开包含当前活动项的父菜单
-                $(this).closest('ul.submenu').addClass('show');
-                if ($(this).closest('ul.submenu').length > 0) {
-                    $(this).closest('ul.submenu').prev('a').find('.toggle-btn').addClass('rotate');
+        // 点击菜单项时的处理
+        document.querySelectorAll('#leftMenu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const submenu = this.nextElementSibling;
+                
+                // 如果是有子菜单的父项，则切换子菜单
+                if (submenu && submenu.classList.contains('submenu')) {
+                    e.preventDefault();
+                    
+                    // 切换当前菜单项的子菜单
+                    submenu.classList.toggle('show');
+                    
+                    // 更新箭头方向
+                    const toggleBtn = this.querySelector('.toggle-btn');
+                    if (toggleBtn) {
+                        if (submenu.classList.contains('show')) {
+                            toggleBtn.style.transform = 'translateY(-50%) rotate(90deg)';
+                            submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                        } else {
+                            toggleBtn.style.transform = 'translateY(-50%) rotate(0deg)';
+                            submenu.style.maxHeight = '0';
+                        }
+                    }
                 }
-            }
+            });
         });
-    });
-</script>
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化显示所有子菜单
+            document.querySelectorAll('#leftMenu .submenu').forEach(submenu => {
+                if (submenu.classList.contains('show')) {
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                }
+            });
+        });
+    </script>
