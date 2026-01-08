@@ -194,6 +194,7 @@ class HostAssetsModel extends BaseModel
                 'create_time' => !empty($instance['createdAt']) ? date('Y-m-d H:i:s', strtotime($instance['createdAt'])) : null,
                 'update_time' => !empty($instance['updatedAt']) ? date('Y-m-d H:i:s', strtotime($instance['updatedAt'])) : null,
                 'expire_time' => !empty($instance['expiredAt']) ? date('Y-m-d H:i:s', strtotime($instance['expiredAt'])) : null,
+                'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
             ];
         }
         
@@ -285,10 +286,24 @@ class HostAssetsModel extends BaseModel
                 'expire_time' => !empty($instance['expiredTime']) ? date('Y-m-d H:i:s', strtotime($instance['expiredTime'])) : null,
                 'hids_installed' => 0,
             ];
+            
+            // 构建天翼云资源表数据
+            $tianyiResources[] = [
+                'resource_id' => $instance['instanceID'],
+                'resource_name' => $instance['instanceName'],
+                'resource_type' => 'instance',
+                'region' => $instance['regionName'] ?? '',
+                'status' => $instance['instanceStatus'],
+                'public_ip' => $publicIp,
+                'private_ip' => $privateIp,
+                'create_time' => date('Y-m-d H:i:s', strtotime($instance['createdTime'])),
+                'update_time' => date('Y-m-d H:i:s', strtotime($instance['updatedTime'])),
+                'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
+            ];
         }
         
         // 批量导入或更新
-        foreach ($hosts as $host) {
+        foreach ($hosts as $index => $host) {
             $existing = self::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
             if ($existing) {
                 // 更新现有记录
@@ -297,6 +312,18 @@ class HostAssetsModel extends BaseModel
             } else {
                 // 添加新记录
                 self::addHostAssets($host);
+            }
+            
+            // 处理天翼云资源表
+            $tianyiResource = $tianyiResources[$index];
+            $existingTianyi = Db::table('asm_cloud_tianyi')->where('resource_id', $tianyiResource['resource_id'])->find();
+            if ($existingTianyi) {
+                // 更新现有记录
+                unset($tianyiResource['create_time']); // 不更新创建时间
+                Db::table('asm_cloud_tianyi')->where('id', $existingTianyi['id'])->update($tianyiResource);
+            } else {
+                // 添加新记录
+                CloudModel::addTianyi($tianyiResource);
             }
         }
         

@@ -237,8 +237,25 @@ class HostAssets extends Common
             $host['security_groups'] = [];
         }
         
+        // 获取原始信息
+        $original_data = [];
+        if ($host['cloud_platform'] == 'huoshan') {
+            // 获取火山云原始信息
+            $huoshan_data = Db::table('asm_cloud_huoshan')->where('resource_id', $host['instance_id'])->find();
+            if (!empty($huoshan_data['original_json'])) {
+                $original_data = json_decode($huoshan_data['original_json'], true);
+            }
+        } elseif ($host['cloud_platform'] == 'tianyi') {
+            // 获取天翼云原始信息
+            $tianyi_data = Db::table('asm_cloud_tianyi')->where('resource_id', $host['instance_id'])->find();
+            if (!empty($tianyi_data['original_json'])) {
+                $original_data = json_decode($tianyi_data['original_json'], true);
+            }
+        }
+        
         View::assign([
-            'host' => $host
+            'host' => $host,
+            'original_data' => $original_data
         ]);
         
         return View::fetch();

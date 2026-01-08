@@ -157,6 +157,17 @@
                 </div>
             </div>
             
+            <?php if (($host['cloud_platform'] == 'huoshan' || $host['cloud_platform'] == 'tianyi') && !empty($original_data)) { ?>
+            <div class="host-detail-section">
+                <div class="detail-title">原始信息</div>
+                <div class="detail-row">
+                    <pre style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto;">
+                        <?php echo json_encode($original_data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>
+                    </pre>
+                </div>
+            </div>
+            <?php } ?>
+            
             <div class="text-center" style="margin-top: 30px;">
                 <a href="<?php echo url('asm/hostassets/index') ?>" class="btn btn-outline-secondary">返回列表</a>
                 <?php if ($host['cloud_platform'] == 'idc') { ?>
