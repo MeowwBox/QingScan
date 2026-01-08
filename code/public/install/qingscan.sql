@@ -1447,4 +1447,44 @@ CREATE TABLE `tool_fofa`  (
   INDEX `host`(`host`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
+-- ----------------------------
+-- Table structure for codeql
+-- ----------------------------
+DROP TABLE IF EXISTS `codeql`;
+CREATE TABLE `codeql`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ruleId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+  `locations` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+  `codeFlows` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+  `prompt` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+  `ai_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+  `code_id` int(11) NULL DEFAULT NULL COMMENT '项目ID',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `check_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '审核状态',
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0,
+  `user_id` int(10) NOT NULL DEFAULT 0,
+  `update_time` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for codeql_rules
+-- ----------------------------
+DROP TABLE IF EXISTS `codeql_rules`;
+CREATE TABLE `codeql_rules`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ruleId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '规则ID',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '规则名称',
+  `fullDescription` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '完整描述',
+  `shortDescription` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '简短描述',
+  `help` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '帮助信息',
+  `tags` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '标签',
+  `security_severity` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '安全严重程度',
+  `problem_severity` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '问题严重程度',
+  `sub_severity` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '子严重程度',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `ruleId`(`ruleId`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
+
 SET FOREIGN_KEY_CHECKS = 1;
