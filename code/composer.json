@@ -1,45 +1,40 @@
 {
-  "name": "topthink/think",
-  "description": "the new thinkphp framework",
+  "name": "78778443/qingscan",
+  "description": "Qingscan安全运营工作台",
   "type": "project",
   "keywords": [
-    "framework",
-    "thinkphp",
-    "ORM"
+    "security",
+    "scan",
+    "qingscan",
+    "thinkphp"
   ],
-  "homepage": "http://thinkphp.cn/",
+  "homepage": "https://github.com/78778443/qingscan",
   "license": "Apache-2.0",
   "authors": [
     {
-      "name": "liu21st",
-      "email": "liu21st@gmail.com"
-    },
-    {
-      "name": "yunwuxin",
-      "email": "448901948@qq.com"
+      "name": "daxia",
+      "email": "78778443@qq.com"
     }
   ],
   "require": {
-    "php": ">=7.1.0",
-    "topthink/framework": "^6.0.0",
-    "topthink/think-orm": "^2.0",
-    "topthink/think-view": "^1.0",
-    "xaboy/form-builder": "~2.0",
+    "php": ">=7.4.0",
+    "topthink/framework": "^8.1",
+    "topthink/think-orm": "^4.0",
+    "topthink/think-view": "^2.0",
+    "xaboy/form-builder": "^2.1",
     "rmccue/requests": "*",
     "jeremykendall/php-domain-parser": "^6.1",
-    "wamkj/thinkphp6.0-databackup": "^1.0",
     "phpoffice/phpspreadsheet": "^1.20",
-    "mpdf/mpdf": "^8.0",
     "ext-json": "*",
-    "topthink/think-multi-app": "^1.0",
-    "w7corp/easywechat": "^6.12",
+    "topthink/think-multi-app": "^1.1",
+    "w7corp/easywechat": "^6.19",
     "ext-curl": "*",
     "zoujingli/ip2region": "^2.0",
     "symfony/yaml": "^6.3"
   },
   "require-dev": {
     "symfony/var-dumper": "^4.2",
-    "topthink/think-trace": "^1.0"
+    "topthink/think-trace": "^2.0"
   },
   "autoload": {
     "psr-4": {
