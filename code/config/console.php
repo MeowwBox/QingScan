@@ -7,7 +7,6 @@ return [
     'commands' => [
         'scan' => 'app\command\Scan',
         'install' => 'app\command\Install',
-        'import:hostassets' => 'app\command\ImportHostAssets',
-        'sync:hidsstatus' => 'app\command\SyncHidsStatus'
+        'asm' => 'app\command\asm',
     ],
 ];

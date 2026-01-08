@@ -1,56 +1,23 @@
 <?php
-declare (strict_types=1);
 
-namespace app\command;
+namespace app\asm\model;
 
 use app\asm\model\CloudModel;
-use app\asm\model\HostAssetsModel;
-use think\console\Command;
-use think\console\Input;
-use think\console\input\Argument;
+use app\model\BaseModel;
+use GuzzleHttp\Client;
 use think\console\Output;
 use think\facade\Db;
-use Throwable;
 use Volcengine\Common\Configuration;
+use Volcengine\Common\HeaderSelector;
 use Volcengine\Ecs\Api\ECSApi;
 use Volcengine\Ecs\Model\DescribeInstancesRequest;
 
-class ImportHostAssets extends Command
+class HostAssetsSyncModel extends BaseModel
 {
-    protected function configure()
-    {
-        // 指令配置
-        $this->setName('import:hostassets')
-            ->addArgument("platform", Argument::OPTIONAL, "云平台类型", "huoshan")
-            ->setDescription('定时拉取云平台主机资产列表');
-    }
-
-    protected function execute(Input $input, Output $output): void
-    {
-        $platform = trim($input->getArgument('platform'));
-        $output->writeln("开始执行主机资产拉取任务，平台：{$platform}");
-
-        try {
-            if ($platform === 'huoshan') {
-                $this->importFromHuoshan($output);
-            } elseif ($platform === 'tianyi') {
-                $this->importFromTianyi($output);
-            } else {
-                $output->writeln("<error>不支持的云平台类型：{$platform}</error>");
-                return;
-            }
-
-            $output->writeln("<info>主机资产拉取任务执行完成</info>");
-        } catch (Throwable $e) {
-            $output->writeln("<error>执行任务时发生错误: " . $e->getMessage() . "</error>");
-            $output->writeln("<error>错误位置: " . $e->getFile() . ":" . $e->getLine() . "</error>");
-        }
-    }
-
     /**
      * 从火山云拉取主机资产
      */
-    private function importFromHuoshan(Output $output): void
+    public static function importFromHuoshan(Output $output): void
     {
         $output->writeln("正在从火山云API拉取主机资产...");
 
@@ -68,13 +35,20 @@ class ImportHostAssets extends Command
             ->setRegion(env('HUOSHAN.REGION') ?? 'cn-beijing');
 
         // 解决PHP 8.1+兼容性问题
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         $configInstance = $configuration;
-        $selector = new \Volcengine\Common\HeaderSelector();
+        $selector = new HeaderSelector();
 
-        // 使用反射创建ECSApi实例，避免构造函数参数类型问题
-        $apiInstance = new \Volcengine\Ecs\Api\ECSApi($client, $configInstance, $selector);
+        // 临时降低错误报告级别，忽略弃用警告
+        $errorReporting = error_reporting();
+        error_reporting($errorReporting & ~E_DEPRECATED);
+
+        // 创建ECSApi实例和请求对象
+        $apiInstance = new ECSApi($client, $configInstance, $selector);
         $describeInstancesRequest = new DescribeInstancesRequest();
+
+        // 恢复原来的错误报告级别
+        error_reporting($errorReporting);
 
         // 调用API获取实例列表
         try {
@@ -163,7 +137,7 @@ class ImportHostAssets extends Command
     /**
      * 从天翼云拉取主机资产
      */
-    private function importFromTianyi(Output $output): void
+    public static function importFromTianyi(Output $output): void
     {
         $output->writeln("正在从天翼云API拉取主机资产...");
 
@@ -182,7 +156,7 @@ class ImportHostAssets extends Command
         $resourcePath = env('TIANYI.RESOURCE_PATH') ?? '/v4/ecs/list-instances';
 
         // 使用天翼云API客户端类进行请求
-        $response = $this->callTianyiApi($accessKeyId, $secretAccessKey, $regionId, $endpoint, $resourcePath);
+        $response = self::callTianyiApi($accessKeyId, $secretAccessKey, $regionId, $endpoint, $resourcePath);
 
         if ($response['error']) {
             $output->writeln("<error>天翼云API请求失败: " . $response['error'] . "</error>");
@@ -232,9 +206,9 @@ class ImportHostAssets extends Command
                 $region = $instance['region'] ?? env('TIANYI.REGION_ID') ?? 'default';
                 $status = strtoupper($instance['status'] ?? $instance['instanceStatus'] ?? 'unknown');
                 $publicIp = $instance['publicIp'] ?? $instance['floatingIP'] ?? $instance['eip'] ?? '';
-                $privateIp = $instance['privateIp'] ?? $instance['privateIPAddress'] ?? $instance['innerIP'] ?? '0.0.0.0';
+                $publicIp = $instance['publicIp'] ?? $instance['publicIPAddress'] ?? $instance['innerIP'] ?? '0.0.0.0';
                 // 使用convertDatetime方法处理创建时间
-                $createTime = $this->convertDatetime($instance['createTime'] ?? $instance['create_time'] ?? $instance['createdTime'] ?? null) ?? date('Y-m-d H:i:s');
+                $createTime = self::convertDatetime($instance['createTime'] ?? $instance['create_time'] ?? $instance['createdTime'] ?? null) ?? date('Y-m-d H:i:s');
 
                 // 天翼云资源表数据
                 $tianyiResources[] = [
@@ -244,7 +218,7 @@ class ImportHostAssets extends Command
                     'region' => $region,
                     'status' => $status,
                     'public_ip' => $publicIp,
-                    'private_ip' => $privateIp,
+                    'public_ip' => $publicIp,
                     'create_time' => $createTime,
                     'update_time' => date('Y-m-d H:i:s'),
                 ];
@@ -256,7 +230,7 @@ class ImportHostAssets extends Command
                     'display_name' => $resourceName,
                     'cloud_platform' => 'tianyi',
                     'status' => $status,
-                    'private_ip' => $privateIp,
+                    'public_ip' => $publicIp,
                     'public_ip' => $publicIp,
                     'mac_address' => $instance['macAddress'] ?? $instance['mac'] ?? '',
                     'os_type' => $instance['osType'] ?? $instance['os'] ?? 'Unknown',
@@ -270,18 +244,18 @@ class ImportHostAssets extends Command
                     'create_time' => $createTime,
                     'update_time' => date('Y-m-d H:i:s'),
                     // 处理过期时间格式，将ISO 8601格式转换为MySQL datetime格式
-                    'expire_time' => $this->convertDatetime($instance['expireTime'] ?? $instance['expiredTime'] ?? null),
+                    'expire_time' => self::convertDatetime($instance['expireTime'] ?? $instance['expiredTime'] ?? null),
                     'hids_installed' => 0,
                 ];
             }
 
             // 批量导入或更新天翼云资源数据
             foreach ($tianyiResources as $resource) {
-                $existing =Db::table('asm_cloud_tianyi')->where('resource_id', $resource['resource_id'])->find();
+                $existing = Db::table('asm_cloud_tianyi')->where('resource_id', $resource['resource_id'])->find();
                 if ($existing) {
                     // 更新现有记录
                     unset($resource['create_time']); // 不更新创建时间
-                   Db::table('asm_cloud_tianyi')->where('id', $existing['id'])->update($resource);
+                    Db::table('asm_cloud_tianyi')->where('id', $existing['id'])->update($resource);
                 } else {
                     // 添加新记录
                     CloudModel::addTianyi($resource);
@@ -310,7 +284,7 @@ class ImportHostAssets extends Command
      * 转换日期时间格式
      * 将ISO 8601格式转换为MySQL datetime格式
      */
-    private function convertDatetime($datetime)
+    public static function convertDatetime($datetime)
     {
         if (empty($datetime)) {
             return null;
@@ -327,11 +301,11 @@ class ImportHostAssets extends Command
         ];
 
         foreach ($formats as $format) {
-             $dt = \DateTime::createFromFormat($format, $datetime);
-             if ($dt !== false) {
-                 return $dt->format('Y-m-d H:i:s');
-             }
-         }
+            $dt = \DateTime::createFromFormat($format, $datetime);
+            if ($dt !== false) {
+                return $dt->format('Y-m-d H:i:s');
+            }
+        }
 
         // 最后的尝试：使用strtotime
         $timestamp = strtotime($datetime);
@@ -345,7 +319,7 @@ class ImportHostAssets extends Command
     /**
      * 调用天翼云API
      */
-    private function callTianyiApi($ak, $sk, $regionId, $endpoint, $resourcePath)
+    public static function callTianyiApi($ak, $sk, $regionId, $endpoint, $resourcePath)
     {
         // 生成32位的ctyun-eop-request-id（UUID4）
         $requestId = sprintf(
@@ -393,7 +367,7 @@ class ImportHostAssets extends Command
         // 构建完整URL
         $fullUrl = "https://{$endpoint}{$resourcePath}";
 
-        // 构造请求头
+        // 构建请求头
         $headers = [
             "host: {$endpoint}",
             "User-Agent: Mozilla/5.0(QingScan)",
@@ -426,5 +400,114 @@ class ImportHostAssets extends Command
             'body' => $responseBody,
             'error' => $error
         ];
+    }
+
+
+    public static function syncFromQingTengHids(Output $output): void
+    {
+        $output->writeln("正在从青藤云HIDS API拉取已安装主机列表...");
+
+        // 青藤云HIDS API配置，则从.env文件获取
+
+        $hidsUrl = env('QINGTENG_HIDS.URL', '');
+        $token = env('QINGTENG_HIDS.TOKEN', '');
+        $timeout = env('QINGTENG_HIDS_TIMEOUT', 30);
+
+
+        // 验证配置
+        if (empty($hidsUrl) || empty($token)) {
+            $output->writeln("<error>青藤云HIDS API配置缺失</error>");
+            return;
+        }
+
+        try {
+            // 初始化Guzzle客户端
+            $client = new \GuzzleHttp\Client([
+                'timeout' => $timeout,
+                'verify' => false, // 禁用SSL验证（根据实际情况调整）
+            ]);
+
+            // 构建请求参数
+            $requestData = [
+                'query' => new \stdClass(),
+                'size' => 1000, // 一次获取较多数据
+                'page' => 0,
+                'sort' => []
+            ];
+
+            // 发送请求
+            $response = $client->post($hidsUrl, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $requestData,
+            ]);
+
+            // 解析响应
+            $responseBody = $response->getBody()->getContents();
+            $data = json_decode($responseBody, true);
+
+            if (!isset($data['data']) || !is_array($data['data'])) {
+                $output->writeln("<error>青藤云HIDS API响应格式错误</error>");
+                return;
+            }
+
+            $installedHosts = $data['data'];
+            $output->writeln("<info>成功获取青藤云HIDS已安装主机列表，共 " . count($installedHosts) . " 台主机</info>");
+
+            // 1. 首先将所有主机的HIDS状态标记为未安装
+            HostAssetsModel::updateAll([
+                'hids_installed' => 0
+            ]);
+
+            // 2. 然后更新已安装HIDS的主机状态
+            $count = 0;
+            foreach ($installedHosts as $host) {
+                // 获取主机IP和名称
+                $hostname = $host['hostname'] ?? '';
+                $ip = $host['ip'] ?? '';
+                $version = $host['version'] ?? '';
+
+                // 查找匹配的主机资产
+                $where = [];
+                if ($ip) {
+                    $where[] = ['private_ip', '=', $ip];
+                    if ($ip != $host['ip']) {
+                        $where[] = ['public_ip', '=', $ip];
+                    }
+                }
+
+                if ($hostname) {
+                    $where[] = ['instance_name', 'like', '%' . $hostname . '%'];
+                }
+
+                if (empty($where)) {
+                    continue;
+                }
+
+                // 更新主机的HIDS状态
+                $hostAssets = HostAssetsModel::getHostAssetsList($where, 1, 10);
+                foreach ($hostAssets as $asset) {
+                    HostAssetsModel::updateHidsStatus(
+                        $asset['id'],
+                        1, // 已安装
+                        $version,
+                        date('Y-m-d H:i:s') // 最后检查时间
+                    );
+                    $count++;
+                }
+            }
+
+            $output->writeln("<info>共更新 " . $count . " 台主机的HIDS状态为已安装</info>");
+
+            // 3. 统计未安装HIDS的主机数量
+            $notInstalledCount = HostAssetsModel::getHostAssetsCount(['hids_installed' => 0]);
+            $output->writeln("<info>当前未安装HIDS的主机数量: " . $notInstalledCount . " 台</info>");
+
+        } catch (Throwable $e) {
+            $output->writeln("<error>调用青藤云HIDS API失败: " . $e->getMessage() . "</error>");
+            throw $e; // 重新抛出异常，让上层处理
+        }
     }
 }
