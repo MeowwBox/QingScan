@@ -24,42 +24,42 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `tool_fofa`;
 CREATE TABLE `tool_fofa`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ip` varchar(45) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `port` int(11) NULL DEFAULT NULL,
-  `protocol` varchar(10) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `country_code` varchar(2) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `country_name` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `region` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `city` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `longitude` decimal(10, 6) NULL DEFAULT NULL,
-  `latitude` decimal(10, 6) NULL DEFAULT NULL,
-  `as_number` int(11) NULL DEFAULT NULL,
-  `as_organization` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `host` varchar(100) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `domain` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `os` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `server` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `icp` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `title` text CHARACTER SET utf8mb4  NULL,
-  `jarm` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `header` text CHARACTER SET utf8mb4  NULL,
-  `banner` text CHARACTER SET utf8mb4  NULL,
-  `cert` text CHARACTER SET utf8mb4  NULL,
-  `base_protocol` varchar(10) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `link` text CHARACTER SET utf8mb4  NULL,
-  `certs_issuer_org` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `certs_issuer_cn` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `certs_subject_org` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `certs_subject_cn` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `tls_ja3s` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `tls_version` varchar(10) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `product` text CHARACTER SET utf8mb4  NULL,
-  `product_category` text CHARACTER SET utf8mb4  NULL,
-  `version` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `last_update_time` datetime NULL DEFAULT NULL,
-  `cname` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `ip` varchar(45) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'IP地址',
+  `port` int(11) NULL DEFAULT NULL COMMENT '端口号',
+  `protocol` varchar(10) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '协议类型',
+  `country_code` varchar(2) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '国家代码',
+  `country_name` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '国家名称',
+  `region` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '地区',
+  `city` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '城市',
+  `longitude` decimal(10, 6) NULL DEFAULT NULL COMMENT '经度',
+  `latitude` decimal(10, 6) NULL DEFAULT NULL COMMENT '纬度',
+  `as_number` int(11) NULL DEFAULT NULL COMMENT 'AS号',
+  `as_organization` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'AS组织',
+  `host` varchar(100) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '主机名',
+  `domain` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '域名',
+  `os` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '操作系统',
+  `server` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '服务器软件',
+  `icp` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'ICP备案信息',
+  `title` text CHARACTER SET utf8mb4  NULL COMMENT '网站标题',
+  `jarm` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'JARM指纹',
+  `header` text CHARACTER SET utf8mb4  NULL COMMENT 'HTTP响应头',
+  `banner` text CHARACTER SET utf8mb4  NULL COMMENT '服务banner信息',
+  `cert` text CHARACTER SET utf8mb4  NULL COMMENT 'SSL证书信息',
+  `base_protocol` varchar(10) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '基础协议',
+  `link` text CHARACTER SET utf8mb4  NULL COMMENT '链接信息',
+  `certs_issuer_org` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '证书颁发机构组织',
+  `certs_issuer_cn` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '证书颁发机构通用名',
+  `certs_subject_org` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '证书主体组织',
+  `certs_subject_cn` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '证书主体通用名',
+  `tls_ja3s` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'TLS JA3S指纹',
+  `tls_version` varchar(10) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'TLS版本',
+  `product` text CHARACTER SET utf8mb4  NULL COMMENT '产品信息',
+  `product_category` text CHARACTER SET utf8mb4  NULL COMMENT '产品类别',
+  `version` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '版本信息',
+  `last_update_time` datetime NULL DEFAULT NULL COMMENT '最后更新时间',
+  `cname` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'CNAME记录',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_ip_port`(`ip`, `port`, `host`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 13251 CHARACTER SET = utf8mb4  ROW_FORMAT = Dynamic;
@@ -69,24 +69,24 @@ CREATE TABLE `tool_fofa`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `fortify`;
 CREATE TABLE `fortify`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `Category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `Folder` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `Kingdom` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `Abstract` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `Friority` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `Primary` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `Source` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `code_id` int(11) NULL DEFAULT NULL,
-  `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `Category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '漏洞类别',
+  `Folder` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件夹路径',
+  `Kingdom` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '漏洞类型',
+  `Abstract` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '漏洞摘要',
+  `Friority` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '优先级',
+  `Primary` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '主要信息',
+  `Source` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '源代码信息',
+  `code_id` int(11) NULL DEFAULT NULL COMMENT '代码ID',
+  `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
   `check_status` int(5) NULL DEFAULT 0 COMMENT '0 未处理   1 有效漏洞  2 无效漏洞',
-  `Source_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `Primary_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `hash` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `is_delete` tinyint(1) NOT NULL DEFAULT 0,
-  `user_id` int(10) NOT NULL DEFAULT 0,
-  `update_time` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
+  `Source_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '源文件名',
+  `Primary_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '主要文件名',
+  `hash` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '哈希值',
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `user_id` int(10) NOT NULL DEFAULT 0 COMMENT '用户ID',
+  `update_time` datetime NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_hash`(`hash` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 138 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
@@ -96,30 +96,30 @@ CREATE TABLE `fortify`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `asm_urls`;
 CREATE TABLE `asm_urls`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `method` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT 'get',
-  `app_id` int(11) NULL DEFAULT 0,
-  `url` varchar(180) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `header` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `response_header` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `hash` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `scheme` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `query` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `title` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `keywords` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `content_type` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `extension` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `icp` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `user_id` int(10) NOT NULL DEFAULT 0,
-  `isp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '',
-  `status` int(11) NULL DEFAULT NULL,
-  `server` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '',
-  `ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '',
-  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `method` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT 'get' COMMENT 'HTTP请求方法',
+  `app_id` int(11) NULL DEFAULT 0 COMMENT '应用ID',
+  `url` varchar(180) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'URL地址',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `header` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '请求头信息',
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '请求内容',
+  `response_header` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '响应头信息',
+  `hash` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '哈希值',
+  `scheme` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '协议类型',
+  `host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '主机名',
+  `query` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '查询参数',
+  `title` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '网站标题',
+  `keywords` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '关键词',
+  `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '网站描述',
+  `content_type` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '内容类型',
+  `extension` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件扩展名',
+  `icp` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT 'ICP备案信息',
+  `user_id` int(10) NOT NULL DEFAULT 0 COMMENT '用户ID',
+  `isp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '' COMMENT '运营商',
+  `status` int(11) NULL DEFAULT NULL COMMENT '响应状态码',
+  `server` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '' COMMENT '服务器软件',
+  `ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '' COMMENT 'IP地址',
+  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '' COMMENT '地理位置',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_url`(`url` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 13249 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
@@ -129,15 +129,15 @@ CREATE TABLE `asm_urls`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `task_scan`;
 CREATE TABLE `task_scan`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tool` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `target` int(11) NULL DEFAULT NULL,
-  `status` int(10) NULL DEFAULT 0,
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `task_version` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `ext_info` text CHARACTER SET utf8mb4  NULL,
-  `target_table` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `tool` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '扫描工具名称',
+  `target` int(11) NULL DEFAULT NULL COMMENT '目标ID',
+  `status` int(10) NULL DEFAULT 0 COMMENT '任务状态',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `task_version` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '任务版本',
+  `ext_info` text CHARACTER SET utf8mb4  NULL COMMENT '扩展信息',
+  `target_table` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '目标表名',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_version`(`tool`, `target`, `task_version`, `target_table`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 6068 CHARACTER SET = utf8mb4  ROW_FORMAT = Dynamic;
@@ -147,9 +147,9 @@ CREATE TABLE `task_scan`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `asm_ip`;
 CREATE TABLE `asm_ip`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ip` char(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `ip` char(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'IP地址',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `isp` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '运营商',
   `location` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '地区',
   PRIMARY KEY (`id`) USING BTREE,
@@ -161,10 +161,10 @@ CREATE TABLE `asm_ip`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `log`;
 CREATE TABLE `log`  (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `app` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '日志内容',
+  `app` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '所属应用模块',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `time`(`create_time` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 919 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
@@ -174,12 +174,12 @@ CREATE TABLE `log`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `asm_domain`;
 CREATE TABLE `asm_domain`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `domain` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `icp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `com_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
-  `host` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `domain` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '域名',
+  `icp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'ICP备案信息',
+  `com_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '公司名称',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `host` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '主机名',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_domain`(`host`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 13249 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
@@ -189,31 +189,31 @@ CREATE TABLE `asm_domain`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `vulnerable`;
 CREATE TABLE `vulnerable`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tophant_id` varchar(20) CHARACTER SET utf8mb4  NOT NULL,
-  `vuln_name` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `risk_level` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `vuln_auth_status` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `vuln_dx_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `vuln_cve_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `vuln_nvd_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `vuln_cnvd_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `vuln_cnnvd_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `vuln_component_names` text CHARACTER SET utf8mb4  NULL,
-  `vuln_company_names` text CHARACTER SET utf8mb4  NULL,
-  `reject_result` text CHARACTER SET utf8mb4  NULL,
-  `publish_time` datetime NULL DEFAULT NULL,
-  `publish_update_time` datetime NULL DEFAULT NULL,
-  `collect_time` datetime NULL DEFAULT NULL,
-  `publish_source` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `ref_info` text CHARACTER SET utf8mb4  NULL,
-  `publish_status` varchar(1) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `auth_commit_user_id` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `last_update_time` datetime NULL DEFAULT NULL,
-  `publish_user_name` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
-  `cwes` text CHARACTER SET utf8mb4  NULL,
-  `read_num` int(11) NULL DEFAULT NULL,
-  `modify_time` datetime NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `tophant_id` varchar(20) CHARACTER SET utf8mb4  NOT NULL COMMENT '漏洞平台ID',
+  `vuln_name` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '漏洞名称',
+  `risk_level` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '风险等级',
+  `vuln_auth_status` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '漏洞认证状态',
+  `vuln_dx_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '漏洞编号',
+  `vuln_cve_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'CVE编号',
+  `vuln_nvd_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'NVD编号',
+  `vuln_cnvd_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'CNVD编号',
+  `vuln_cnnvd_code` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT 'CNNVD编号',
+  `vuln_component_names` text CHARACTER SET utf8mb4  NULL COMMENT '漏洞影响组件名称',
+  `vuln_company_names` text CHARACTER SET utf8mb4  NULL COMMENT '漏洞影响厂商名称',
+  `reject_result` text CHARACTER SET utf8mb4  NULL COMMENT '拒绝原因',
+  `publish_time` datetime NULL DEFAULT NULL COMMENT '发布时间',
+  `publish_update_time` datetime NULL DEFAULT NULL COMMENT '发布更新时间',
+  `collect_time` datetime NULL DEFAULT NULL COMMENT '收集时间',
+  `publish_source` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '发布来源',
+  `ref_info` text CHARACTER SET utf8mb4  NULL COMMENT '参考信息',
+  `publish_status` varchar(1) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '发布状态',
+  `auth_commit_user_id` varchar(20) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '认证提交用户ID',
+  `last_update_time` datetime NULL DEFAULT NULL COMMENT '最后更新时间',
+  `publish_user_name` varchar(255) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '发布用户名称',
+  `cwes` text CHARACTER SET utf8mb4  NULL COMMENT 'CWE编号列表',
+  `read_num` int(11) NULL DEFAULT NULL COMMENT '阅读次数',
+  `modify_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_topid`(`tophant_id`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 389 CHARACTER SET = utf8mb4  ROW_FORMAT = Dynamic;
@@ -234,7 +234,7 @@ CREATE TABLE `auth_rule`  (
   `menu_status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '菜单状态  1显示  0隐藏',
   `update_time` int(10) NOT NULL DEFAULT 0 COMMENT '更新时间',
   `level` tinyint(4) NOT NULL DEFAULT 1 COMMENT '等级  1顶级，一级，2.二级，3.三级',
-  `delete_time` int(10) NOT NULL DEFAULT 0,
+  `delete_time` int(10) NOT NULL DEFAULT 0 COMMENT '删除时间',
   `icon_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '图标样式',
   PRIMARY KEY (`auth_rule_id`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 2613 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限列表' ROW_FORMAT = DYNAMIC;
@@ -244,15 +244,15 @@ CREATE TABLE `auth_rule`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `vul_target`;
 CREATE TABLE `vul_target`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `addr` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `ip` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `port` int(10) NULL DEFAULT NULL,
-  `query` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_vul` int(11) NOT NULL DEFAULT 0 COMMENT '是否存在漏洞 0 位置 1 存在 2 不存在',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `addr` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '地址',
+  `ip` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'IP地址',
+  `port` int(10) NULL DEFAULT NULL COMMENT '端口号',
+  `query` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '查询参数',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `is_vul` int(11) NOT NULL DEFAULT 0 COMMENT '是否存在漏洞 0 未知 1 存在 2 不存在',
   `vul_id` int(11) NULL DEFAULT NULL COMMENT '缺陷ID',
-  `user_id` int(10) NOT NULL DEFAULT 0,
+  `user_id` int(10) NOT NULL DEFAULT 0 COMMENT '用户ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_addr`(`ip` ASC, `port` ASC, `vul_id` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 680 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
@@ -262,17 +262,17 @@ CREATE TABLE `vul_target`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `plugin_scan_log`;
 CREATE TABLE `plugin_scan_log`  (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `app_id` int(10) NOT NULL,
-  `plugin_id` int(10) NOT NULL,
-  `user_id` int(10) NOT NULL DEFAULT 0,
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `app_id` int(10) NOT NULL COMMENT '应用ID',
+  `plugin_id` int(10) NOT NULL COMMENT '插件ID',
+  `user_id` int(10) NOT NULL DEFAULT 0 COMMENT '用户ID',
   `content` varchar(5000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '扫描结果内容',
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `check_status` tinyint(1) NOT NULL COMMENT '审核状态',
   `plugin_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件名称',
   `scan_type` int(255) NULL DEFAULT NULL COMMENT '0 app 1 host 2 code  3 url',
   `log_type` int(11) NULL DEFAULT 0 COMMENT '进度  0 开始扫描   1 完成   2 失败',
-  `file_content` varchar(5000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `file_content` varchar(5000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件内容',
   `is_read` tinyint(1) NOT NULL DEFAULT 1 COMMENT '结果是否已读取   1未读  2已读取',
   `is_custom` int(10) NOT NULL DEFAULT 1 COMMENT '是否为自定义插件 1否  2是',
   PRIMARY KEY (`id`) USING BTREE,
@@ -284,14 +284,14 @@ CREATE TABLE `plugin_scan_log`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `asm_ip_port`;
 CREATE TABLE `asm_ip_port`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ip` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
-  `port` int(11) NULL DEFAULT NULL,
-  `finger` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `protocol` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `isp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `ip` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'IP地址',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `port` int(11) NULL DEFAULT NULL COMMENT '端口号',
+  `finger` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '指纹信息',
+  `protocol` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '协议类型',
+  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '地理位置',
+  `isp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '运营商',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `un_ip`(`ip`, `port`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 13249 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
@@ -301,15 +301,15 @@ CREATE TABLE `asm_ip_port`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `zhiwen`;
 CREATE TABLE `zhiwen`  (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `add_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `add_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `filters` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `keyword` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `md5` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `supplier` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `tags` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `add_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '添加人',
+  `add_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '添加时间',
+  `filters` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '过滤条件',
+  `keyword` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '关键词',
+  `md5` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'MD5值',
+  `supplier` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '供应商',
+  `tags` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标签',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标题',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = COMPACT;
 
@@ -318,17 +318,17 @@ CREATE TABLE `zhiwen`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `xray`;
 CREATE TABLE `xray`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_id` int(11) NULL DEFAULT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `plugin` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `target` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `app_id` int(11) NULL DEFAULT NULL COMMENT '应用ID',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '漏洞详情',
+  `plugin` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件名称',
+  `target` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '扫描目标',
   `check_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '审核状态',
   `hazard_level` tinyint(1) NOT NULL DEFAULT 0 COMMENT '危险等级',
   `url_source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT 'url来源',
-  `is_delete` tinyint(1) NOT NULL DEFAULT 0,
-  `user_id` int(10) NOT NULL DEFAULT 0,
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `user_id` int(10) NOT NULL DEFAULT 0 COMMENT '用户ID',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
 
@@ -337,12 +337,12 @@ CREATE TABLE `xray`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `user_log`;
 CREATE TABLE `user_log`  (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `username` char(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `username` char(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户名',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '详情',
   `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '操作类型',
-  `ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'IP地址',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = COMPACT;
 
@@ -351,7 +351,7 @@ CREATE TABLE `user_log`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `username` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '帐号',
   `password` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '密码',
   `salt` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '密码盐值',
@@ -362,12 +362,12 @@ CREATE TABLE `user`  (
   `last_login_time` int(10) NOT NULL DEFAULT 0 COMMENT '最后登陆时间',
   `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态 1正常  2禁用',
   `update_time` int(10) NOT NULL DEFAULT 0 COMMENT '修改时间',
-  `is_delete` tinyint(1) NOT NULL DEFAULT 0,
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   `sex` tinyint(1) NOT NULL DEFAULT 0 COMMENT '性别',
   `phone` char(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '手机号码',
   `dd_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '钉钉token',
   `email` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '邮箱',
-  `token` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '',
+  `token` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '用户令牌',
   `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '主页url',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
@@ -377,17 +377,17 @@ CREATE TABLE `user`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `urls_sqlmap`;
 CREATE TABLE `urls_sqlmap`  (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `urls_id` int(10) NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `urls_id` int(10) NOT NULL COMMENT 'URL ID',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '注入类型',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `payload` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
-  `app_id` int(10) NOT NULL DEFAULT 0,
-  `system` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `application` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `dbms` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `user_id` int(10) NOT NULL DEFAULT 0,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '标题',
+  `payload` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '注入 payload',
+  `app_id` int(10) NOT NULL DEFAULT 0 COMMENT '应用 ID',
+  `system` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '系统信息',
+  `application` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '应用信息',
+  `dbms` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '数据库类型',
+  `user_id` int(10) NOT NULL DEFAULT 0 COMMENT '用户 ID',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
 
@@ -396,9 +396,9 @@ CREATE TABLE `urls_sqlmap`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `text`;
 CREATE TABLE `text`  (
-  `hash` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `hash` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文本哈希值',
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文本内容',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`hash`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = COMPACT;
 
@@ -407,12 +407,12 @@ CREATE TABLE `text`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `task_url_crawler`;
 CREATE TABLE `task_url_crawler`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_id` int(11) NULL DEFAULT NULL,
-  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `status` tinyint(4) NOT NULL DEFAULT 0,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `app_id` int(11) NULL DEFAULT NULL COMMENT '应用ID',
+  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '爬取URL',
+  `status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '任务状态',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
 
@@ -421,12 +421,12 @@ CREATE TABLE `task_url_crawler`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `task_host_scan`;
 CREATE TABLE `task_host_scan`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_id` int(11) NULL DEFAULT NULL,
-  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `status` tinyint(4) NOT NULL DEFAULT 0,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `app_id` int(11) NULL DEFAULT NULL COMMENT '应用ID',
+  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '扫描URL',
+  `status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '任务状态',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
 
@@ -435,11 +435,11 @@ CREATE TABLE `task_host_scan`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `system_zanzhu`;
 CREATE TABLE `system_zanzhu`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-  `amount` float NULL DEFAULT NULL,
-  `time` date NULL DEFAULT NULL,
-  `message` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '名称',
+  `amount` float NULL DEFAULT NULL COMMENT '金额',
+  `time` date NULL DEFAULT NULL COMMENT '时间',
+  `message` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '留言',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = COMPACT;
 
