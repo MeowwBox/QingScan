@@ -178,7 +178,7 @@ function getGitProjectName($cloneUrl)
     }
 }
 
-function getSavePath($url, $tool = "xray", $id)
+function getSavePath($url, $tool = "xray", $id = '')
 {
     $urlInfo = parse_url($url);
 

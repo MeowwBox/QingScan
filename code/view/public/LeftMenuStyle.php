@@ -150,6 +150,42 @@
     }
 </style>
 <script type="text/javascript">
+    // 页面加载完成后初始化所有功能
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化显示所有子菜单
+        document.querySelectorAll('#leftMenu .submenu').forEach(submenu => {
+            if (submenu.classList.contains('show')) {
+                submenu.style.maxHeight = submenu.scrollHeight + 'px';
+            }
+        });
+        
+        // 根据当前URL自动展开对应子菜单并高亮当前菜单项
+        const currentUrl = window.location.pathname;
+        const menuItems = document.querySelectorAll('#leftMenu a');
+        
+        menuItems.forEach(item => {
+            // 检查菜单项的href是否与当前URL匹配（忽略参数）
+            const itemUrl = item.getAttribute('href');
+            if (itemUrl && currentUrl.includes(itemUrl.replace('.html', ''))) {
+                // 给当前菜单项添加active类
+                item.classList.add('active');
+                
+                // 展开其父级子菜单
+                const submenu = item.closest('.submenu');
+                if (submenu) {
+                    submenu.classList.add('show');
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    
+                    // 更新父菜单项的箭头方向
+                    const parentLi = submenu.closest('li');
+                    const toggleBtn = parentLi.querySelector('.toggle-btn');
+                    if (toggleBtn) {
+                        toggleBtn.style.transform = 'translateY(-50%) rotate(90deg)';
+                    }
+                }
+            }
+        });
+        
         // 折叠/展开菜单功能
         document.querySelectorAll('#leftMenu .toggle-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -199,14 +235,5 @@
                 }
             });
         });
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化显示所有子菜单
-            document.querySelectorAll('#leftMenu .submenu').forEach(submenu => {
-                if (submenu.classList.contains('show')) {
-                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                }
-            });
-        });
+    });
     </script>

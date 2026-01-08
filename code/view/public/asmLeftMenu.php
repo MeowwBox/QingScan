@@ -15,6 +15,19 @@
                 <li><a href="/asm/ip_port/index.html">端口管理</a></li>
             </ul>
         </li>
+        
+        <!-- 云资产管理 -->
+        <li>
+            <a href="#">
+                <img src="/icon/asm.svg" class="icon">
+                云资产管理
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu">
+                <li><a href="/asm/cloud/huoshan.html">火山云</a></li>
+                <li><a href="/asm/cloud/tianyi.html">天翼云</a></li>
+            </ul>
+        </li>
     </ul>
 </div>
 
