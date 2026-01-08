@@ -4,7 +4,7 @@
         <!-- 目标管理 -->
         <li>
             <a href="/webscan/index/index.html">
-                <img src="/icon/scan.svg" class="icon">
+                <img src="/icon/home.svg" class="icon">
                 目标管理
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
@@ -14,7 +14,7 @@
         <li>
             <a href="#">
                 <img src="/icon/tools.svg" class="icon">
-                Web扫描工具
+                Web扫描
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
@@ -31,7 +31,7 @@
         <li>
             <a href="#">
                 <img src="/icon/tools.svg" class="icon">
-                信息收集工具
+                信息收集
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">

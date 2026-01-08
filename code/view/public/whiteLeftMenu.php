@@ -7,7 +7,7 @@
         <li>
             <a href="#">
                 <img src="/icon/repo.svg" class="icon">
-                代码仓库管理
+                代码仓库
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
@@ -19,7 +19,7 @@
         <li>
             <a href="#">
                 <img src="/icon/code.svg" class="icon">
-                代码审计工具
+                代码审计
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
@@ -32,8 +32,8 @@
         <!-- 代码安全工具 -->
         <li>
             <a href="#">
-                <img src="/icon/code.svg" class="icon">
-                代码安全工具
+                <img src="/icon/tools.svg" class="icon">
+                代码安全
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">

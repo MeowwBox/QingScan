@@ -18,7 +18,7 @@
         <!-- 资产管理核心功能 -->
         <li>
             <a href="#">
-                <img src="/icon/asm.svg" class="icon">
+                <img src="/icon/webscan.svg" class="icon">
                 网络资产
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
