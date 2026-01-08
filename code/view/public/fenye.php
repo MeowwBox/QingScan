@@ -1,5 +1,5 @@
 <?php if(!empty($page)){?>
-<div class="row fenye">
+<div class="row tuchu">
     <div class="col-auto">
         {$page|raw}
     </div>

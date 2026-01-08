@@ -37,10 +37,10 @@ class HostAssets extends Common
         
         // 获取分页参数
         $page = Request::param('page', 1, 'intval');
-        $limit = Request::param('limit', 20, 'intval');
+        $limit = Request::param('limit', 10, 'intval');
         
         // 获取数据
-        $list = Db::table('asm_host_assets')
+        $page = Db::table('asm_host_assets')
             ->where($where)
             ->order('create_time desc')
             ->paginate([
@@ -48,6 +48,9 @@ class HostAssets extends Common
                 'page' => $page,
                 'query' => Request::param()
             ]);
+        
+        // 获取分页数据列表
+        $list = $page->items();
         
         // 平台类型
         $platforms = [
@@ -79,6 +82,7 @@ class HostAssets extends Common
         
         View::assign([
             'list' => $list,
+            'page' => $page,
             'platforms' => $platforms,
             'hids_status' => $hids_status,
             'instance_status' => $instance_status,
