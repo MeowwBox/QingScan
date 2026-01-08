@@ -3,6 +3,7 @@
 namespace app\asm\model;
 
 use app\asm\model\CloudModel;
+use app\asm\model\HidsQingtengModel;
 use app\model\BaseModel;
 use GuzzleHttp\Client;
 use think\console\Output;
@@ -549,7 +550,7 @@ class HostAssetsSyncModel extends BaseModel
                 'hids_installed' => 0
             ]);
 
-            // 2. 然后更新已安装HIDS的主机状态
+            // 2. 然后更新已安装HIDS的主机状态并保存原始数据到asm_hids_qingteng表
             $count = 0;
             foreach ($installedHosts as $host) {
                 // 获取主机IP和名称
@@ -570,12 +571,9 @@ class HostAssetsSyncModel extends BaseModel
                     $where[] = ['instance_name', 'like', '%' . $hostname . '%'];
                 }
 
-                if (empty($where)) {
-                    continue;
-                }
-
                 // 更新主机的HIDS状态
                 $hostAssets = HostAssetsModel::getHostAssetsList($where, 1, 10);
+                $hostId = null;
                 foreach ($hostAssets as $asset) {
                     HostAssetsModel::updateHidsStatus(
                         $asset['id'],
@@ -583,7 +581,21 @@ class HostAssetsSyncModel extends BaseModel
                         $version,
                         date('Y-m-d H:i:s') // 最后检查时间
                     );
+                    $hostId = $asset['id'];
                     $count++;
+                }
+
+                // 保存原始数据到asm_hids_qingteng表
+                try {
+                    $saveData = $host;
+                    if ($hostId) {
+                        $saveData['host_id'] = $hostId;
+                    }
+                    HidsQingtengModel::saveOriginalJson($saveData);
+                } catch (Throwable $e) {
+                    $output->writeln("<error>保存青藤云HIDS数据失败: " . $e->getMessage() . "</error>");
+                    // 继续处理其他主机
+                    continue;
                 }
             }
 
