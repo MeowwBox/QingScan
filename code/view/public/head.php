@@ -13,28 +13,35 @@
     <div class="container">
         <div class="collapse navbar-collapse" id="navbarsExample08">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item "><a class="nav-link" id="home" aria-current="page"
-                                         href="/index/index.html">
-                        <img src="/icon/home.svg" style="width:21px;">
-                        主页</a></li>
-                <li class="nav-item"><a class="nav-link" id="webscan" href="/webscan/index.html" aria-expanded="false">
-                        <img src="/icon/webscan.svg" style="width:21px;">
-                        网站扫描</a>
-                </li>
-                <li class="nav-item"><a class="nav-link" id="codeaudit" href="/code/index.html">
-                        <img src="/icon/code.svg" style="width:21px;">代码审计 </a></li>
-                <li class="nav-item"><a class="nav-link" id="cveuse" href="/vulnerable/index.html">
-                        <img src="/icon/cve.svg" style="width:21px;">
-                        安全情报 </a></li>
-                <li class="nav-item"><a class="nav-link" id="asm" href="/asm/Discover/index.html">
-                        <img src="/icon/asm.svg" style="width:21px;">
-                        资产管理 </a></li>
-                <li class="nav-item ">
-                    <a class="nav-link" id="system" href="{:URL('system/task_scan/index')}">
-                        <img src="/icon/setting.svg" style="width:21px;">
-                        系统管理</a>
+                <?php
+                $rootPath = dirname(dirname(dirname(__DIR__)));
+                if (file_exists($rootPath.'/view/public/company_head.php')) {
+                    include realpath($rootPath.'/view/public/company_head.php');
+                } else {
+                    ?>
+                    <li class="nav-item "><a class="nav-link" id="home" aria-current="page"
+                                             href="/index/index.html">
+                            <img src="/icon/home.svg" style="width:21px;">
+                            主页</a></li>
+                    <li class="nav-item"><a class="nav-link" id="webscan" href="/webscan/index.html"  aria-expanded="false">
+                            <img src="/icon/webscan.svg" style="width:21px;">
+                            网站扫描</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" id="codeaudit" href="/code/index.html">
+                            <img src="/icon/code.svg" style="width:21px;">代码审计 </a></li>
+                    <li class="nav-item"><a class="nav-link" id="cveuse" href="/vulnerable/index.html">
+                            <img src="/icon/cve.svg" style="width:21px;">
+                            安全情报 </a></li>
+                    <li class="nav-item"><a class="nav-link" id="asm" href="/asm/Discover/index.html">
+                            <img src="/icon/asm.svg" style="width:21px;">
+                            资产管理 </a></li>
+                    <li class="nav-item ">
+                        <a class="nav-link" id="system" href="{:URL('system/task_scan/index')}">
+                            <img src="/icon/setting.svg" style="width:21px;">
+                            系统管理</a>
 
                 </li>
+                <?php  } ?>
             </ul>
 
             <div class="text-end">
