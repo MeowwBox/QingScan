@@ -11,7 +11,7 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
-                <li><a href="/code/repos/index.html">Git仓库</a></li>
+                <li><a href="/code/index.html">Git仓库</a></li>
             </ul>
         </li>
         
