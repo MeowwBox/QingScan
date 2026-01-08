@@ -75,7 +75,7 @@ class HostAssetsModel extends BaseModel
     // 批量更新所有主机资产
     public static function updateAll($data)
     {
-        return Db::table('asm_host_assets')->update($data);
+        return Db::table('asm_host_assets')->where('id', '>', 0)->update($data);
     }
     
     // 更新HIDS状态
