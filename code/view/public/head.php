@@ -14,7 +14,8 @@
         <div class="collapse navbar-collapse" id="navbarsExample08">
             <ul class="navbar-nav me-auto" style="gap: 8px;">
                 <?php
-                $rootPath = dirname(dirname(dirname(__DIR__)));
+                $rootPath = getcwd();
+                $rootPath = rtrim($rootPath,"/public");
                 if (file_exists($rootPath.'/view/public/company_head.php')) {
                     include realpath($rootPath.'/view/public/company_head.php');
                 } else {

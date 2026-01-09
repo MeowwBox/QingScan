@@ -37,7 +37,7 @@ class HostAssets extends Common
         
         // 获取分页参数
         $page = Request::param('page', 1, 'intval');
-        $limit = Request::param('limit', 10, 'intval');
+        $limit = Request::param('limit', 20, 'intval');
         
         // 获取数据
         $host_page = Db::table('asm_host_assets')
