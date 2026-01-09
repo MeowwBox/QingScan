@@ -35,6 +35,9 @@ class Asm extends Command
             HostAssetsSyncModel::importFromHuoshan($output);
         } elseif ($platform === 'tianyi') {
             HostAssetsSyncModel::importFromTianyi($output);
+        } elseif ($platform === 'yidong') {
+            HostAssetsSyncModel::importFromYidong($output);
+            $output->writeln("<info>移动云主机资产导入完成</info>");
         } elseif ($platform === 'qingteng') {
             HostAssetsSyncModel::syncFromQingTengHids($output);
             $output->writeln("<info>青藤云HIDS状态同步任务执行完成</info>");

@@ -104,6 +104,7 @@ class Scan extends Command
             } catch (Throwable $e) {
                 $output->writeln("<error>执行任务时发生错误: " . $e->getMessage() . "</error>");
                 $output->writeln("<error>错误位置: " . $e->getFile() . ":" . $e->getLine() . "</error>");
+                $output->writeln("<error>详细详细: " . $e->getTraceAsString() . "</error>");
             }
         } else {
             // 如果没有匹配的任务，输出帮助信息

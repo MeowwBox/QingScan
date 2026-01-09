@@ -163,7 +163,7 @@ class ToolsCheckModel extends BaseModel
      */
     private static function checkRad(): bool
     {
-        $radPath = trim(`pwd`) . '/extend/tools/rad/';
+        $radPath = trim(shell_exec('pwd') ). '/extend/tools/rad/';
         $chromeExists = file_exists("/usr/bin/google-chrome");
 
         if (!file_exists($radPath) || !$chromeExists) {
@@ -180,7 +180,7 @@ class ToolsCheckModel extends BaseModel
      */
     private static function checkXray(): bool
     {
-        $xrayPath = trim(`pwd`) . '/extend/tools/xray/';
+        $xrayPath = trim(shell_exec('pwd')) . '/extend/tools/xray/';
 
         if (!file_exists($xrayPath)) {
             self::log(["工具检查失败: XRAY 未安装", $xrayPath]);
@@ -386,8 +386,8 @@ class ToolsCheckModel extends BaseModel
     private static function checkFortify(): bool
     {
         // Fortify是商业工具，检查目录是否存在
-        $codePath = trim(`pwd`) . "/data/codeCheck";
-        $fortifyRetDir = trim(`pwd`) . "/data/fortify_result";
+        $codePath = trim(shell_exec('pwd')) . "/data/codeCheck";
+        $fortifyRetDir = trim(shell_exec('pwd')) . "/data/fortify_result";
 
         if (!file_exists($codePath) || !file_exists($fortifyRetDir)) {
             self::log(["工具检查失败: Fortify 环境未配置", $codePath, $fortifyRetDir]);

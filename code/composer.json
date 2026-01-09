@@ -31,6 +31,9 @@
     "symfony/yaml": "^6.3",
     "symfony/http-foundation": "^6.0",
     "topthink/think-migration": "^3.1",
+    "ecloudsdk/tag": "1.0.0",
+    "ecloud/ecloud-sdk-core": "*",
+    "ecloudsdk/ecs": "*",
     "volcengine/volcengine-php-sdk": "v1.0.94"
   },
   "require-dev": {
@@ -46,12 +49,21 @@
     }
   },
   "config": {
-    "preferred-install": "dist"
+    "preferred-install": "dist",
+    "allow-plugins": {
+      "elendev/composer-push": true
+    }
   },
   "scripts": {
     "post-autoload-dump": [
       "@php think service:discover",
       "@php think vendor:publish"
     ]
-  }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://ecloud.10086.cn/api/query/developer/nexus/repository/composer/"
+    }
+  ]
 }
