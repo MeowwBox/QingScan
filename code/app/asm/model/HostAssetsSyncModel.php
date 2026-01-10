@@ -235,7 +235,7 @@ class HostAssetsSyncModel extends BaseModel
                     $output->writeln("<info>响应对象属性: " . implode(', ', array_keys(get_object_vars($response))) . "</info>");
                     if (isset($response->body)) {
                         $output->writeln("<info>body属性类型: " . gettype($response->body) . "</info>");
-                        $output->writeln("<info>body内容: " . json_encode($response->body, JSON_UNESCAPED_UNICODE) . "</info>");
+//                        $output->writeln("<info>body内容: " . json_encode($response->body, JSON_UNESCAPED_UNICODE) . "</info>");
                     }
                 }
 
@@ -319,24 +319,51 @@ class HostAssetsSyncModel extends BaseModel
             if ($totalInstances > 0) {
                 // 转换实例数据格式
                 $instancesArray = [];
-                foreach ($allInstances as $instance) {
+                foreach ($allInstances as $index => $instance) {
                     $instanceArray = [];
                     
                     // 检查实例数据类型并进行相应处理
                     if (is_object($instance)) {
-                        // 如果是对象，使用反射获取属性
-                        $reflection = new \ReflectionClass($instance);
-                        $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-
-                        foreach ($methods as $method) {
-                            $methodName = $method->getName();
-                            // 只处理getter方法
-                            if (strpos($methodName, 'get') === 0 && $methodName !== 'getModelName') {
-                                // 调用getter方法获取属性值
-                                $value = $method->invoke($instance);
-                                // 将getter方法名转换为驼峰式的属性名
-                                $propertyName = lcfirst(substr($methodName, 3));
-                                $instanceArray[$propertyName] = $value;
+                        // 如果是对象，使用多种方法获取属性
+                        if (method_exists($instance, 'toMap')) {
+                            // 尝试使用toMap方法（如果可用）
+                            $instanceArray = $instance->toMap();
+                        } else {
+                            // 使用反射获取属性
+                            $reflection = new \ReflectionClass($instance);
+                            $properties = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
+                            
+                            // 首先直接获取公共属性
+                            foreach ($properties as $property) {
+                                $propertyName = $property->getName();
+                                $propertyValue = $property->getValue($instance);
+                                
+                                // 转换属性名为小写开头的驼峰命名
+                                $camelCaseName = lcfirst($propertyName);
+                                $instanceArray[$camelCaseName] = $propertyValue;
+                            }
+                            
+                            // 然后尝试通过getter方法获取值
+                            $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+                            foreach ($methods as $method) {
+                                $methodName = $method->getName();
+                                // 只处理getter方法
+                                if (strpos($methodName, 'get') === 0 && $methodName !== 'getModelName') {
+                                    // 调用getter方法获取属性值
+                                    try {
+                                        $value = $method->invoke($instance);
+                                        // 将getter方法名转换为驼峰式的属性名
+                                        $propertyName = lcfirst(substr($methodName, 3));
+                                        
+                                        // 只有当属性数组中还没有该值时才设置，避免覆盖
+                                        if (!array_key_exists($propertyName, $instanceArray)) {
+                                            $instanceArray[$propertyName] = $value;
+                                        }
+                                    } catch (\Exception $e) {
+                                        // 忽略getter调用错误
+                                        continue;
+                                    }
+                                }
                             }
                         }
                     } elseif (is_array($instance)) {
@@ -344,18 +371,28 @@ class HostAssetsSyncModel extends BaseModel
                         $instanceArray = $instance;
                     } else {
                         // 其他类型跳过
+                        $output->writeln("<warning>跳过非对象/数组类型的实例，索引: {$index}</warning>");
                         continue;
                     }
 
-                    $instancesArray[] = $instanceArray;
+                    // 确保至少有一些基本数据
+                    if (!empty($instanceArray)) {
+                        $instancesArray[] = $instanceArray;
+                    } else {
+                        $output->writeln("<warning>无法从实例对象中提取数据，索引: {$index}</warning>");
+                    }
                 }
 
+                // 调试：打印$instancesArray的长度
+                $output->writeln("<info>实例数组长度: " . count($instancesArray) . "</info>");
+                
                 // 创建符合HostAssetsModel预期格式的数组
                 $formattedResponse = [
                     'Instances' => $instancesArray
                 ];
 
-                HostAssetsModel::importFromAliyunApi($formattedResponse);
+                $result = HostAssetsModel::importFromAliyunApi($formattedResponse);
+                $output->writeln("<info>导入结果: " . ($result ? "成功" : "失败") . "</info>");
             }
 
             $output->writeln("<info>阿里云主机资产导入数据库完成</info>");

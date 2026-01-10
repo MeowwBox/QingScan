@@ -74,4 +74,38 @@ class CloudModel extends BaseModel
     {
         return Db::table('asm_cloud_tianyi')->where('id', $id)->delete();
     }
+
+    // 阿里云资源列表
+    public static function getAliyunList($where = [], $page = 1, $limit = 20)
+    {
+        return Db::table('asm_cloud_aliyun')
+            ->where($where)
+            ->page($page, $limit)
+            ->order('create_time desc')
+            ->select();
+    }
+    
+    // 阿里云资源总数
+    public static function getAliyunCount($where = [])
+    {
+        return Db::table('asm_cloud_aliyun')->where($where)->count();
+    }
+    
+    // 添加阿里云资源
+    public static function addAliyun($data)
+    {
+        return Db::table('asm_cloud_aliyun')->insertGetId($data);
+    }
+    
+    // 更新阿里云资源
+    public static function updateAliyun($id, $data)
+    {
+        return Db::table('asm_cloud_aliyun')->where('id', $id)->update($data);
+    }
+    
+    // 删除阿里云资源
+    public static function deleteAliyun($id)
+    {
+        return Db::table('asm_cloud_aliyun')->where('id', $id)->delete();
+    }
 }

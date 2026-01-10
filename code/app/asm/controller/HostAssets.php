@@ -57,6 +57,7 @@ class HostAssets extends Common
             'huoshan' => '火山云',
             'yidong' => '移动云',
             'tianyi' => '天翼云',
+            'aliyun' => '阿里云',
             'idc' => '线下IDC'
         ];
         
@@ -248,6 +249,12 @@ class HostAssets extends Common
             $tianyi_data = Db::table('asm_cloud_tianyi')->where('resource_id', $host['instance_id'])->find();
             if (!empty($tianyi_data['original_json'])) {
                 $original_data = json_decode($tianyi_data['original_json'], true);
+            }
+        } elseif ($host['cloud_platform'] == 'aliyun') {
+            // 获取阿里云原始信息
+            $aliyun_data = Db::table('asm_cloud_aliyun')->where('resource_id', $host['instance_id'])->find();
+            if (!empty($aliyun_data['original_json'])) {
+                $original_data = json_decode($aliyun_data['original_json'], true);
             }
         }
         

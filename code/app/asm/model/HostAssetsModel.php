@@ -239,6 +239,10 @@ class HostAssetsModel extends BaseModel
         foreach ($hosts as $index => $host) {
             // 处理主机资产表
             $existing = self::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
+            
+            // 移除原始数据字段，因为不需要保存到数据库中
+            unset($host['original_data']);
+            
             if ($existing) {
                 // 更新现有记录
                 unset($host['create_time']); // 不更新创建时间
@@ -272,10 +276,19 @@ class HostAssetsModel extends BaseModel
         }
         
         $hosts = [];
-        foreach ($apiData['Instances'] as $instance) {
-            // 安全地获取实例ID，尝试多个可能的字段名
-            $instanceId = $instance['instanceId'] ?? $instance['InstanceId'] ?? $instance['instance_id'] ?? $instance['id'] ?? '';
+        foreach ($apiData['Instances'] as $index => $instance) {
+            // 安全地获取实例ID，同时处理对象和数组类型，尝试多个可能的字段名
+            if (is_object($instance)) {
+                $instanceId = $instance->instanceId ?? $instance->InstanceId ?? $instance->instance_id ?? $instance->id ?? '';
+            } elseif (is_array($instance)) {
+                $instanceId = $instance['instanceId'] ?? $instance['InstanceId'] ?? $instance['instance_id'] ?? $instance['id'] ?? '';
+            } else {
+                echo "Instance is neither object nor array at index $index\n";
+                continue;
+            }
+            
             if (empty($instanceId)) {
+                echo "Instance ID not found for instance at index $index\n";
                 continue; // 如果没有找到实例ID，跳过此实例
             }
             
@@ -379,11 +392,18 @@ class HostAssetsModel extends BaseModel
                 'update_time' => date('Y-m-d H:i:s'),
                 'expire_time' => !empty($expiredTime) ? date('Y-m-d H:i:s', strtotime($expiredTime)) : null,
                 'hids_installed' => 0,
+                'original_data' => $instance // 保存原始实例数据
             ];
         }
         
+        // 调试：打印hosts数组长度
+        echo '阿里云主机数量: ' . count($hosts) . PHP_EOL;
+        
         // 批量导入或更新
-        foreach ($hosts as $host) {
+        foreach ($hosts as $index => $host) {
+            // 调试：打印当前处理的主机
+            echo '正在处理阿里云主机: ' . $host['instance_id'] . PHP_EOL;
+            
             // 处理主机资产表
             $existing = self::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
             if ($existing) {
@@ -393,6 +413,40 @@ class HostAssetsModel extends BaseModel
             } else {
                 // 添加新记录
                 self::addHostAssets($host);
+            }
+            
+            // 处理阿里云资源表
+            $aliyunResource = [
+                'resource_id' => $host['instance_id'],
+                'resource_name' => $host['instance_name'],
+                'resource_type' => 'ecs',
+                'region' => env('ALIYUN.REGION_ID') ?? 'default',
+                'status' => $host['status'],
+                'public_ip' => $host['public_ip'],
+                'public_ips' => $host['public_ips'],
+                'private_ip' => $host['private_ip'],
+                'private_ips' => $host['private_ips'],
+                'original_json' => json_encode($host['original_data']), // 使用保存的原始数据
+                'update_time' => date('Y-m-d H:i:s')
+            ];
+            
+            // 调试：打印阿里云资源数据
+            echo '阿里云资源数据: ' . json_encode($aliyunResource) . PHP_EOL;
+            
+            $existingAliyun = Db::table('asm_cloud_aliyun')->where('resource_id', $aliyunResource['resource_id'])->find();
+            
+            // 调试：打印existingAliyun
+            echo '现有阿里云资源: ' . json_encode($existingAliyun) . PHP_EOL;
+            
+            if ($existingAliyun) {
+                // 更新现有记录
+                unset($aliyunResource['update_time']); // 不更新时间戳，由数据库自动处理
+                $updateResult = Db::table('asm_cloud_aliyun')->where('id', $existingAliyun['id'])->update($aliyunResource);
+                echo '更新阿里云资源结果: ' . $updateResult . PHP_EOL;
+            } else {
+                // 添加新记录
+                $addResult = CloudModel::addAliyun($aliyunResource);
+                echo '添加阿里云资源结果: ' . $addResult . PHP_EOL;
             }
         }
         

@@ -50,6 +50,26 @@ class Cloud extends BaseController
         return View::fetch('cloud/tianyi');
     }
     
+    // 阿里云列表页
+    public function aliyun()
+    {
+        $pageSize = 20;
+        $where = [];
+        
+        $list = Db::table('asm_cloud_aliyun')
+            ->where($where)
+            ->order('create_time desc')
+            ->paginate([
+                'list_rows' => $pageSize,
+                'query' => Request::param(),
+            ]);
+        
+        View::assign('list', $list->items());
+        View::assign('page', $list);
+        
+        return View::fetch('cloud/aliyun');
+    }
+    
     // 移动云列表页
     public function yidong()
     {

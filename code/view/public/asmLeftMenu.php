@@ -12,8 +12,8 @@
                 <li><a href="/asm/hostassets/index.html">主机汇总</a></li>
                 <li><a href="/asm/cloud/huoshan.html">火山云</a></li>
                 <li><a href="/asm/cloud/tianyi.html">天翼云</a></li>
+                <li><a href="/asm/cloud/aliyun.html">阿里云</a></li>
                 <li><a href="/asm/cloud/yidong.html">移动云</a></li>
-
             </ul>
         </li>
 
