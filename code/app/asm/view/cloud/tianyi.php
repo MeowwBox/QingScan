@@ -8,7 +8,7 @@
         <div class="row tuchu">
             <div class="col-md-12 ">
                 {include file='cloud/cloud_sub_menu' /}
-                <table class="table table-hover table-sm table-borderless">
+                <table class="table table-hover">
                     <thead class="table-light">
                     <tr>
                         <th>ID</th>

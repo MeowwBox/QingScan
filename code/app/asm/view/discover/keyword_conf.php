@@ -29,7 +29,7 @@
                        href="{:URL('/config/index',['keyword'=>'fofa'])}">未配置FOFA账户,点击配置后方可使用</a>
                 </div>
             <?php } else { ?>
-                <table class="table  table-hover table-sm table-borderless">
+                <table class="table  table-hover">
                     <thead class="table-light">
                     <tr>
                         <th>ID</th>

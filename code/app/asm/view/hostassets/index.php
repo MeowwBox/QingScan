@@ -23,7 +23,7 @@ $searchArr = [
 
         <!-- 引入子菜单 -->
         {include file='hostassets/sub_menu' /}
-        <table class="table  table-hover table-sm table-borderless">
+        <table class="table  table-hover">
             <thead class="table-light">
             <tr>
                 <th>ID</th>
