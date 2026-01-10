@@ -413,44 +413,49 @@ class HostAssetsModel extends BaseModel
         }
         
         // 检查移动云API响应结构
-        if (!isset($apiData['state']) || $apiData['state'] !== 'OK' || !isset($apiData['body'])) {
+        if (!isset($apiData['state']) || $apiData['state'] !== 'OK' || !isset($apiData['body']) || !isset($apiData['body']['content'])) {
             echo "移动云API数据错误\n 状态: {$apiData['state']}\n  ";
             return false;
         }
         
         // 提取实际的主机实例数据
-        $instances = $apiData['body'];
+        $instances = $apiData['body']['content'];
         
         $hosts = [];
         $yidongResources = [];
         
         foreach ($instances as $instance) {
-            // 获取所有私有IP
+            // 获取所有私有IP和公网IP
             $privateIps = [];
-            if (isset($instance['private_ip_address']) && !empty($instance['private_ip_address'])) {
-                if (is_array($instance['private_ip_address'])) {
-                    $privateIps = $instance['private_ip_address'];
-                } else {
-                    $privateIps[] = $instance['private_ip_address'];
-                }
-            }
-            // 去重并保留唯一IP
-            $privateIps = array_unique($privateIps);
-            // 设置默认私有IP
-            $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
-            
-            // 获取所有公网IP
             $publicIps = [];
-            if (isset($instance['public_ip_address']) && !empty($instance['public_ip_address'])) {
-                if (is_array($instance['public_ip_address'])) {
-                    $publicIps = $instance['public_ip_address'];
-                } else {
-                    $publicIps[] = $instance['public_ip_address'];
+            
+            if (isset($instance['port_detail']) && is_array($instance['port_detail'])) {
+                foreach ($instance['port_detail'] as $port) {
+                    if (isset($port['private_ip'])) {
+                        $privateIps[] = $port['private_ip'];
+                    }
+                    if (isset($port['fip_address'])) {
+                        $publicIps[] = $port['fip_address'];
+                    }
+                    if (isset($port['fixed_ip_detail_resps']) && is_array($port['fixed_ip_detail_resps'])) {
+                        foreach ($port['fixed_ip_detail_resps'] as $ip_detail) {
+                            if (isset($ip_detail['ip_address'])) {
+                                $privateIps[] = $ip_detail['ip_address'];
+                            }
+                            if (isset($ip_detail['public_ip'])) {
+                                $publicIps[] = $ip_detail['public_ip'];
+                            }
+                        }
+                    }
                 }
             }
+            
             // 去重并保留唯一IP
-            $publicIps = array_unique($publicIps);
-            // 设置默认公网IP
+            $privateIps = array_unique(array_filter($privateIps));
+            $publicIps = array_unique(array_filter($publicIps));
+            
+            // 设置默认IP
+            $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
             $publicIp = !empty($publicIps) ? reset($publicIps) : '';
             
             // 获取MAC地址
@@ -473,25 +478,25 @@ class HostAssetsModel extends BaseModel
             }
             
             $hosts[] = [
-                'instance_id' => $instance['server_id'],
-                'instance_name' => $instance['server_name'],
-                'display_name' => $instance['server_name'],
+                'instance_id' => $instance['id'] ?? '',
+                'instance_name' => $instance['name'] ?? '',
+                'display_name' => $instance['name'] ?? '',
                 'cloud_platform' => 'yidong',
-                'status' => $instance['status'],
+                'status' => $instance['status'] ?? '',
                 'private_ip' => $privateIp,
                 'public_ip' => $publicIp,
                 'private_ips' => json_encode($privateIps),
                 'public_ips' => json_encode($publicIps),
                 'mac_address' => $macAddress,
-                'os_type' => $instance['os_type'] ?? 'Linux',
-                'os_name' => $instance['os_name'] ?? 'Unknown',
-                'cpu' => $instance['cpu'],
-                'memory' => $instance['memory'],
-                'instance_type' => $instance['flavor_name'],
-                'vpc_id' => $instance['vpc_id'] ?? '',
-                'vpc_name' => $instance['vpc_name'] ?? '',
+                'os_type' => $instance['image_os_type'] ?? 'Linux',
+                'os_name' => $instance['image_name'] ?? 'Unknown',
+                'cpu' => $instance['vcpu'] ?? 0,
+                'memory' => $instance['vmemory'] ?? 0,
+                'instance_type' => $instance['specs_name'] ?? '',
+                'vpc_id' => $instance['port_detail'][0]['vpc_id'] ?? '',
+                'vpc_name' => $instance['port_detail'][0]['vpc_name'] ?? '',
                 'security_groups' => json_encode($securityGroups),
-                'create_time' => date('Y-m-d H:i:s', strtotime($instance['create_time'])),
+                'create_time' => date('Y-m-d H:i:s', strtotime($instance['created_time'] ?? '')),
                 'update_time' => date('Y-m-d H:i:s'),
                 'expire_time' => null,
                 'hids_installed' => 0,
@@ -499,21 +504,19 @@ class HostAssetsModel extends BaseModel
             
             // 构建移动云资源表数据
             $yidongResources[] = [
-                'resource_id' => $instance['server_id'],
-                'resource_name' => $instance['server_name'],
+                'resource_id' => $instance['id'] ?? '',
+                'resource_name' => $instance['name'] ?? '',
                 'resource_type' => '云主机',
                 'region' => $instance['region'] ?? '',
-                'status' => $instance['status'],
+                'status' => $instance['status'] ?? '',
                 'public_ip' => $publicIp,
                 'private_ip' => $privateIp,
                 'public_ips' => json_encode($publicIps),
                 'private_ips' => json_encode($privateIps),
-                'create_time' => date('Y-m-d H:i:s', strtotime($instance['create_time'])),
+                'create_time' => date('Y-m-d H:i:s', strtotime($instance['created_time'] ?? '')),
                 'update_time' => date('Y-m-d H:i:s'),
                 'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
             ];
-
-            var_dump($hosts);die;
         }
         
         // 批量导入或更新

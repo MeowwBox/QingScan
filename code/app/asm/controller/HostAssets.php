@@ -55,6 +55,7 @@ class HostAssets extends Common
         // 平台类型
         $platforms = [
             'huoshan' => '火山云',
+            'yidong' => '移动云',
             'tianyi' => '天翼云',
             'idc' => '线下IDC'
         ];
