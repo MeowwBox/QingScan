@@ -1,6 +1,6 @@
 <?php
 
-$qnrFile = dirname(__FILE__) . "/qnr/functions.php";
+$qnrFile = dirname(__FILE__) . "/company/functions.php";
 if (file_exists($qnrFile)) require $qnrFile;
 
 
