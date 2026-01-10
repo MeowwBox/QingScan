@@ -6,6 +6,7 @@ namespace app\command;
 use app\asm\model\CloudModel;
 use app\asm\model\HostAssetsModel;
 use app\asm\model\HostAssetsSyncModel;
+use app\asm\model\VulnerabilityModel;
 use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
@@ -23,12 +24,14 @@ class Asm extends Command
         // 指令配置
         Asm::setName('asm')
             ->addArgument("platform", Argument::OPTIONAL, "云平台类型", "huoshan")
-            ->setDescription('定时拉取云平台主机资产列表');
+            ->addArgument("file", Argument::OPTIONAL, "文件路径", "")
+            ->setDescription('ASM相关命令：拉取主机资产、导入漏洞数据等');
     }
 
     protected function execute(Input $input, Output $output): void
     {
         $platform = trim($input->getArgument('platform'));
+        $filePath = trim($input->getArgument('file'));
         $output->writeln("开始执行主机资产拉取任务，平台：{$platform}");
 
         if ($platform === 'huoshan') {
@@ -41,9 +44,15 @@ class Asm extends Command
         } elseif ($platform === 'qingteng') {
             HostAssetsSyncModel::syncFromQingTengHids($output);
             $output->writeln("<info>青藤云HIDS状态同步任务执行完成</info>");
+        } elseif ($platform === 'qingteng_bug') {
+            if (empty($filePath)) {
+                $output->writeln("<error>请指定要导入的JSON文件路径</error>");
+                return;
+            }
+            // 导入青藤云漏洞数据
+            VulnerabilityModel::importFromStaticJson($output, $filePath);
         } else {
             $output->writeln("<error>不支持的云平台类型：{$platform}</error>");
-            return;
         }
 
     }

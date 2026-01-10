@@ -34,7 +34,8 @@
     "ecloudsdk/tag": "1.0.0",
     "ecloud/ecloud-sdk-core": "*",
     "ecloudsdk/ecs": "*",
-    "volcengine/volcengine-php-sdk": "v1.0.94"
+    "volcengine/volcengine-php-sdk": "v1.0.94",
+    "alibabacloud/ecs-20140526": "7.5.1"
   },
   "require-dev": {
     "symfony/var-dumper": "^4.2",

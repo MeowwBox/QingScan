@@ -1952,5 +1952,90 @@ CREATE TABLE IF NOT EXISTS `asm_cloud_yidong`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci
   ROW_FORMAT = DYNAMIC COMMENT ='移动云资源表';
+-- 漏洞汇总表
+CREATE TABLE IF NOT EXISTS `asm_vulnerability_summary` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `vul_name` varchar(255) NOT NULL COMMENT '漏洞名称',
+  `vul_type` varchar(50) NOT NULL COMMENT '漏洞类型',
+  `ip_address` varchar(50) NOT NULL COMMENT 'IP地址',
+  `port` varchar(20) NOT NULL COMMENT '端口号',
+  `severity` enum('critical','high','medium','low','info') NOT NULL COMMENT '严重程度',
+  `cve_id` varchar(50) DEFAULT '' COMMENT 'CVE编号',
+  `cnvd_id` varchar(50) DEFAULT '' COMMENT 'CNVD编号',
+  `description` text COMMENT '漏洞描述',
+  `solution` text COMMENT '解决方案',
+  `status` enum('pending','processing','fixed','ignored') DEFAULT 'pending' COMMENT '处理状态',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_severity` (`severity`),
+  KEY `idx_status` (`status`),
+  KEY `idx_ip_address` (`ip_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='漏洞汇总表';
+
+-- 青藤云主机漏洞列表
+CREATE TABLE IF NOT EXISTS `asm_vulnerability_qingteng` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `result_id` varchar(50) NOT NULL COMMENT '结果ID',
+  `vul_id` varchar(50) NOT NULL COMMENT '青藤漏洞ID',
+  `vul_name` varchar(255) NOT NULL COMMENT '漏洞名称',
+  `severity` enum('SEVERITY_CRITICAL','SEVERITY_HIGH','SEVERITY_MEDIUM','SEVERITY_LOW') NOT NULL COMMENT '严重程度',
+  `title` varchar(255) NOT NULL COMMENT '漏洞标题',
+  `tags` json DEFAULT NULL COMMENT '标签',
+  `first_found_time` datetime DEFAULT NULL COMMENT '首次发现时间',
+  `last_found_time` datetime DEFAULT NULL COMMENT '最后发现时间',
+  `agent_id` varchar(50) DEFAULT '' COMMENT '代理ID',
+  `os_type` varchar(50) DEFAULT '' COMMENT '操作系统类型',
+  `hostname` varchar(100) DEFAULT '' COMMENT '主机名',
+  `ip` varchar(50) NOT NULL COMMENT 'IP地址',
+  `group_name` varchar(100) DEFAULT '' COMMENT '组名',
+  `agent_status` varchar(20) DEFAULT '' COMMENT '代理状态',
+  `charger_name` varchar(50) DEFAULT '' COMMENT '负责人',
+  `cve_id` varchar(50) DEFAULT '' COMMENT 'CVE编号',
+  `cwe_ids` json DEFAULT NULL COMMENT 'CWE编号',
+  `cnvd_id` varchar(50) DEFAULT '' COMMENT 'CNVD编号',
+  `cnnvd_id` varchar(50) DEFAULT '' COMMENT 'CNNVD编号',
+  `poc_types` json DEFAULT NULL COMMENT 'POC类型',
+  `exec_type` json DEFAULT NULL COMMENT '执行类型',
+  `run_level` varchar(20) DEFAULT '' COMMENT '运行级别',
+  `description` text COMMENT '漏洞描述',
+  `solution` text COMMENT '解决方案',
+  `status` enum('pending','processing','fixed','ignored') DEFAULT 'pending' COMMENT '处理状态',
+  `raw_data` json NOT NULL COMMENT '原生行信息',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_result_id` (`result_id`),
+  KEY `idx_vul_id` (`vul_id`),
+  KEY `idx_severity` (`severity`),
+  KEY `idx_status` (`status`),
+  KEY `idx_ip` (`ip`),
+  KEY `idx_hostname` (`hostname`),
+  KEY `idx_group_name` (`group_name`),
+  KEY `idx_first_found_time` (`first_found_time`),
+  KEY `idx_last_found_time` (`last_found_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='青藤云主机漏洞列表';
+
+-- 工单表
+CREATE TABLE IF NOT EXISTS `asm_work_order` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL COMMENT '工单标题',
+  `type` enum('vulnerability','system','other') DEFAULT 'vulnerability' COMMENT '工单类型',
+  `content` text NOT NULL COMMENT '工单内容',
+  `status` enum('open','processing','closed','rejected') DEFAULT 'open' COMMENT '工单状态',
+  `vul_id` int(11) DEFAULT NULL COMMENT '关联漏洞ID',
+  `vul_type` varchar(50) DEFAULT NULL COMMENT '漏洞类型(vulnerability_summary/vulnerability_qingteng)',
+  `feishu_notified` tinyint(1) DEFAULT '0' COMMENT '是否已发送飞书通知(0:未通知,1:已通知)',
+  `feishu_group_id` varchar(100) DEFAULT '' COMMENT '飞书群ID',
+  `created_by` int(11) DEFAULT NULL COMMENT '创建人ID',
+  `assigned_to` int(11) DEFAULT NULL COMMENT '指派给',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_type` (`type`),
+  KEY `idx_vul_id` (`vul_id`),
+  KEY `idx_feishu_notified` (`feishu_notified`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工单表';
 
 SET FOREIGN_KEY_CHECKS = 1;

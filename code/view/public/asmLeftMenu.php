@@ -31,6 +31,30 @@
             </ul>
         </li>
         
+        <!-- 漏洞管理 -->
+        <li>
+            <a href="#">
+                <img src="/icon/cve.svg" class="icon">
+                漏洞管理
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu">
+                <li><a href="/asm/vulnerability/index.html">漏洞汇总列表</a></li>
+                <li><a href="/asm/vulnerability/qingteng.html">青藤云主机漏洞列表</a></li>
+            </ul>
+        </li>
+        
+        <!-- 工单管理 -->
+        <li>
+            <a href="#">
+                <img src="/icon/tools.svg" class="icon">
+                工单管理
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu">
+                <li><a href="/asm/workorder/index.html">工单列表</a></li>
+            </ul>
+        </li>
 
     </ul>
 </div>
