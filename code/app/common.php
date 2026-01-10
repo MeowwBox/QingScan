@@ -1462,3 +1462,56 @@ function ByteSize($file_size)
     return $show_filesize;
 
 }
+
+
+
+// 获取菜单黑名单配置
+
+function getMenuBlacklist() {
+
+    $menuBlacklist = [];
+
+    $menuBlacklistValue = env('MENU.BLACKLIST');
+
+    if (!empty($menuBlacklistValue)) {
+
+        $menuBlacklistItems = explode('|', $menuBlacklistValue);
+
+        foreach ($menuBlacklistItems as $item) {
+
+            if (!empty($item)) {
+
+                $menuBlacklist[] = array_map('trim', explode(',', $item));
+
+            }
+
+        }
+
+    }
+    return $menuBlacklist;
+
+}
+
+
+
+// 检查菜单是否在黑名单中
+
+function isMenuBlacklisted($menuName, $blacklist, $submenuName = null) {
+
+    foreach ($blacklist as $item) {
+
+        if (count($item) == 1 && $item[0] == $menuName) {
+
+            return true;
+
+        } elseif (count($item) == 2 && $item[0] == $menuName && $item[1] == $submenuName) {
+
+            return true;
+
+        }
+
+    }
+
+    return false;
+
+}

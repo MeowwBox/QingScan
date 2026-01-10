@@ -1,7 +1,14 @@
 {include file='public/LeftMenuStyle' /}
+<?php
+
+// 获取菜单黑名单配置
+$menuBlacklist = getMenuBlacklist();
+
+?>
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
     <ul id="leftMenu">
         <!-- 系统管理核心功能 -->
+        <?php if (!isMenuBlacklisted('系统管理', $menuBlacklist, null)): ?>
         <li>
             <a href="#">
                 <img src="/icon/setting.svg" class="icon">
@@ -9,11 +16,12 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu show">
-                <li><a href="/config/index.html">系统配置</a></li>
-                <li><a href="/system/task_scan/index.html">任务队列</a></li>
-                <li><a href="/system/user_log/index.html">系统日志</a></li>
+                <?php if (!isMenuBlacklisted('系统管理', $menuBlacklist, '系统配置')): ?><li><a href="/config/index.html">系统配置</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('系统管理', $menuBlacklist, '任务队列')): ?><li><a href="/system/task_scan/index.html">任务队列</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('系统管理', $menuBlacklist, '系统日志')): ?><li><a href="/system/user_log/index.html">系统日志</a></li><?php endif; ?>
             </ul>
         </li>
+        <?php endif; ?>
     </ul>
 </div>
 

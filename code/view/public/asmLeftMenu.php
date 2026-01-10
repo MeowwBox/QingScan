@@ -1,7 +1,14 @@
 {include file='public/LeftMenuStyle' /}
+<?php
+
+// 获取菜单黑名单配置
+$menuBlacklist = getMenuBlacklist();
+
+?>
 <div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
     <ul id="leftMenu">
         <!-- 云资产管理 -->
+        <?php if (!isMenuBlacklisted('主机资产', $menuBlacklist, null)): ?>
         <li>
             <a href="#">
                 <img src="/icon/asm.svg" class="icon">
@@ -9,13 +16,15 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu">
-                <li><a href="/asm/hostassets/index.html">主机概览</a></li>
-                <li><a href="/asm/cloud/huoshan.html">云平台资产</a></li>
+                <?php if (!isMenuBlacklisted('主机资产', $menuBlacklist, '主机概览')): ?><li><a href="/asm/hostassets/index.html">主机概览</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('主机资产', $menuBlacklist, '云平台资产')): ?><li><a href="/asm/cloud/huoshan.html">云平台资产</a></li><?php endif; ?>
             </ul>
         </li>
+        <?php endif; ?>
 
         
         <!-- 漏洞管理 -->
+        <?php if (!isMenuBlacklisted('漏洞管理', $menuBlacklist, null)): ?>
         <li>
             <a href="#">
                 <img src="/icon/cve.svg" class="icon">
@@ -23,12 +32,14 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu">
-                <li><a href="/asm/vulnerability/index.html">漏洞汇总</a></li>
-                <li><a href="/asm/vulnerability/qingteng.html">主机漏洞</a></li>
+                <?php if (!isMenuBlacklisted('漏洞管理', $menuBlacklist, '漏洞汇总')): ?><li><a href="/asm/vulnerability/index.html">漏洞汇总</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('漏洞管理', $menuBlacklist, '主机漏洞')): ?><li><a href="/asm/vulnerability/qingteng.html">主机漏洞</a></li><?php endif; ?>
             </ul>
         </li>
+        <?php endif; ?>
         
         <!-- 工单管理 -->
+        <?php if (!isMenuBlacklisted('工单管理', $menuBlacklist, null)): ?>
         <li>
             <a href="#">
                 <img src="/icon/tools.svg" class="icon">
@@ -36,10 +47,12 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu">
-                <li><a href="/asm/workorder/index.html">工单列表</a></li>
+                <?php if (!isMenuBlacklisted('工单管理', $menuBlacklist, '工单列表')): ?><li><a href="/asm/workorder/index.html">工单列表</a></li><?php endif; ?>
             </ul>
         </li>
+        <?php endif; ?>
         <!-- 资产管理核心功能 -->
+        <?php if (!isMenuBlacklisted('虚拟资产', $menuBlacklist, null)): ?>
         <li>
             <a href="#">
                 <img src="/icon/webscan.svg" class="icon">
@@ -47,12 +60,13 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu">
-                <li><a href="/asm/domain/index.html">域名列表</a></li>
-                <li><a href="/asm/urls/index.html">URL列表</a></li>
-                <li><a href="/asm/ip_port/index.html">组件列表</a></li>
-                <li><a href="/asm/Discover/keyword_conf.html">规则设置</a></li>
+                <?php if (!isMenuBlacklisted('虚拟资产', $menuBlacklist, '域名列表')): ?><li><a href="/asm/domain/index.html">域名列表</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('虚拟资产', $menuBlacklist, 'URL列表')): ?><li><a href="/asm/urls/index.html">URL列表</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('虚拟资产', $menuBlacklist, '组件列表')): ?><li><a href="/asm/ip_port/index.html">组件列表</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('虚拟资产', $menuBlacklist, '规则设置')): ?><li><a href="/asm/Discover/keyword_conf.html">规则设置</a></li><?php endif; ?>
             </ul>
         </li>
+        <?php endif; ?>
     </ul>
 </div>
 
