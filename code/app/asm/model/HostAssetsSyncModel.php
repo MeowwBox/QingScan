@@ -12,6 +12,10 @@ use Volcengine\Common\Configuration;
 use Volcengine\Common\HeaderSelector;
 use Volcengine\Ecs\Api\ECSApi;
 use Volcengine\Ecs\Model\DescribeInstancesRequest;
+use AlibabaCloud\SDK\Ecs\V20140526\Ecs;
+use AlibabaCloud\Credentials\Credential;
+use AlibabaCloud\SDK\Ecs\V20140526\Models\DescribeInstancesRequest as AliyunDescribeInstancesRequest;
+use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
 
 class HostAssetsSyncModel extends BaseModel
 {
@@ -180,6 +184,182 @@ class HostAssetsSyncModel extends BaseModel
             $output->writeln("<error>调用火山云API失败: " . $e->getMessage() . "</error>");
             throw $e; // 重新抛出异常，让上层处理
         }
+    }
+
+    /**
+     * 从阿里云拉取主机资产
+     */
+    public static function importFromAliyun(Output $output): void
+    {
+        $output->writeln("正在从阿里云API拉取主机资产...");
+
+        // 从配置获取阿里云AK/SK/区域
+        if (empty(env('ALIYUN.AK')) || empty(env('ALIYUN.SK'))) {
+            $output->writeln("<error>阿里云AK/SK配置缺失</error>");
+            return;
+        }
+
+        $accessKeyId = env('ALIYUN.AK');
+        $accessKeySecret = env('ALIYUN.SK');
+        $regionId = env('ALIYUN.REGION_ID') ?? 'cn-jiangsu-1';
+
+            // 初始化阿里云ECS客户端
+            $config = new \Darabonba\OpenApi\Models\Config([
+                "accessKeyId" => $accessKeyId,
+                "accessKeySecret" => $accessKeySecret,
+                "regionId" => $regionId,
+                "endpoint" => "ecs.{$regionId}.aliyuncs.com"
+            ]);
+            $client = new Ecs($config);
+
+            // 调用API获取实例列表，实现分页逻辑
+            $allInstances = [];
+            $pageSize = 100; // 每次获取100条记录
+            $pageNumber = 1;
+            $totalCount = 0;
+
+            do {
+                // 创建请求对象
+                $describeInstancesRequest = new AliyunDescribeInstancesRequest([
+                    "regionId" => $regionId,
+                    "pageSize" => $pageSize,
+                    "pageNumber" => $pageNumber
+                ]);
+
+                // 直接调用API，不需要RuntimeOptions
+                $response = $client->describeInstances($describeInstancesRequest);
+
+                // 添加调试输出查看响应结构
+                $output->writeln("<info>API响应类型: " . gettype($response) . "</info>");
+                if (is_object($response)) {
+                    $output->writeln("<info>响应对象属性: " . implode(', ', array_keys(get_object_vars($response))) . "</info>");
+                    if (isset($response->body)) {
+                        $output->writeln("<info>body属性类型: " . gettype($response->body) . "</info>");
+                        $output->writeln("<info>body内容: " . json_encode($response->body, JSON_UNESCAPED_UNICODE) . "</info>");
+                    }
+                }
+
+                // 检查响应结构并正确处理
+                $pageInstances = [];
+                if (is_object($response) && isset($response->body)) {
+                    $body = $response->body;
+                    if (is_object($body)) {
+                        // 根据调试输出，阿里云API返回的结构是 instances.instance 数组
+                        if (property_exists($body, 'instances') && is_object($body->instances) && property_exists($body->instances, 'instance')) {
+                            $pageInstances = $body->instances->instance;
+                        } elseif (property_exists($body, 'instances') && is_array($body->instances)) {
+                            $pageInstances = $body->instances;
+                        } elseif (property_exists($body, 'Instances') && is_object($body->Instances) && property_exists($body->Instances, 'Instance')) {
+                            $pageInstances = $body->Instances->Instance;
+                        } elseif (is_array($body) && isset($body['Instances']) && isset($body['Instances']['Instance'])) {
+                            $pageInstances = $body['Instances']['Instance'];
+                        } elseif (is_object($body) && property_exists($body, 'Instances') && is_array($body->Instances)) {
+                            $pageInstances = $body->Instances;
+                        }
+                    }
+                } elseif (is_array($response) && isset($response['body']) && is_array($response['body'])) {
+                    $body = $response['body'];
+                    if (isset($body['Instances']) && isset($body['Instances']['Instance'])) {
+                        $pageInstances = $body['Instances']['Instance'];
+                    } elseif (isset($body['instances']) && isset($body['instances']['instance'])) {
+                        $pageInstances = $body['instances']['instance'];
+                    } elseif (isset($body['instances'])) {
+                        $pageInstances = $body['instances'];
+                    }
+                }
+
+                // 检查是否成功获取到实例列表
+                if (empty($pageInstances)) {
+                    $output->writeln("<info>未能获取到实例数据，响应结构可能已改变</info>");
+                    break;
+                }
+
+                $pageCount = count($pageInstances);
+
+                if ($pageCount > 0) {
+                    $allInstances = array_merge($allInstances, $pageInstances);
+                    
+                    // 获取总数量
+                    if (is_object($response) && isset($response->body)) {
+                        if (property_exists($response->body, 'totalCount')) {
+                            $totalCount = $response->body->totalCount;
+                        } elseif (property_exists($response->body, 'TotalCount')) {
+                            $totalCount = $response->body->TotalCount;
+                        } elseif (property_exists($response->body, 'total_count')) {
+                            $totalCount = $response->body->total_count;
+                        } else {
+                            // 如果无法获取总数，则设为当前页面数量以避免无限循环
+                            $totalCount = count($allInstances);
+                        }
+                    } elseif (is_array($response) && isset($response['body'])) {
+                        $body = $response['body'];
+                        if (isset($body['totalCount'])) {
+                            $totalCount = $body['totalCount'];
+                        } elseif (isset($body['TotalCount'])) {
+                            $totalCount = $body['TotalCount'];
+                        } elseif (isset($body['total_count'])) {
+                            $totalCount = $body['total_count'];
+                        } else {
+                            $totalCount = count($allInstances);
+                        }
+                    } else {
+                        $totalCount = count($allInstances);
+                    }
+                    
+                    $output->writeln("<info>已获取第 " . $pageNumber . " 页，共 " . count($allInstances) . "/" . $totalCount . " 台主机</info>");
+                }
+
+                $pageNumber++;
+            } while (count($allInstances) < $totalCount);
+
+            $totalInstances = count($allInstances);
+            $output->writeln("<info>成功获取阿里云主机实例列表，共 " . $totalInstances . " 台主机</info>");
+
+            // 检查是否有数据需要导入
+            if ($totalInstances > 0) {
+                // 转换实例数据格式
+                $instancesArray = [];
+                foreach ($allInstances as $instance) {
+                    $instanceArray = [];
+                    
+                    // 检查实例数据类型并进行相应处理
+                    if (is_object($instance)) {
+                        // 如果是对象，使用反射获取属性
+                        $reflection = new \ReflectionClass($instance);
+                        $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+                        foreach ($methods as $method) {
+                            $methodName = $method->getName();
+                            // 只处理getter方法
+                            if (strpos($methodName, 'get') === 0 && $methodName !== 'getModelName') {
+                                // 调用getter方法获取属性值
+                                $value = $method->invoke($instance);
+                                // 将getter方法名转换为驼峰式的属性名
+                                $propertyName = lcfirst(substr($methodName, 3));
+                                $instanceArray[$propertyName] = $value;
+                            }
+                        }
+                    } elseif (is_array($instance)) {
+                        // 如果是数组，直接使用
+                        $instanceArray = $instance;
+                    } else {
+                        // 其他类型跳过
+                        continue;
+                    }
+
+                    $instancesArray[] = $instanceArray;
+                }
+
+                // 创建符合HostAssetsModel预期格式的数组
+                $formattedResponse = [
+                    'Instances' => $instancesArray
+                ];
+
+                HostAssetsModel::importFromAliyunApi($formattedResponse);
+            }
+
+            $output->writeln("<info>阿里云主机资产导入数据库完成</info>");
+
     }
 
     /**

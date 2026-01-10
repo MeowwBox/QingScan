@@ -264,6 +264,141 @@ class HostAssetsModel extends BaseModel
         return true;
     }
     
+    // 从阿里云API数据导入主机资产
+    public static function importFromAliyunApi($apiData)
+    {
+        if (empty($apiData['Instances'])) {
+            return false;
+        }
+        
+        $hosts = [];
+        foreach ($apiData['Instances'] as $instance) {
+            // 安全地获取实例ID，尝试多个可能的字段名
+            $instanceId = $instance['instanceId'] ?? $instance['InstanceId'] ?? $instance['instance_id'] ?? $instance['id'] ?? '';
+            if (empty($instanceId)) {
+                continue; // 如果没有找到实例ID，跳过此实例
+            }
+            
+            // 安全地获取实例名称
+            $instanceName = $instance['instanceName'] ?? $instance['InstanceName'] ?? $instance['instance_name'] ?? $instance['name'] ?? 'Unknown';
+            
+            // 安全地获取状态
+            $status = $instance['status'] ?? $instance['Status'] ?? $instance['State'] ?? 'Unknown';
+            
+            // 安全地获取CPU和内存
+            $cpu = $instance['cpu'] ?? $instance['Cpu'] ?? $instance['CPU'] ?? 0;
+            $memory = $instance['memory'] ?? $instance['Memory'] ?? $instance['MEM'] ?? 0;
+            
+            // 安全地获取实例类型
+            $instanceType = $instance['instanceType'] ?? $instance['InstanceType'] ?? $instance['type'] ?? '';
+            
+            // 安全地获取VPC ID
+            $vpcId = $instance['vpcId'] ?? $instance['VpcId'] ?? $instance['vpc_id'] ?? '';
+            
+            // 安全地获取操作系统信息
+            $osType = $instance['osType'] ?? $instance['OsType'] ?? $instance['OSType'] ?? 'linux';
+            $osName = $instance['osName'] ?? $instance['OsName'] ?? $instance['OSName'] ?? $instance['ImageId'] ?? $instance['imageId'] ?? 'Unknown';
+            
+            // 安全地获取创建时间和过期时间
+            $creationTime = $instance['creationTime'] ?? $instance['CreationTime'] ?? $instance['CreatedTime'] ?? null;
+            $expiredTime = $instance['expiredTime'] ?? $instance['ExpiredTime'] ?? $instance['ExpireTime'] ?? null;
+            
+            // 获取所有私有IP
+            $privateIps = [];
+            if (!empty($instance['innerIpAddress']) && !empty($instance['innerIpAddress']['ipAddress'])) {
+                $privateIps = $instance['innerIpAddress']['ipAddress'];
+            } elseif (!empty($instance['privateIpAddress']) && !empty($instance['privateIpAddress']['ipAddress'])) {
+                $privateIps = $instance['privateIpAddress']['ipAddress'];
+            } elseif (!empty($instance['vpcAttributes']['privateIpAddress']['ipAddress'])) {
+                $privateIps = $instance['vpcAttributes']['privateIpAddress']['ipAddress'];
+            }
+            // 去重并保留唯一IP
+            $privateIps = array_unique($privateIps);
+            // 设置默认私有IP
+            $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
+            
+            // 获取所有公网IP
+            $publicIps = [];
+            if (!empty($instance['eipAddress']) && !empty($instance['eipAddress']['ipAddress'])) {
+                $publicIps[] = $instance['eipAddress']['ipAddress'];
+            } elseif (!empty($instance['publicIpAddress']) && !empty($instance['publicIpAddress']['ipAddress'])) {
+                $publicIps = $instance['publicIpAddress']['ipAddress'];
+            } elseif (!empty($instance['publicIpAddress']['ipAddress'])) {
+                $publicIps = $instance['publicIpAddress']['ipAddress'];
+            }
+            // 去重并保留唯一IP
+            $publicIps = array_unique($publicIps);
+            // 设置默认公网IP
+            $publicIp = !empty($publicIps) ? reset($publicIps) : '';
+            
+            // 获取MAC地址
+            $macAddress = '';
+            if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces']) && count($instance['networkInterfaces']) > 0) {
+                if (isset($instance['networkInterfaces']['networkInterface']) && is_array($instance['networkInterfaces']['networkInterface'])) {
+                    $firstInterface = $instance['networkInterfaces']['networkInterface'][0] ?? null;
+                } else {
+                    $firstInterface = $instance['networkInterfaces'][0] ?? null;
+                }
+                
+                if ($firstInterface && isset($firstInterface['macAddress'])) {
+                    $macAddress = $firstInterface['macAddress'];
+                } elseif ($firstInterface && isset($firstInterface['mac_address'])) {
+                    $macAddress = $firstInterface['mac_address'];
+                }
+            }
+            
+            // 获取安全组
+            $securityGroups = [];
+            if (!empty($instance['securityGroupIds']) && !empty($instance['securityGroupIds']['securityGroupId'])) {
+                $securityGroups = $instance['securityGroupIds']['securityGroupId'];
+            } elseif (!empty($instance['SecurityGroupIds']) && !empty($instance['SecurityGroupIds']['SecurityGroupId'])) {
+                $securityGroups = $instance['SecurityGroupIds']['SecurityGroupId'];
+            }
+            
+            // 构建主机资产数据
+            $hosts[] = [
+                'instance_id' => $instanceId,
+                'instance_name' => $instanceName,
+                'display_name' => $instanceName,
+                'cloud_platform' => 'aliyun',
+                'status' => strtoupper($status),
+                'private_ip' => $privateIp,
+                'public_ip' => $publicIp,
+                'private_ips' => json_encode($privateIps),
+                'public_ips' => json_encode($publicIps),
+                'mac_address' => $macAddress,
+                'os_type' => $osType,
+                'os_name' => $osName,
+                'cpu' => $cpu,
+                'memory' => $memory,
+                'instance_type' => $instanceType,
+                'vpc_id' => $vpcId,
+                'vpc_name' => '',
+                'security_groups' => json_encode($securityGroups),
+                'create_time' => !empty($creationTime) ? date('Y-m-d H:i:s', strtotime($creationTime)) : null,
+                'update_time' => date('Y-m-d H:i:s'),
+                'expire_time' => !empty($expiredTime) ? date('Y-m-d H:i:s', strtotime($expiredTime)) : null,
+                'hids_installed' => 0,
+            ];
+        }
+        
+        // 批量导入或更新
+        foreach ($hosts as $host) {
+            // 处理主机资产表
+            $existing = self::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
+            if ($existing) {
+                // 更新现有记录
+                unset($host['create_time']); // 不更新创建时间
+                self::updateByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform'], $host);
+            } else {
+                // 添加新记录
+                self::addHostAssets($host);
+            }
+        }
+        
+        return true;
+    }
+
     // 从天翼云API数据导入主机资产
     public static function importFromTianyiApi($apiData)
     {
