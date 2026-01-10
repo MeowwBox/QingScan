@@ -31,6 +31,7 @@
         }
         .cloud-huoshan { background-color: #e6f7ff; color: #1890ff; }
         .cloud-tianyi { background-color: #f6ffed; color: #52c41a; }
+        .cloud-yidong { background-color: #fff1f0; color: #ff4d4f; }
         .cloud-idc { background-color: #fff2e8; color: #fa8c16; }
     </style>
 </head>
@@ -93,6 +94,7 @@
                                                         <span class="cloud-platform cloud-{$host.cloud_platform}">
                                                             {if $host.cloud_platform == 'huoshan'}火山云
                                                             {elseif $host.cloud_platform == 'tianyi'}天翼云
+                                                            {elseif $host.cloud_platform == 'yidong'}移动云
                                                             {else}线下IDC
                                                             {/if}
                                                         </span>

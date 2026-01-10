@@ -24,12 +24,32 @@ $statusDescArr = ['待执行','已执行'];
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($list as $value) { ?>
+                <?php foreach ($list as $value) {
+                    $extInfo = json_decode($value['ext_info'], true);
+                    $targetId = isset($extInfo['id']) ? $extInfo['id'] : '';
+                    // 根据tool字段推断数据来源
+                    $targetTable = '';
+                    if (strpos($value['tool'], 'asm_') === 0) {
+                        if (strpos($value['tool'], 'domain_') !== false) {
+                            $targetTable = 'asm_domain';
+                        } elseif (strpos($value['tool'], 'ip_') !== false) {
+                            $targetTable = 'asm_ip';
+                        } elseif (strpos($value['tool'], 'urls') !== false) {
+                            $targetTable = 'asm_urls';
+                        } elseif ($value['tool'] == 'asm_discover') {
+                            $targetTable = 'asm_discover';
+                        }
+                    } elseif (strpos($value['tool'], 'scan_app_') === 0) {
+                        $targetTable = 'app';
+                    } elseif (strpos($value['tool'], 'code_') === 0) {
+                        $targetTable = 'code';
+                    }
+                ?>
                     <tr>
                         <td>{$value['id']}</td>
-                        <td>{$value['target_table']}</td>
+                        <td><?php echo $targetTable; ?></td>
                         <td>{$value['tool']}</td>
-                        <td>{$value['target']}</td>
+                        <td><?php echo $targetId; ?></td>
                         <td>
                             <span class="badge text-bg-{$colorArr[$value['status']]}">
                                 {$statusDescArr[$value['status']]}
