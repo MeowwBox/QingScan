@@ -183,6 +183,62 @@ class HostAssetsSyncModel extends BaseModel
     }
 
     /**
+     * 从移动云拉取主机资产
+     */
+    public static function importFromYidong(Output $output): void
+    {
+        $output->writeln("正在从移动云拉取主机资产...");
+
+        // Python脚本路径
+        $scriptPath = app()->getRootPath() . 'extend/tools/yidongApi/getYiDongHostList.py';
+        $jsonFilePath = app()->getRootPath() . 'extend/tools/yidongApi/server_list.json';
+
+        try {
+            // 执行Python脚本
+            $output->writeln("执行Python脚本: {$scriptPath}");
+            $command = "cd " . dirname($scriptPath) . " && python3 getYiDongHostList.py";
+//            exec($command, $outputLines, $returnCode);
+//
+//            if ($returnCode !== 0) {
+//                $output->writeln("<error>Python脚本执行失败，返回码: {$returnCode}</error>");
+//                $output->writeln("<error>输出: " . implode(PHP_EOL, $outputLines) . "</error>");
+//                return;
+//            }
+
+            // 读取生成的JSON文件
+            $output->writeln("读取JSON文件: {$jsonFilePath}");
+            if (!file_exists($jsonFilePath)) {
+                $output->writeln("<error>JSON文件不存在: {$jsonFilePath}</error>");
+                return;
+            }
+
+            // 解析JSON数据
+            $jsonContent = file_get_contents($jsonFilePath);
+            $apiData = json_decode($jsonContent, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $output->writeln("<error>JSON解析失败: " . json_last_error_msg() . "</error>");
+                return;
+            }
+
+            // 打印获取到的数据信息
+            $output->writeln("<info>成功获取移动云主机实例数据</info>");
+            $output->writeln("<info>数据结构: " . print_r(array_keys($apiData), true) . "</info>");
+
+            // 导入数据到数据库
+            HostAssetsModel::importFromYidongApi($apiData);
+
+            // 删除临时JSON文件
+//            unlink($jsonFilePath);
+//            $output->writeln("<info>临时JSON文件已删除</info>");
+
+        } catch (Throwable $e) {
+            $output->writeln("<error>执行移动云资产获取失败: " . $e->getMessage() . "</error>");
+            $output->writeln("<error>错误位置: " . $e->getFile() . ":" . $e->getLine() . "</error>");
+        }
+    }
+
+    /**
      * 从天翼云拉取主机资产
      */
     public static function importFromTianyi(Output $output): void

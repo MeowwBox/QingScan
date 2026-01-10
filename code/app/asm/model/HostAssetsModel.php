@@ -398,16 +398,151 @@ class HostAssetsModel extends BaseModel
             // 处理天翼云资源表
             $tianyiResource = $tianyiResources[$index];
             $existingTianyi = Db::table('asm_cloud_tianyi')->where('resource_id', $tianyiResource['resource_id'])->find();
-            if ($existingTianyi) {
+        }
+        
+        return true;
+    }
+    
+    // 从移动云API数据导入主机资产
+    public static function importFromYidongApi($apiData)
+    {
+
+        if (empty($apiData)) {
+            echo "移动云API数据错误\n";
+            return false;
+        }
+        
+        // 检查移动云API响应结构
+        if (!isset($apiData['state']) || $apiData['state'] !== 'OK' || !isset($apiData['body'])) {
+            echo "移动云API数据错误\n 状态: {$apiData['state']}\n  ";
+            return false;
+        }
+        
+        // 提取实际的主机实例数据
+        $instances = $apiData['body'];
+        
+        $hosts = [];
+        $yidongResources = [];
+        
+        foreach ($instances as $instance) {
+            // 获取所有私有IP
+            $privateIps = [];
+            if (isset($instance['private_ip_address']) && !empty($instance['private_ip_address'])) {
+                if (is_array($instance['private_ip_address'])) {
+                    $privateIps = $instance['private_ip_address'];
+                } else {
+                    $privateIps[] = $instance['private_ip_address'];
+                }
+            }
+            // 去重并保留唯一IP
+            $privateIps = array_unique($privateIps);
+            // 设置默认私有IP
+            $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
+            
+            // 获取所有公网IP
+            $publicIps = [];
+            if (isset($instance['public_ip_address']) && !empty($instance['public_ip_address'])) {
+                if (is_array($instance['public_ip_address'])) {
+                    $publicIps = $instance['public_ip_address'];
+                } else {
+                    $publicIps[] = $instance['public_ip_address'];
+                }
+            }
+            // 去重并保留唯一IP
+            $publicIps = array_unique($publicIps);
+            // 设置默认公网IP
+            $publicIp = !empty($publicIps) ? reset($publicIps) : '';
+            
+            // 获取MAC地址
+            $macAddress = '';
+            if (isset($instance['mac_address'])) {
+                $macAddress = $instance['mac_address'];
+            }
+            
+            // 获取安全组
+            $securityGroups = [];
+            if (isset($instance['security_groups']) && !empty($instance['security_groups'])) {
+                if (is_array($instance['security_groups'])) {
+                    foreach ($instance['security_groups'] as $sg) {
+                        $securityGroups[] = [
+                            'id' => $sg['security_group_id'] ?? $sg['id'] ?? '',
+                            'name' => $sg['security_group_name'] ?? $sg['name'] ?? '',
+                        ];
+                    }
+                }
+            }
+            
+            $hosts[] = [
+                'instance_id' => $instance['server_id'],
+                'instance_name' => $instance['server_name'],
+                'display_name' => $instance['server_name'],
+                'cloud_platform' => 'yidong',
+                'status' => $instance['status'],
+                'private_ip' => $privateIp,
+                'public_ip' => $publicIp,
+                'private_ips' => json_encode($privateIps),
+                'public_ips' => json_encode($publicIps),
+                'mac_address' => $macAddress,
+                'os_type' => $instance['os_type'] ?? 'Linux',
+                'os_name' => $instance['os_name'] ?? 'Unknown',
+                'cpu' => $instance['cpu'],
+                'memory' => $instance['memory'],
+                'instance_type' => $instance['flavor_name'],
+                'vpc_id' => $instance['vpc_id'] ?? '',
+                'vpc_name' => $instance['vpc_name'] ?? '',
+                'security_groups' => json_encode($securityGroups),
+                'create_time' => date('Y-m-d H:i:s', strtotime($instance['create_time'])),
+                'update_time' => date('Y-m-d H:i:s'),
+                'expire_time' => null,
+                'hids_installed' => 0,
+            ];
+            
+            // 构建移动云资源表数据
+            $yidongResources[] = [
+                'resource_id' => $instance['server_id'],
+                'resource_name' => $instance['server_name'],
+                'resource_type' => '云主机',
+                'region' => $instance['region'] ?? '',
+                'status' => $instance['status'],
+                'public_ip' => $publicIp,
+                'private_ip' => $privateIp,
+                'public_ips' => json_encode($publicIps),
+                'private_ips' => json_encode($privateIps),
+                'create_time' => date('Y-m-d H:i:s', strtotime($instance['create_time'])),
+                'update_time' => date('Y-m-d H:i:s'),
+                'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
+            ];
+
+            var_dump($hosts);die;
+        }
+        
+        // 批量导入或更新
+        foreach ($hosts as $index => $host) {
+            $existing = self::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
+            if ($existing) {
                 // 更新现有记录
-                unset($tianyiResource['create_time']); // 不更新创建时间
-                Db::table('asm_cloud_tianyi')->where('id', $existingTianyi['id'])->update($tianyiResource);
+                unset($host['create_time']); // 不更新创建时间
+                self::updateByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform'], $host);
             } else {
                 // 添加新记录
-                CloudModel::addTianyi($tianyiResource);
+                self::addHostAssets($host);
+            }
+            
+            // 处理移动云资源表
+            $yidongResource = $yidongResources[$index];
+            $existingYidong = Db::table('asm_cloud_yidong')->where('resource_id', $yidongResource['resource_id'])->find();
+            if ($existingYidong) {
+                // 更新现有记录
+                unset($yidongResource['create_time']); // 不更新创建时间
+                Db::table('asm_cloud_yidong')->where('id', $existingYidong['id'])->update($yidongResource);
+            } else {
+                // 添加新记录
+                Db::table('asm_cloud_yidong')->insert($yidongResource);
             }
         }
         
         return true;
     }
+    
+    // 从天翼云API数据导入主机资产
 }
