@@ -29,10 +29,11 @@
                         <p><strong>工单状态：</strong>
                             <span class="badge <?php 
                                 switch($work_order['status']) {
-                                    case 'open': echo 'bg-warning bg-light text-warning'; break;
-                                    case 'processing': echo 'bg-info bg-light text-info'; break;
-                                    case 'closed': echo 'bg-success bg-light text-success'; break;
-                                    case 'rejected': echo 'bg-danger bg-light text-danger'; break;
+                                    case 'pending_dispatch': echo 'bg-warning bg-light text-warning'; break;
+                                    case 'dispatched': echo 'bg-info bg-light text-info'; break;
+                                    case 'confirmed': echo 'bg-primary bg-light text-primary'; break;
+                                    case 'fixed_unconfirmed': echo 'bg-secondary bg-light text-secondary'; break;
+                                    case 'fixed_confirmed': echo 'bg-success bg-light text-success'; break;
                                     default: echo 'bg-light text-dark';
                                 }
                             ?>">
@@ -41,8 +42,14 @@
                         </p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>创建时间：</strong><?php echo $work_order['create_time'] ?></p>
-                        <p><strong>更新时间：</strong><?php echo $work_order['update_time'] ?></p>
+                        <p><strong>安全owner：</strong><?php echo $work_order['security_owner'] ?? '' ?></p>
+                        <p><strong>业务owner：</strong><?php echo $work_order['business_owner'] ?? '' ?></p>
+                        <p><strong>修复人：</strong><?php echo $work_order['fixer'] ?? '' ?></p>
+                        <p><strong>确认人：</strong><?php echo $work_order['confirmer'] ?? '' ?></p>
+                    </div>
+                    <div class="col-md-12 mt-3">
+                        <p><strong>创建时间：</strong><?php echo $work_order['created_at'] ?></p>
+                        <p><strong>更新时间：</strong><?php echo $work_order['updated_at'] ?></p>
                         <p><strong>飞书通知：</strong>
                             <span class="badge <?php echo $work_order['feishu_notified'] ? 'bg-success bg-light text-success' : 'bg-danger bg-light text-danger' ?>">
                                 <?php echo $work_order['feishu_notified'] ? '已通知' : '未通知' ?>
@@ -115,6 +122,23 @@
                                 <?php endforeach; ?>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="security_owner" class="form-label">安全owner</label>
+                            <input type="text" class="form-control" id="security_owner" value="<?php echo $work_order['security_owner'] ?? '' ?>" placeholder="请输入安全owner">
+                        </div>
+                        <div class="mb-3">
+                            <label for="business_owner" class="form-label">业务owner</label>
+                            <input type="text" class="form-control" id="business_owner" value="<?php echo $work_order['business_owner'] ?? '' ?>" placeholder="请输入业务owner">
+                        </div>
+                        <div class="mb-3">
+                            <label for="fixer" class="form-label">修复人</label>
+                            <input type="text" class="form-control" id="fixer" value="<?php echo $work_order['fixer'] ?? '' ?>" placeholder="请输入修复人">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmer" class="form-label">确认人</label>
+                            <input type="text" class="form-control" id="confirmer" value="<?php echo $work_order['confirmer'] ?? '' ?>" placeholder="请输入确认人">
+                        </div>
+                        </div>
                         <button type="button" class="btn btn-primary" onclick="updateStatus(<?php echo $work_order['id'] ?>)">更新状态</button>
                         <button type="button" class="btn btn-outline-primary" onclick="feishuCreateGroup(<?php echo $work_order['id'] ?>)">飞书拉群通知</button>
                     </div>
@@ -128,10 +152,22 @@
 <script>
 function updateStatus(id) {
     var status = $('#status').val();
+    var security_owner = $('#security_owner').val();
+    var business_owner = $('#business_owner').val();
+    var fixer = $('#fixer').val();
+    var confirmer = $('#confirmer').val();
+    
     $.ajax({
         url: '<?php echo url('asm/workorder/updateStatus') ?>',
         type: 'post',
-        data: {id: id, status: status},
+        data: {
+            id: id, 
+            status: status,
+            security_owner: security_owner,
+            business_owner: business_owner,
+            fixer: fixer,
+            confirmer: confirmer
+        },
         dataType: 'json',
         success: function(res) {
             if (res.code == 1) {

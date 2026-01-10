@@ -33,7 +33,7 @@
                     <li class="nav-item"><a class="nav-link" id="cveuse" href="/vulnerable/index.html">
                             <img src="/icon/cve.svg" style="width:21px;">
                             安全情报 </a></li>
-                    <li class="nav-item"><a class="nav-link" id="asm" href="/asm/Discover/index.html">
+                    <li class="nav-item"><a class="nav-link" id="asm" href="/asm/hostassets/index.html">
                             <img src="/icon/asm.svg" style="width:21px;">
                             资产管理 </a></li>
                     <li class="nav-item ">

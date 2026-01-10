@@ -16,20 +16,7 @@
 
             </ul>
         </li>
-        <!-- 资产管理核心功能 -->
-        <li>
-            <a href="#">
-                <img src="/icon/webscan.svg" class="icon">
-                网络资产
-                <img src="/icon/right.svg" class="toggle-btn">
-            </a>
-            <ul class="submenu show">
-                <li><a href="/asm/Discover/index.html">自动发现</a></li>
-                <li><a href="/asm/domain/index.html">域名管理</a></li>
-                <li><a href="/asm/urls/index.html">URL管理</a></li>
-                <li><a href="/asm/ip_port/index.html">端口管理</a></li>
-            </ul>
-        </li>
+
         
         <!-- 漏洞管理 -->
         <li>
@@ -39,8 +26,8 @@
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu">
-                <li><a href="/asm/vulnerability/index.html">漏洞汇总列表</a></li>
-                <li><a href="/asm/vulnerability/qingteng.html">青藤云主机漏洞列表</a></li>
+                <li><a href="/asm/vulnerability/index.html">漏洞汇总</a></li>
+                <li><a href="/asm/vulnerability/qingteng.html">主机漏洞</a></li>
             </ul>
         </li>
         
@@ -55,7 +42,20 @@
                 <li><a href="/asm/workorder/index.html">工单列表</a></li>
             </ul>
         </li>
-
+        <!-- 资产管理核心功能 -->
+        <li>
+            <a href="#">
+                <img src="/icon/webscan.svg" class="icon">
+                虚拟资产
+                <img src="/icon/right.svg" class="toggle-btn">
+            </a>
+            <ul class="submenu">
+                <li><a href="/asm/domain/index.html">域名列表</a></li>
+                <li><a href="/asm/urls/index.html">URL列表</a></li>
+                <li><a href="/asm/ip_port/index.html">组件列表</a></li>
+                <li><a href="/asm/Discover/keyword_conf.html">规则设置</a></li>
+            </ul>
+        </li>
     </ul>
 </div>
 

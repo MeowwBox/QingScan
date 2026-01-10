@@ -49,10 +49,11 @@ class WorkOrder extends Common
         
         // 工单状态
         $work_order_status = [
-            'open' => '待处理',
-            'processing' => '处理中',
-            'closed' => '已关闭',
-            'rejected' => '已驳回'
+            'pending_dispatch' => '待派发',
+            'dispatched' => '已派发',
+            'confirmed' => '已确认',
+            'fixed_unconfirmed' => '已修复未确认',
+            'fixed_confirmed' => '已修复确认'
         ];
         
         // 工单类型
@@ -102,9 +103,27 @@ class WorkOrder extends Common
             }
         }
         
+        // 工单状态
+        $work_order_status = [
+            'open' => '待处理',
+            'processing' => '处理中',
+            'closed' => '已关闭',
+            'rejected' => '已驳回'
+        ];
+        
+        // 工单类型
+        $work_order_type = [
+            'vul_fix' => '漏洞修复',
+            'asset_add' => '资产添加',
+            'asset_delete' => '资产删除',
+            'other' => '其他'
+        ];
+        
         View::assign([
             'work_order' => $work_order,
-            'vul_data' => $vul_data
+            'vul_data' => $vul_data,
+            'work_order_status' => $work_order_status,
+            'work_order_type' => $work_order_type
         ]);
         
         return View::fetch();
@@ -179,21 +198,42 @@ class WorkOrder extends Common
     {
         $id = Request::param('id', 0, 'intval');
         $status = Request::param('status', '');
+        $security_owner = Request::param('security_owner', '');
+        $business_owner = Request::param('business_owner', '');
+        $fixer = Request::param('fixer', '');
+        $confirmer = Request::param('confirmer', '');
         
         if (empty($id) || empty($status)) {
             return json(['code' => 0, 'msg' => '参数错误']);
         }
         
-        // 更新工单状态
-        $result = Db::table('asm_work_order')->where('id', $id)->update([
+        // 准备更新数据
+        $update_data = [
             'status' => $status,
             'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        ];
+        
+        // 添加可选字段
+        if (!empty($security_owner)) {
+            $update_data['security_owner'] = $security_owner;
+        }
+        if (!empty($business_owner)) {
+            $update_data['business_owner'] = $business_owner;
+        }
+        if (!empty($fixer)) {
+            $update_data['fixer'] = $fixer;
+        }
+        if (!empty($confirmer)) {
+            $update_data['confirmer'] = $confirmer;
+        }
+        
+        // 更新工单
+        $result = Db::table('asm_work_order')->where('id', $id)->update($update_data);
         
         if ($result) {
-            return json(['code' => 1, 'msg' => '状态更新成功']);
+            return json(['code' => 1, 'msg' => '更新成功']);
         } else {
-            return json(['code' => 0, 'msg' => '状态更新失败']);
+            return json(['code' => 0, 'msg' => '更新失败']);
         }
     }
 }

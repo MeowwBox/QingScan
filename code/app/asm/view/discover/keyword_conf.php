@@ -23,7 +23,6 @@
     <div class="row tuchu">
         <!--            <div class="col-md-1"></div>-->
         <div class="col-md-12 ">
-            {include file='discover/sub_menu' /}
             <?php if (empty($fofa_user) || empty($fofa_token)) { ?>
                 <div style="margin: 30px;">
                     <a class="btn btn-outline-warning"

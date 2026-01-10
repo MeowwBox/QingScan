@@ -25,6 +25,9 @@ $searchArr = [
                 <th>工单标题</th>
                 <th>工单类型</th>
                 <th>状态</th>
+                <th>安全owner</th>
+                <th>业务owner</th>
+                <th>修复人</th>
                 <th>创建时间</th>
                 <th>更新时间</th>
                 <th style="width: 200px">操作</th>
@@ -42,18 +45,22 @@ $searchArr = [
                     <td>
                         <span class="badge <?php 
                             switch($value['status']) {
-                                case 'open': echo 'bg-warning bg-light text-warning'; break;
-                                case 'processing': echo 'bg-info bg-light text-info'; break;
-                                case 'closed': echo 'bg-success bg-light text-success'; break;
-                                case 'rejected': echo 'bg-danger bg-light text-danger'; break;
+                                case 'pending_dispatch': echo 'bg-warning bg-light text-warning'; break;
+                                case 'dispatched': echo 'bg-info bg-light text-info'; break;
+                                case 'confirmed': echo 'bg-primary bg-light text-primary'; break;
+                                case 'fixed_unconfirmed': echo 'bg-secondary bg-light text-secondary'; break;
+                                case 'fixed_confirmed': echo 'bg-success bg-light text-success'; break;
                                 default: echo 'bg-light text-dark';
                             }
                         ?>">
                             <?php echo $work_order_status[$value['status']] ?? $value['status'] ?>
                         </span>
                     </td>
-                    <td><?php echo $value['create_time'] ?></td>
-                    <td><?php echo $value['update_time'] ?></td>
+                    <td><?php echo $value['security_owner'] ?></td>
+                    <td><?php echo $value['business_owner'] ?></td>
+                    <td><?php echo $value['fixer'] ?></td>
+                    <td><?php echo $value['created_at'] ?></td>
+                    <td><?php echo $value['updated_at'] ?></td>
                     <td>
                         <a href="<?php echo url('asm/workorder/detail', ['id' => $value['id']]) ?>" class="btn btn-sm btn-outline-secondary">查看详情</a>
                         <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary" onclick="feishuCreateGroup(<?php echo $value['id'] ?>)">飞书拉群</a>

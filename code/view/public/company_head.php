@@ -4,7 +4,7 @@
         主页</a></li>
 <li class="nav-item"><a class="nav-link" id="codeaudit" href="/code/index.html">
         <img src="/icon/code.svg" style="width:21px;">代码审计 </a></li>
-<li class="nav-item"><a class="nav-link" id="asm" href="/asm/Discover/index.html">
+<li class="nav-item"><a class="nav-link" id="asm" href="/asm/hostassets/index.html">
         <img src="/icon/asm.svg" style="width:21px;">
         资产管理 </a></li>
 <li class="nav-item ">
