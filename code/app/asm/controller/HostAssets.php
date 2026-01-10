@@ -11,7 +11,7 @@ use think\facade\Request;
 
 class HostAssets extends Common
 {
-    // 主机资产列表
+    // 主机汇总列表
     public function index()
     {
         // 获取搜索条件
@@ -79,66 +79,81 @@ class HostAssets extends Common
             'SHUTOFF' => '已关闭'
         ];
         
-        // 获取当前tab参数，使用默认值避免未定义错误
-        $tab = Request::param('tab', 'host');
-        
-        // 将tab参数赋值给视图，以便在模板中使用
-        View::assign('tab', $tab);
-        
-        // HIDS列表数据
-        $hids_list = [];
-        if ($tab == 'hids') {
-            // 获取HIDS列表搜索条件
-            $hids_keyword = Request::param('keyword', '');
-            
-            // 构建HIDS查询条件
-            $hids_where = [];
-            if (!empty($hids_keyword)) {
-                $hids_where[] = ['ip_address', 'like', '%' . $hids_keyword . '%'];
-            }
-            
-            // 获取HIDS列表数据
-            $hids_list = HidsQingtengModel::getList($hids_where, $page, $limit);
-            
-            // 解析原始JSON数据，提取需要的字段
-            foreach ($hids_list as &$hids_item) {
-                if (!empty($hids_item['original_json'])) {
-                    $original_data = json_decode($hids_item['original_json'], true);
-                    if ($original_data) {
-                        // 提取系统信息
-                        if (isset($original_data['system'])) {
-                            $hids_item['os_name'] = $original_data['system']['os_name'] ?? '';
-                            $hids_item['kernel_version'] = $original_data['system']['kernel_version'] ?? '';
-                            $hids_item['hostname'] = $original_data['system']['hostname'] ?? '';
-                        }
-                        
-                        // 提取在线状态（使用青藤云返回的state字段）
-                        $hids_item['online_status'] = (isset($original_data['state']) && strtoupper($original_data['state']) === 'ONLINE') ? '在线' : '离线';
-                        
-                        // 提取实例名称
-                        if (isset($original_data['instance_name'])) {
-                            $hids_item['instance_name'] = $original_data['instance_name'];
-                        }
-                    }
-                }
-            }
-        }
-        
         View::assign([
             'list' => $list,
             'page' => $host_page,
-            'hids_list' => $hids_list,
             'platforms' => $platforms,
             'hids_status' => $hids_status,
             'instance_status' => $instance_status,
             'keyword' => $keyword,
             'cloud_platform' => $cloud_platform,
             'status' => $status,
-            'hids_installed' => $hids_installed,
-            'tab' => $tab
+            'hids_installed' => $hids_installed
         ]);
         
-        return View::fetch();
+        return View::fetch('index');
+    }
+    
+    // HIDS列表
+    public function hids()
+    {
+        // 获取HIDS列表搜索条件
+        $keyword = Request::param('keyword', '');
+        
+        // 构建HIDS查询条件
+        $hids_where = [];
+        if (!empty($keyword)) {
+            $hids_where[] = ['ip_address', 'like', '%' . $keyword . '%'];
+        }
+        
+        // 获取HIDS分页参数
+        $limit = Request::param('limit', 20, 'intval');
+        
+        // 使用数据库查询的paginate方法获取带分页的数据
+        $hids_page = Db::table('asm_hids_qingteng')
+            ->where($hids_where)
+            ->order('created_time desc')
+            ->paginate([
+                'list_rows' => $limit,
+                'query' => Request::param()
+            ]);
+        
+        // 获取分页后的数据列表
+        $hids_list = $hids_page->items();
+        
+        // 解析原始JSON数据，提取需要的字段
+        foreach ($hids_list as &$hids_item) {
+            if (!empty($hids_item['original_json'])) {
+                $original_data = json_decode($hids_item['original_json'], true);
+                if ($original_data) {
+                    // 提取系统信息
+                    if (isset($original_data['system'])) {
+                        $hids_item['os_name'] = $original_data['system']['os_name'] ?? '';
+                        $hids_item['kernel_version'] = $original_data['system']['kernel_version'] ?? '';
+                        $hids_item['hostname'] = $original_data['system']['hostname'] ?? '';
+                    }
+                    
+                    // 提取在线状态（使用青藤云返回的state字段）
+                    $hids_item['online_status'] = (isset($original_data['state']) && strtoupper($original_data['state']) === 'ONLINE') ? '在线' : '离线';
+                    
+                    // 提取实例名称
+                    if (isset($original_data['instance_name'])) {
+                        $hids_item['instance_name'] = $original_data['instance_name'];
+                    }
+                    
+                    // 提取最后同步时间
+                    $hids_item['sync_time'] = $hids_item['updated_time'] ?? $hids_item['created_time'] ?? '';
+                }
+            }
+        }
+        
+        View::assign([
+            'hids_list' => $hids_list,
+            'page' => $hids_page,
+            'keyword' => $keyword
+        ]);
+        
+        return View::fetch('hids');
     }
     
     // HIDS详情页面
