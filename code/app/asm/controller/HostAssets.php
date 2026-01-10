@@ -112,8 +112,8 @@ class HostAssets extends Common
                             $hids_item['hostname'] = $original_data['system']['hostname'] ?? '';
                         }
                         
-                        // 提取在线状态
-                        $hids_item['online_status'] = isset($original_data['online']) && $original_data['online'] ? '在线' : '离线';
+                        // 提取在线状态（使用青藤云返回的state字段）
+                        $hids_item['online_status'] = (isset($original_data['state']) && strtoupper($original_data['state']) === 'ONLINE') ? '在线' : '离线';
                         
                         // 提取实例名称
                         if (isset($original_data['instance_name'])) {
