@@ -7,6 +7,7 @@
     <div class="col-md-12 ">
         <div class="row tuchu">
             <div class="col-md-12 ">
+                {include file='cloud/cloud_sub_menu' /}
                 <table class="table table-hover table-sm table-borderless">
                     <thead class="table-light">
                     <tr>
@@ -31,10 +32,7 @@
                         <td><?php echo $item['public_ip']; ?></td>
                         <td><?php echo $item['private_ip']; ?></td>
                         <td><?php echo $item['create_time']; ?></td>
-                        <td>
-                            <a href="#" class="btn btn-primary btn-sm">编辑</a>
-                            <a href="#" class="btn btn-danger btn-sm">删除</a>
-                        </td>
+                        <td></td>
                     </tr>
                     <?php } ?>
                 </table>
