@@ -597,37 +597,68 @@ class HostAssetsSyncModel extends BaseModel
                 $resourceType = $instance['resourceType'] ?? $instance['type'] ?? $instance['instanceType'] ?? '云主机';
                 $region = $instance['region'] ?? env('TIANYI.REGION_ID') ?? 'default';
                 $status = strtoupper($instance['status'] ?? $instance['instanceStatus'] ?? 'unknown');
-                $publicIp = $instance['publicIp'] ?? $instance['floatingIP'] ?? $instance['eip'] ?? '';
-                $publicIp = $instance['publicIp'] ?? $instance['publicIPAddress'] ?? $instance['innerIP'] ?? '0.0.0.0';
-                // 获取私有IP
-                $privateIp = '0.0.0.0';
+                // 获取所有公网IP
+                $publicIps = [];
+                if (!empty($instance['floatingIP'])) {
+                    $publicIps[] = $instance['floatingIP'];
+                }
+                if (!empty($instance['publicIp'])) {
+                    $publicIps[] = $instance['publicIp'];
+                }
+                if (!empty($instance['publicIPAddress'])) {
+                    $publicIps[] = $instance['publicIPAddress'];
+                }
+                if (!empty($instance['eip'])) {
+                    $publicIps[] = $instance['eip'];
+                }
+                // 去重
+                $publicIps = array_unique(array_filter($publicIps));
+                $publicIp = !empty($publicIps) ? reset($publicIps) : '';
+                
+                // 获取所有私有IP
+                $privateIps = [];
+                if (!empty($instance['privateIP'])) {
+                    $privateIps[] = $instance['privateIP'];
+                }
                 if (isset($instance['addresses']) && is_array($instance['addresses'])) {
                     foreach ($instance['addresses'] as $address) {
                         if (isset($address['addressList']) && is_array($address['addressList'])) {
                             foreach ($address['addressList'] as $addrInfo) {
                                 if (isset($addrInfo['type']) && $addrInfo['type'] === 'fixed') {
-                                    $privateIp = $addrInfo['addr'] ?? '0.0.0.0';
-                                    break 2;
+                                    if (isset($addrInfo['ipAddress'])) {
+                                        $privateIps[] = $addrInfo['ipAddress'];
+                                    } elseif (isset($addrInfo['addr'])) {
+                                        $privateIps[] = $addrInfo['addr'];
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                // 去重
+                $privateIps = array_unique(array_filter($privateIps));
+                $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
                 // 使用convertDatetime方法处理创建时间
                 $createTime = self::convertDatetime($instance['createTime'] ?? $instance['create_time'] ?? $instance['createdTime'] ?? null) ?? date('Y-m-d H:i:s');
 
                 // 天翼云资源表数据
-                $tianyiResources[] = [
+                // 构建完整的资源数据
+                $resourceData = [
                     'resource_id' => $resourceId,
                     'resource_name' => $resourceName,
                     'resource_type' => $resourceType,
                     'region' => $region,
                     'status' => $status,
                     'public_ip' => $publicIp,
-                    'public_ip' => $publicIp,
+                    'private_ip' => $privateIp,
+                    'public_ips' => json_encode($publicIps),
+                    'private_ips' => json_encode($privateIps),
                     'create_time' => $createTime,
                     'update_time' => date('Y-m-d H:i:s'),
+                    'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
                 ];
+                
+                $tianyiResources[] = $resourceData;
 
                 // 主机资产表数据
                 $hosts[] = [
