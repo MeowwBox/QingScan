@@ -820,6 +820,12 @@ class HostAssetsModel extends BaseModel
             ->order('cpu', 'asc')
             ->select();
         
+        // 各云平台主机总数和已安装HIDS数量对比
+        $stats['cloud_platform_hids_stats'] = Db::table('asm_host_assets')
+            ->field('cloud_platform, count(*) as total, sum(case when hids_installed = 1 then 1 else 0 end) as hids_installed')
+            ->group('cloud_platform')
+            ->select();
+        
         return $stats;
     }
     

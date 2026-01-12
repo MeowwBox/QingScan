@@ -150,12 +150,12 @@
             </div>
         </div>
         
-        <!-- 实例类型分布 -->
+        <!-- 云平台HIDS对比 -->
         <div class="col-md-3 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">实例类型分布</h5>
-                    <canvas id="instanceTypeChart" style="height: 200px !important; max-width: 100% !important;"></canvas>
+                    <h5 class="card-title">云平台HIDS对比</h5>
+                    <canvas id="cloudPlatformHidsChart" style="height: 200px !important; max-width: 100% !important;"></canvas>
                 </div>
             </div>
         </div>
@@ -189,6 +189,7 @@
     const vpcData = <?php echo json_encode($stats['vpc_stats']); ?>;
     const instanceTypeData = <?php echo json_encode($stats['instance_type_stats']); ?>;
     const cpuData = <?php echo json_encode($stats['cpu_stats']); ?>;
+    const cloudPlatformHidsData = <?php echo json_encode($stats['cloud_platform_hids_stats']); ?>;
     
     // 云平台名称映射
     const platformNames = {
@@ -392,19 +393,28 @@
         }
     });
 
-    // 实例类型分布图表
-    const instanceTypeCtx = document.getElementById('instanceTypeChart').getContext('2d');
-    const instanceTypeChart = new Chart(instanceTypeCtx, {
+    // 云平台HIDS对比图表
+    const cloudPlatformHidsCtx = document.getElementById('cloudPlatformHidsChart').getContext('2d');
+    const cloudPlatformHidsChart = new Chart(cloudPlatformHidsCtx, {
         type: 'bar',
         data: {
-            labels: instanceTypeData.map(item => item.instance_type),
-            datasets: [{
-                label: '主机数量',
-                data: instanceTypeData.map(item => item.count),
-                backgroundColor: 'rgba(153, 102, 255, 0.8)',
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 1
-            }]
+            labels: cloudPlatformHidsData.map(item => platformNames[item.cloud_platform] || item.cloud_platform),
+            datasets: [
+                {
+                    label: '总主机数',
+                    data: cloudPlatformHidsData.map(item => item.total),
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: '已安装HIDS数',
+                    data: cloudPlatformHidsData.map(item => item.hids_installed),
+                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
         },
         options: {
             responsive: true,
