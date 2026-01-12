@@ -16,6 +16,7 @@ $menuBlacklist = getMenuBlacklist();
                 <img src="/icon/right.svg" class="toggle-btn">
             </a>
             <ul class="submenu">
+                <?php if (!isMenuBlacklisted('主机资产', $menuBlacklist, '主机概览')): ?><li><a href="/asm/hostassets/overview.html">主机概览</a></li><?php endif; ?>
                 <?php if (!isMenuBlacklisted('主机资产', $menuBlacklist, '全部主机')): ?><li><a href="/asm/hostassets/index.html">全部主机</a></li><?php endif; ?>
                 <?php if (!isMenuBlacklisted('主机资产', $menuBlacklist, '云端主机')): ?><li><a href="/asm/cloud/huoshan.html">云端主机</a></li><?php endif; ?>
             </ul>

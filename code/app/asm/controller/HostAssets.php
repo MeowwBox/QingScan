@@ -414,4 +414,18 @@ class HostAssets extends Common
             return json(['code' => 0, 'msg' => '删除失败']);
         }
     }
+    
+    // 主机概览页面
+    public function overview()
+    {
+        // 获取统计数据
+        $stats = HostAssetsModel::getHostAssetsStats();
+        
+        // 分配数据到视图
+        View::assign([
+            'stats' => $stats
+        ]);
+        
+        return View::fetch('overview');
+    }
 }
