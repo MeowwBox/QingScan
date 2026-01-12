@@ -121,13 +121,24 @@ class HostAssetsModel extends BaseModel
             $privateIps = [];
             if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces'])) {
                 foreach ($instance['networkInterfaces'] as $interface) {
+                    // 支持两种格式：primaryIpAddress（驼峰式）和primary_ip_address（下划线分隔）
                     if (isset($interface['primaryIpAddress'])) {
                         $privateIps[] = $interface['primaryIpAddress'];
+                    } elseif (isset($interface['primary_ip_address'])) {
+                        $privateIps[] = $interface['primary_ip_address'];
                     }
-                    if (isset($interface['privateIpSets']) && is_array($interface['privateIpSets'])) {
-                        foreach ($interface['privateIpSets'] as $ipSet) {
-                            if (isset($ipSet['privateIpAddress'])) {
-                                $privateIps[] = $ipSet['privateIpAddress'];
+                    // 支持多种私有IP集合格式
+                    $possiblePrivateIpSets = ['privateIpSets', 'private_ip_sets', 'privateIps', 'private_ips'];
+                    foreach ($possiblePrivateIpSets as $setsKey) {
+                        if (isset($interface[$setsKey]) && is_array($interface[$setsKey])) {
+                            foreach ($interface[$setsKey] as $ipSet) {
+                                if (isset($ipSet['privateIpAddress'])) {
+                                    $privateIps[] = $ipSet['privateIpAddress'];
+                                } elseif (isset($ipSet['private_ip_address'])) {
+                                    $privateIps[] = $ipSet['private_ip_address'];
+                                } elseif (isset($ipSet['ipAddress'])) {
+                                    $privateIps[] = $ipSet['ipAddress'];
+                                }
                             }
                         }
                     }
@@ -140,23 +151,43 @@ class HostAssetsModel extends BaseModel
             
             // 获取所有公网IP
             $publicIps = [];
+            // 处理EIP地址
             if (!empty($instance['eipAddress'])) {
-                if (is_object($instance['eipAddress']) && isset($instance['eipAddress']->ipAddress)) {
-                    $publicIps[] = $instance['eipAddress']->ipAddress;
-                } else if (is_array($instance['eipAddress']) && isset($instance['eipAddress']['ipAddress'])) {
-                    $publicIps[] = $instance['eipAddress']['ipAddress'];
+                if (is_object($instance['eipAddress'])) {
+                    if (isset($instance['eipAddress']->ipAddress)) {
+                        $publicIps[] = $instance['eipAddress']->ipAddress;
+                    } elseif (isset($instance['eipAddress']->ip_address)) {
+                        $publicIps[] = $instance['eipAddress']->ip_address;
+                    }
+                } else if (is_array($instance['eipAddress'])) {
+                    if (isset($instance['eipAddress']['ipAddress'])) {
+                        $publicIps[] = $instance['eipAddress']['ipAddress'];
+                    } elseif (isset($instance['eipAddress']['ip_address'])) {
+                        $publicIps[] = $instance['eipAddress']['ip_address'];
+                    }
                 }
             }
-            // 如果networkInterfaces中有公网IP，也添加到列表中
+            // 处理networkInterfaces中的公网IP
             if (!empty($instance['networkInterfaces']) && is_array($instance['networkInterfaces'])) {
                 foreach ($instance['networkInterfaces'] as $interface) {
+                    // 支持两种格式：publicIpAddress（驼峰式）和public_ip_address（下划线分隔）
                     if (isset($interface['publicIpAddress'])) {
                         $publicIps[] = $interface['publicIpAddress'];
+                    } elseif (isset($interface['public_ip_address'])) {
+                        $publicIps[] = $interface['public_ip_address'];
                     }
-                    if (isset($interface['publicIpSets']) && is_array($interface['publicIpSets'])) {
-                        foreach ($interface['publicIpSets'] as $ipSet) {
-                            if (isset($ipSet['publicIpAddress'])) {
-                                $publicIps[] = $ipSet['publicIpAddress'];
+                    // 支持多种公网IP集合格式
+                    $possiblePublicIpSets = ['publicIpSets', 'public_ip_sets', 'publicIps', 'public_ips'];
+                    foreach ($possiblePublicIpSets as $setsKey) {
+                        if (isset($interface[$setsKey]) && is_array($interface[$setsKey])) {
+                            foreach ($interface[$setsKey] as $ipSet) {
+                                if (isset($ipSet['publicIpAddress'])) {
+                                    $publicIps[] = $ipSet['publicIpAddress'];
+                                } elseif (isset($ipSet['public_ip_address'])) {
+                                    $publicIps[] = $ipSet['public_ip_address'];
+                                } elseif (isset($ipSet['ipAddress'])) {
+                                    $publicIps[] = $ipSet['ipAddress'];
+                                }
                             }
                         }
                     }
@@ -173,6 +204,8 @@ class HostAssetsModel extends BaseModel
                 $firstInterface = $instance['networkInterfaces'][0];
                 if (isset($firstInterface['macAddress'])) {
                     $macAddress = $firstInterface['macAddress'];
+                } elseif (isset($firstInterface['mac_address'])) {
+                    $macAddress = $firstInterface['mac_address'];
                 }
             }
             
@@ -182,6 +215,8 @@ class HostAssetsModel extends BaseModel
                 $firstInterface = $instance['networkInterfaces'][0];
                 if (isset($firstInterface['securityGroupIds']) && is_array($firstInterface['securityGroupIds'])) {
                     $securityGroups = $firstInterface['securityGroupIds'];
+                } elseif (isset($firstInterface['security_group_ids']) && is_array($firstInterface['security_group_ids'])) {
+                    $securityGroups = $firstInterface['security_group_ids'];
                 }
             }
             

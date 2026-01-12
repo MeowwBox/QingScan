@@ -144,6 +144,8 @@ class HostAssetsSyncModel extends BaseModel
                         $reflection = new \ReflectionClass($instance);
                         $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
 
+
+
                         foreach ($methods as $method) {
                             $methodName = $method->getName();
                             // 只处理getter方法
