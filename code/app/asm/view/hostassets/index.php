@@ -49,6 +49,7 @@ $searchArr = [
                                 case 'huoshan': echo 'bg-primary bg-light text-primary'; break;
                                 case 'tianyi': echo 'bg-info bg-light text-info'; break;
                                 case 'idc': echo 'bg-secondary bg-light text-secondary'; break;
+                                case 'baidu': echo 'bg-warning bg-light text-warning'; break;  // 百度云使用黄色样式
                                 default: echo 'bg-light text-dark';
                             }
                         ?>">

@@ -157,7 +157,7 @@
                 </div>
             </div>
             
-            <?php if (($host['cloud_platform'] == 'huoshan' || $host['cloud_platform'] == 'tianyi') && !empty($original_data)) { ?>
+            <?php if (($host['cloud_platform'] == 'huoshan' || $host['cloud_platform'] == 'tianyi' || $host['cloud_platform'] == 'baidu') && !empty($original_data)) { ?>
             <div class="host-detail-section">
                 <div class="detail-title">原始信息</div>
                 <div class="detail-row">

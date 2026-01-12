@@ -11,4 +11,7 @@
     <li class="nav-item">
         <a class="nav-link <?php echo (app('request')->action() === 'tianyi') ? 'active' : ''; ?>" href="{:URL('tianyi')}" id="tianyi_tab">天翼云</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link <?php echo (app('request')->action() === 'baidu') ? 'active' : ''; ?>" href="{:URL('baidu')}" id="baidu_tab">百度云</a>
+    </li>
 </ul>

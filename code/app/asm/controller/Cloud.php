@@ -89,4 +89,24 @@ class Cloud extends BaseController
         
         return View::fetch('cloud/yidong');
     }
+    
+    // 百度云列表页
+    public function baidu()
+    {
+        $pageSize = 20;
+        $where = [];
+        
+        $list = Db::table('asm_cloud_baidu')
+            ->where($where)
+            ->order('create_time desc')
+            ->paginate([
+                'list_rows' => $pageSize,
+                'query' => Request::param(),
+            ]);
+        
+        View::assign('list', $list->items());
+        View::assign('page', $list);
+        
+        return View::fetch('cloud/baidu');
+    }
  }

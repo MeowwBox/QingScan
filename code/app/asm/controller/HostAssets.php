@@ -54,6 +54,7 @@ class HostAssets extends Common
         
         // 平台类型
         $platforms = [
+            'baidu' => '百度云',
             'huoshan' => '火山云',
             'yidong' => '移动云',
             'tianyi' => '天翼云',
@@ -70,12 +71,19 @@ class HostAssets extends Common
         // 实例状态
         $instance_status = [
             'RUNNING' => '运行中',
+            'Running' => '运行中',  // 百度云返回的是首字母大写的状态
             'STOPPED' => '已停止',
+            'Stopped' => '已停止',  // 百度云返回的是首字母大写的状态
             'TERMINATED' => '已终止',
+            'Terminated' => '已终止',  // 百度云返回的是首字母大写的状态
             'CREATING' => '创建中',
+            'Creating' => '创建中',  // 百度云返回的是首字母大写的状态
             'STARTING' => '启动中',
+            'Starting' => '启动中',  // 百度云返回的是首字母大写的状态
             'STOPPING' => '停止中',
+            'Stopping' => '停止中',  // 百度云返回的是首字母大写的状态
             'REBOOTING' => '重启中',
+            'Rebooting' => '重启中',  // 百度云返回的是首字母大写的状态
             'SHUTOFF' => '已关闭'
         ];
         
@@ -262,6 +270,7 @@ class HostAssets extends Common
         } elseif ($host['cloud_platform'] == 'tianyi') {
             // 获取天翼云原始信息
             $tianyi_data = Db::table('asm_cloud_tianyi')->where('resource_id', $host['instance_id'])->find();
+
             if (!empty($tianyi_data['original_json'])) {
                 $original_data = json_decode($tianyi_data['original_json'], true);
             }
@@ -270,6 +279,12 @@ class HostAssets extends Common
             $aliyun_data = Db::table('asm_cloud_aliyun')->where('resource_id', $host['instance_id'])->find();
             if (!empty($aliyun_data['original_json'])) {
                 $original_data = json_decode($aliyun_data['original_json'], true);
+            }
+        } elseif ($host['cloud_platform'] == 'baidu') {
+            // 获取百度云原始信息
+            $baidu_data = Db::table('asm_cloud_baidu')->where('resource_id', $host['instance_id'])->find();
+            if (!empty($baidu_data['original_json'])) {
+                $original_data = json_decode($baidu_data['original_json'], true);
             }
         }
         

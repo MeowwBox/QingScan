@@ -456,6 +456,56 @@ class HostAssetsSyncModel extends BaseModel
     }
 
     /**
+     * 从百度云拉取主机资产
+     */
+    public static function importFromBaidu(Output $output): void
+    {
+        $output->writeln("正在从百度云API拉取主机资产...");
+
+        // 获取百度云命令行工具路径
+        $baiduToolPath = env('BAIDU.TOOL_PATH') ?? app()->getRootPath() . 'extend/tools/baiduCloud/main.py';
+
+        if (!file_exists($baiduToolPath)) {
+            $output->writeln("<error>百度云命令行工具不存在: {$baiduToolPath}</error>");
+            return;
+        }
+
+        try {
+            // 执行百度云命令行工具
+            $command = "python3 {$baiduToolPath}";
+            $output->writeln("<info>执行命令: {$command}</info>");
+            $executionResult = shell_exec($command);
+
+            // 检查命令执行结果
+            if (empty($executionResult)) {
+                $output->writeln("<error>百度云命令行工具无输出</error>");
+                return;
+            }
+
+            // 解析JSON字符串
+            // Python脚本现在直接返回有效的JSON格式，简化解析逻辑
+            $apiData = json_decode($executionResult, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $output->writeln("<error>JSON解析失败: " . json_last_error_msg() . "</error>");
+                $output->writeln("<error>原始输出: {$executionResult}</error>");
+                return;
+            }
+
+            // 打印获取到的数据信息
+            $output->writeln("<info>成功获取百度云主机实例数据</info>");
+            $output->writeln("<info>数据结构: " . print_r(array_keys($apiData), true) . "</info>");
+
+            // 导入数据到数据库
+            HostAssetsModel::importFromBaiduApi($apiData);
+
+        } catch (Throwable $e) {
+            $output->writeln("<error>执行百度云资产获取失败: " . $e->getMessage() . "</error>");
+            $output->writeln("<error>错误位置: " . $e->getFile() . ":" . $e->getLine() . "</error>");
+        }
+    }
+
+    /**
      * 从天翼云拉取主机资产
      */
     public static function importFromTianyi(Output $output): void

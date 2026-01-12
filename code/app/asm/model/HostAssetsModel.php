@@ -723,6 +723,7 @@ class HostAssetsModel extends BaseModel
             // 处理移动云资源表
             $yidongResource = $yidongResources[$index];
             $existingYidong = Db::table('asm_cloud_yidong')->where('resource_id', $yidongResource['resource_id'])->find();
+
             if ($existingYidong) {
                 // 更新现有记录
                 unset($yidongResource['create_time']); // 不更新创建时间
@@ -730,6 +731,148 @@ class HostAssetsModel extends BaseModel
             } else {
                 // 添加新记录
                 Db::table('asm_cloud_yidong')->insert($yidongResource);
+            }
+        }
+        
+        return true;
+    }
+
+    // 从百度云API数据导入主机资产
+    public static function importFromBaiduApi($apiData)
+    {
+        if (empty($apiData)) {
+            echo "百度云API数据错误\n";
+            return false;
+        }
+        
+        // 检查百度云API响应结构
+        if (!isset($apiData['instances'])) {
+            echo "百度云API数据错误\n 缺少instances字段\n";
+            return false;
+        }
+        
+        // 提取实际的主机实例数据
+        $instances = $apiData['instances'];
+        
+        $hosts = [];
+        $baiduResources = [];
+        
+        foreach ($instances as $instance) {
+            // 获取所有私有IP和公网IP
+            $privateIps = [];
+            $publicIps = [];
+            
+            // 处理私有IP（优先从internal_ip获取，然后从nic_info.ips获取）
+            if (!empty($instance['internal_ip'])) {
+                $privateIps[] = $instance['internal_ip'];
+            }
+            
+            if (isset($instance['nic_info']['ips']) && is_array($instance['nic_info']['ips'])) {
+                foreach ($instance['nic_info']['ips'] as $ip_info) {
+                    if (!empty($ip_info['private_ip'])) {
+                        $privateIps[] = $ip_info['private_ip'];
+                    }
+                    if (!empty($ip_info['eip']) && $ip_info['eip'] !== 'null') {
+                        $publicIps[] = $ip_info['eip'];
+                    }
+                }
+            }
+            
+            // 处理公网IP
+            if (!empty($instance['public_ip'])) {
+                $publicIps[] = $instance['public_ip'];
+            }
+            
+            // 去重并保留唯一IP
+            $privateIps = array_unique(array_filter($privateIps));
+            $publicIps = array_unique(array_filter($publicIps));
+            
+            // 设置默认IP
+            $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
+            $publicIp = !empty($publicIps) ? reset($publicIps) : '';
+            
+            // 获取MAC地址
+            $macAddress = '';
+            if (isset($instance['nic_info']['mac_address'])) {
+                $macAddress = $instance['nic_info']['mac_address'];
+            }
+            
+            // 获取安全组
+            $securityGroups = [];
+            if (isset($instance['nic_info']['security_groups']) && is_array($instance['nic_info']['security_groups'])) {
+                foreach ($instance['nic_info']['security_groups'] as $sg_id) {
+                    $securityGroups[] = [
+                        'id' => $sg_id,
+                        'name' => $sg_id, // API返回的只有ID，没有名称
+                    ];
+                }
+            }
+            
+            $hosts[] = [
+                'instance_id' => $instance['id'] ?? '',
+                'instance_name' => $instance['name'] ?? '',
+                'display_name' => $instance['name'] ?? '',
+                'cloud_platform' => 'baidu',
+                'status' => $instance['status'] ?? '',
+                'private_ip' => $privateIp,
+                'public_ip' => $publicIp,
+                'private_ips' => json_encode($privateIps),
+                'public_ips' => json_encode($publicIps),
+                'mac_address' => $macAddress,
+                'os_type' => $instance['os_name'] ?? 'Linux',
+                'os_name' => $instance['os_version'] ? $instance['os_name'] . ' ' . $instance['os_version'] : ($instance['os_name'] ?? 'Unknown'),
+                'cpu' => $instance['cpu_count'] ?? 0,
+                'memory' => $instance['memory_capacity_in_gb'] ?? 0,
+                'instance_type' => $instance['instance_type'] ?? '',
+                'vpc_id' => $instance['vpc_id'] ?? '',
+                'vpc_name' => '', // API返回中没有vpc_name
+                'security_groups' => json_encode($securityGroups),
+                'create_time' => date('Y-m-d H:i:s', strtotime($instance['create_time'] ?? '')),
+                'update_time' => date('Y-m-d H:i:s'),
+                'expire_time' => isset($instance['expire_time']) ? date('Y-m-d H:i:s', strtotime($instance['expire_time'])) : null,
+                'hids_installed' => 0,
+            ];
+            
+            // 构建百度云资源表数据
+            $baiduResources[] = [
+                'resource_id' => $instance['id'] ?? '',
+                'resource_name' => $instance['name'] ?? '',
+                'resource_type' => '云主机',
+                'region' => $instance['zone_name'] ?? '',
+                'status' => $instance['status'] ?? '',
+                'public_ip' => $publicIp,
+                'private_ip' => $privateIp,
+                'public_ips' => json_encode($publicIps),
+                'private_ips' => json_encode($privateIps),
+                'create_time' => date('Y-m-d H:i:s', strtotime($instance['create_time'] ?? '')),
+                'update_time' => date('Y-m-d H:i:s'),
+                'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
+            ];
+        }
+        
+        // 批量导入或更新
+        foreach ($hosts as $index => $host) {
+            $existing = self::getByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform']);
+            if ($existing) {
+                // 更新现有记录
+                unset($host['create_time']); // 不更新创建时间
+                self::updateByInstanceIdAndPlatform($host['instance_id'], $host['cloud_platform'], $host);
+            } else {
+                // 添加新记录
+                self::addHostAssets($host);
+            }
+            
+            // 处理百度云资源表
+            $baiduResource = $baiduResources[$index];
+            $existingBaidu = Db::table('asm_cloud_baidu')->where('resource_id', $baiduResource['resource_id'])->find();
+
+            if ($existingBaidu) {
+                // 更新现有记录
+                unset($baiduResource['create_time']); // 不更新创建时间
+                Db::table('asm_cloud_baidu')->where('id', $existingBaidu['id'])->update($baiduResource);
+            } else {
+                // 添加新记录
+                Db::table('asm_cloud_baidu')->insert($baiduResource);
             }
         }
         
