@@ -37,7 +37,11 @@ class Asm extends Command
         if ($platform === 'huoshan') {
             HostAssetsSyncModel::importFromHuoshan($output);
         } elseif ($platform === 'tianyi') {
-            HostAssetsSyncModel::importFromTianyi($output);
+            HostAssetsSyncModel::importFromTianyi($output, 'A');
+            $output->writeln("<info>天翼云A团队主机资产导入完成</info>");
+        } elseif ($platform === 'tianyi_b') {
+            HostAssetsSyncModel::importFromTianyi($output, 'B');
+            $output->writeln("<info>天翼云B团队主机资产导入完成</info>");
         } elseif ($platform === 'yidong') {
             HostAssetsSyncModel::importFromYidong($output);
             $output->writeln("<info>移动云主机资产导入完成</info>");

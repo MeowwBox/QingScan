@@ -454,7 +454,7 @@ class HostAssetsModel extends BaseModel
     }
 
     // 从天翼云API数据导入主机资产
-    public static function importFromTianyiApi($apiData)
+    public static function importFromTianyiApi($apiData, $teamId = 'A')
     {
         if (empty($apiData['returnObj']['results'])) {
             return false;
@@ -569,6 +569,7 @@ class HostAssetsModel extends BaseModel
                 'create_time' => date('Y-m-d H:i:s', strtotime($instance['createdTime'])),
                 'update_time' => date('Y-m-d H:i:s', strtotime($instance['updatedTime'])),
                 'original_json' => json_encode($instance, JSON_UNESCAPED_UNICODE),
+                'team_id' => $teamId,
             ];
         }
         
@@ -587,6 +588,15 @@ class HostAssetsModel extends BaseModel
             // 处理天翼云资源表
             $tianyiResource = $tianyiResources[$index];
             $existingTianyi = Db::table('asm_cloud_tianyi')->where('resource_id', $tianyiResource['resource_id'])->find();
+            
+            if ($existingTianyi) {
+                // 更新现有记录
+                unset($tianyiResource['create_time']); // 不更新创建时间
+                Db::table('asm_cloud_tianyi')->where('id', $existingTianyi['id'])->update($tianyiResource);
+            } else {
+                // 添加新记录
+                Db::table('asm_cloud_tianyi')->insert($tianyiResource);
+            }
         }
         
         return true;

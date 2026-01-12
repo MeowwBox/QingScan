@@ -508,23 +508,25 @@ class HostAssetsSyncModel extends BaseModel
     /**
      * 从天翼云拉取主机资产
      */
-    public static function importFromTianyi(Output $output): void
+    public static function importFromTianyi(Output $output, $teamId = 'A'): void
     {
-        $output->writeln("正在从天翼云API拉取主机资产...");
+        $output->writeln("正在从天翼云API拉取主机资产 (团队: {$teamId})...");
 
-        var_dump(env('TIANYI.AK'));
+        // 根据团队ID选择对应的配置
+        $configPrefix = $teamId === 'B' ? 'TIANYI_B' : 'TIANYI';
+        
         // 从配置获取天翼云相关参数
-        if (empty(env('TIANYI.AK')) || empty(env('TIANYI.SK'))) {
-            $output->writeln("<error>天翼云AK/SK配置缺失</error>");
+        if (empty(env("{$configPrefix}.AK")) || empty(env("{$configPrefix}.SK"))) {
+            $output->writeln("<error>天翼云{$teamId}团队AK/SK配置缺失</error>");
             return;
         }
 
         // 获取天翼云配置
-        $accessKeyId = env('TIANYI.AK');
-        $secretAccessKey = env('TIANYI.SK');
-        $regionId = env('TIANYI.REGION_ID'); // 默认区域ID
-        $endpoint = env('TIANYI.ENDPOINT') ?? 'ctecs-global.ctapi.ctyun.cn';
-        $resourcePath = env('TIANYI.RESOURCE_PATH') ?? '/v4/ecs/list-instances';
+        $accessKeyId = env("{$configPrefix}.AK");
+        $secretAccessKey = env("{$configPrefix}.SK");
+        $regionId = env("{$configPrefix}.REGION_ID"); // 默认区域ID
+        $endpoint = env("{$configPrefix}.ENDPOINT") ?? 'ctecs-global.ctapi.ctyun.cn';
+        $resourcePath = env("{$configPrefix}.RESOURCE_PATH") ?? '/v4/ecs/list-instances';
 
         // 初始化实例数组
         $instances = [];
@@ -655,6 +657,9 @@ class HostAssetsSyncModel extends BaseModel
 
             // 批量导入或更新天翼云资源数据
             foreach ($tianyiResources as $resource) {
+                // 添加团队标识
+                $resource['team_id'] = $teamId;
+                
                 $existing = Db::table('asm_cloud_tianyi')->where('resource_id', $resource['resource_id'])->find();
                 if ($existing) {
                     // 更新现有记录
@@ -688,8 +693,16 @@ class HostAssetsSyncModel extends BaseModel
             }
         }
 
-        $output->writeln("<info>天翼云主机资产导入数据库完成</info>");
+        $output->writeln("<info>天翼云{$teamId}团队主机资产导入数据库完成</info>");
 
+    }
+
+    /**
+     * 从天翼云B团队拉取主机资产
+     */
+    public static function importFromTianyiB(Output $output): void
+    {
+        self::importFromTianyi($output, 'B');
     }
 
     /**

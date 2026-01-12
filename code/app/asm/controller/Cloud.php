@@ -36,6 +36,12 @@ class Cloud extends BaseController
         $pageSize = 20;
         $where = [];
         
+        // 获取团队筛选参数
+        $teamId = Request::param('team_id', 'all', 'trim');
+        if ($teamId !== 'all') {
+            $where['team_id'] = $teamId;
+        }
+        
         $list = Db::table('asm_cloud_tianyi')
             ->where($where)
             ->order('create_time desc')
@@ -46,6 +52,7 @@ class Cloud extends BaseController
         
         View::assign('list', $list->items());
         View::assign('page', $list);
+        View::assign('current_team', $teamId);
         
         return View::fetch('cloud/tianyi');
     }
