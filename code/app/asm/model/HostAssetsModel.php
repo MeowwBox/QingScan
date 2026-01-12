@@ -318,29 +318,123 @@ class HostAssetsModel extends BaseModel
             
             // 获取所有私有IP
             $privateIps = [];
-            if (!empty($instance['innerIpAddress']) && !empty($instance['innerIpAddress']['ipAddress'])) {
-                $privateIps = $instance['innerIpAddress']['ipAddress'];
-            } elseif (!empty($instance['privateIpAddress']) && !empty($instance['privateIpAddress']['ipAddress'])) {
-                $privateIps = $instance['privateIpAddress']['ipAddress'];
-            } elseif (!empty($instance['vpcAttributes']['privateIpAddress']['ipAddress'])) {
-                $privateIps = $instance['vpcAttributes']['privateIpAddress']['ipAddress'];
+            // 检查多种可能的IP地址字段名和大小写
+            
+            // 检查InnerIpAddress
+            if (isset($instance['InnerIpAddress'])) {
+                if (is_array($instance['InnerIpAddress'])) {
+                    if (isset($instance['InnerIpAddress']['ipAddress']) && is_array($instance['InnerIpAddress']['ipAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['InnerIpAddress']['ipAddress']);
+                    } elseif (isset($instance['InnerIpAddress']['IpAddress']) && is_array($instance['InnerIpAddress']['IpAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['InnerIpAddress']['IpAddress']);
+                    }
+                }
+            } elseif (isset($instance['innerIpAddress'])) {
+                if (is_array($instance['innerIpAddress'])) {
+                    if (isset($instance['innerIpAddress']['ipAddress']) && is_array($instance['innerIpAddress']['ipAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['innerIpAddress']['ipAddress']);
+                    } elseif (isset($instance['innerIpAddress']['IpAddress']) && is_array($instance['innerIpAddress']['IpAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['innerIpAddress']['IpAddress']);
+                    }
+                }
             }
-            // 去重并保留唯一IP
-            $privateIps = array_unique($privateIps);
+            
+            // 检查PrivateIpAddress
+            if (isset($instance['PrivateIpAddress'])) {
+                if (is_array($instance['PrivateIpAddress'])) {
+                    if (isset($instance['PrivateIpAddress']['ipAddress']) && is_array($instance['PrivateIpAddress']['ipAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['PrivateIpAddress']['ipAddress']);
+                    } elseif (isset($instance['PrivateIpAddress']['IpAddress']) && is_array($instance['PrivateIpAddress']['IpAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['PrivateIpAddress']['IpAddress']);
+                    }
+                }
+            } elseif (isset($instance['privateIpAddress'])) {
+                if (is_array($instance['privateIpAddress'])) {
+                    if (isset($instance['privateIpAddress']['ipAddress']) && is_array($instance['privateIpAddress']['ipAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['privateIpAddress']['ipAddress']);
+                    } elseif (isset($instance['privateIpAddress']['IpAddress']) && is_array($instance['privateIpAddress']['IpAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['privateIpAddress']['IpAddress']);
+                    }
+                }
+            }
+            
+            // 检查VpcAttributes中的PrivateIpAddress
+            if (isset($instance['VpcAttributes'])) {
+                if (is_array($instance['VpcAttributes']) && isset($instance['VpcAttributes']['PrivateIpAddress'])) {
+                    if (isset($instance['VpcAttributes']['PrivateIpAddress']['ipAddress']) && is_array($instance['VpcAttributes']['PrivateIpAddress']['ipAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['VpcAttributes']['PrivateIpAddress']['ipAddress']);
+                    } elseif (isset($instance['VpcAttributes']['PrivateIpAddress']['IpAddress']) && is_array($instance['VpcAttributes']['PrivateIpAddress']['IpAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['VpcAttributes']['PrivateIpAddress']['IpAddress']);
+                    }
+                }
+            } elseif (isset($instance['vpcAttributes'])) {
+                if (is_array($instance['vpcAttributes']) && isset($instance['vpcAttributes']['privateIpAddress'])) {
+                    if (isset($instance['vpcAttributes']['privateIpAddress']['ipAddress']) && is_array($instance['vpcAttributes']['privateIpAddress']['ipAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['vpcAttributes']['privateIpAddress']['ipAddress']);
+                    } elseif (isset($instance['vpcAttributes']['privateIpAddress']['IpAddress']) && is_array($instance['vpcAttributes']['privateIpAddress']['IpAddress'])) {
+                        $privateIps = array_merge($privateIps, $instance['vpcAttributes']['privateIpAddress']['IpAddress']);
+                    }
+                }
+            }
+            
+            // 检查NetworkInterfaces中的私有IP
+            if (isset($instance['NetworkInterfaces'])) {
+                if (is_array($instance['NetworkInterfaces'])) {
+                    foreach ($instance['NetworkInterfaces'] as $networkInterface) {
+                        if (is_array($networkInterface) && isset($networkInterface['PrimaryIpAddress'])) {
+                            $privateIps[] = $networkInterface['PrimaryIpAddress'];
+                        }
+                    }
+                }
+            }
+            
+            // 去重并过滤空值
+            $privateIps = array_unique(array_filter($privateIps));
             // 设置默认私有IP
             $privateIp = !empty($privateIps) ? reset($privateIps) : '0.0.0.0';
             
             // 获取所有公网IP
             $publicIps = [];
-            if (!empty($instance['eipAddress']) && !empty($instance['eipAddress']['ipAddress'])) {
-                $publicIps[] = $instance['eipAddress']['ipAddress'];
-            } elseif (!empty($instance['publicIpAddress']) && !empty($instance['publicIpAddress']['ipAddress'])) {
-                $publicIps = $instance['publicIpAddress']['ipAddress'];
-            } elseif (!empty($instance['publicIpAddress']['ipAddress'])) {
-                $publicIps = $instance['publicIpAddress']['ipAddress'];
+            // 检查EipAddress
+            if (isset($instance['EipAddress'])) {
+                if (is_array($instance['EipAddress'])) {
+                    if (isset($instance['EipAddress']['ipAddress'])) {
+                        $publicIps[] = $instance['EipAddress']['ipAddress'];
+                    } elseif (isset($instance['EipAddress']['IpAddress'])) {
+                        $publicIps[] = $instance['EipAddress']['IpAddress'];
+                    }
+                }
+            } elseif (isset($instance['eipAddress'])) {
+                if (is_array($instance['eipAddress'])) {
+                    if (isset($instance['eipAddress']['ipAddress'])) {
+                        $publicIps[] = $instance['eipAddress']['ipAddress'];
+                    } elseif (isset($instance['eipAddress']['IpAddress'])) {
+                        $publicIps[] = $instance['eipAddress']['IpAddress'];
+                    }
+                }
             }
-            // 去重并保留唯一IP
-            $publicIps = array_unique($publicIps);
+            
+            // 检查PublicIpAddress
+            if (isset($instance['PublicIpAddress'])) {
+                if (is_array($instance['PublicIpAddress'])) {
+                    if (isset($instance['PublicIpAddress']['ipAddress']) && is_array($instance['PublicIpAddress']['ipAddress'])) {
+                        $publicIps = array_merge($publicIps, $instance['PublicIpAddress']['ipAddress']);
+                    } elseif (isset($instance['PublicIpAddress']['IpAddress']) && is_array($instance['PublicIpAddress']['IpAddress'])) {
+                        $publicIps = array_merge($publicIps, $instance['PublicIpAddress']['IpAddress']);
+                    }
+                }
+            } elseif (isset($instance['publicIpAddress'])) {
+                if (is_array($instance['publicIpAddress'])) {
+                    if (isset($instance['publicIpAddress']['ipAddress']) && is_array($instance['publicIpAddress']['ipAddress'])) {
+                        $publicIps = array_merge($publicIps, $instance['publicIpAddress']['ipAddress']);
+                    } elseif (isset($instance['publicIpAddress']['IpAddress']) && is_array($instance['publicIpAddress']['IpAddress'])) {
+                        $publicIps = array_merge($publicIps, $instance['publicIpAddress']['IpAddress']);
+                    }
+                }
+            }
+            
+            // 去重并过滤空值
+            $publicIps = array_unique(array_filter($publicIps));
             // 设置默认公网IP
             $publicIp = !empty($publicIps) ? reset($publicIps) : '';
             
