@@ -15,7 +15,7 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '00e2b480-eba0-11f0-b762-f24a9925ea28:1-14467';
+
 
 --
 -- Current Database: `QingScan`
@@ -341,7 +341,7 @@ CREATE TABLE `asm_cloud_baidu` (
   `original_json` json DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_resource_id` (`resource_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -554,7 +554,7 @@ CREATE TABLE `asm_host_assets` (
   KEY `idx_status` (`status`),
   KEY `idx_private_ip` (`private_ip`),
   KEY `idx_hids_installed` (`hids_installed`)
-) ENGINE=InnoDB AUTO_INCREMENT=790 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='主机资产总表';
+) ENGINE=InnoDB AUTO_INCREMENT=790 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='主机资产总表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -749,7 +749,7 @@ CREATE TABLE `asm_vulnerability_qingteng` (
   KEY `idx_group_name` (`group_name`),
   KEY `idx_first_found_time` (`first_found_time`),
   KEY `idx_last_found_time` (`last_found_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='青藤云主机漏洞列表';
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='青藤云主机漏洞列表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -779,7 +779,7 @@ CREATE TABLE `asm_vulnerability_summary` (
   KEY `idx_severity` (`severity`),
   KEY `idx_status` (`status`),
   KEY `idx_ip_address` (`ip_address`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='漏洞汇总表';
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='漏洞汇总表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -812,7 +812,7 @@ CREATE TABLE `asm_work_order` (
   KEY `idx_type` (`type`),
   KEY `idx_vul_id` (`vul_id`),
   KEY `idx_feishu_notified` (`feishu_notified`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='工单表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='工单表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
