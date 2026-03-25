@@ -1,4 +1,25 @@
 {include file='public/head' /}
+<?php if (!empty($flash_msg)) { ?>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <div class="toast align-items-center text-bg-warning border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <?php echo $flash_msg; ?>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="关闭"></button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl, { delay: 3000 });
+        });
+        toastList.forEach(function(toast) { toast.show(); });
+    });
+</script>
+<?php } ?>
 <div class="col-md-1 " style="padding-right: 0;" >
     {include file='public/asmLeftMenu' /}
 </div>

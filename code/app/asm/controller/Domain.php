@@ -5,6 +5,7 @@ namespace app\asm\controller;
 use app\asm\model\DomainModel;
 use app\controller\Common;
 use think\facade\Db;
+use think\facade\Session;
 use think\facade\View;
 use think\Request;
 
@@ -26,6 +27,7 @@ class Domain extends Common
         ]);
         $data['list'] = $list->items();
         $data['page'] = $list->render();
+        $data['flash_msg'] = Session::get('add_target_msg', '');
         return View::fetch('index', $data);
     }
 
@@ -44,8 +46,18 @@ class Domain extends Common
     {
         $id = $request->param('id');
         $info = Db::table('asm_domain')->find($id);
+        if (empty($info)) {
+            return redirect($_SERVER['HTTP_REFERER']);
+        }
 
-        $data = ['url' => "http://{$info['domain']}", 'name' => $info['domain'], 'status' => 1];
+        $url = "http://{$info['domain']}";
+        $exists = Db::table('app')->where('url', $url)->find();
+        if ($exists) {
+            Session::flash('add_target_msg', '该域名已添加扫描，无需重复添加');
+            return redirect($_SERVER['HTTP_REFERER']);
+        }
+
+        $data = ['url' => $url, 'name' => $info['domain'], 'status' => 1];
         Db::table('app')->insert($data);
 
         return redirect($_SERVER['HTTP_REFERER']);
