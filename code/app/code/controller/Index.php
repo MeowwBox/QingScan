@@ -104,7 +104,6 @@ class Index extends Common
         $array = [
             'scan_time' => '2000-01-01 00:00:00',
             'sonar_scan_time' => '2000-01-01 00:00:00',
-            'kunlun_scan_time' => '2000-01-01 00:00:00',
             'semgrep_scan_time' => '2000-01-01 00:00:00',
             'composer_scan_time' => '2000-01-01 00:00:00',
             'java_scan_time' => '2000-01-01 00:00:00',
@@ -142,8 +141,6 @@ class Index extends Common
             $data['info']['status'] = '禁用';
         }
         $data['fortify'] = Db::table('fortify')->where($where)->order("id", 'desc')->limit(0, 10)->select()->toArray();
-        //$data['kunlun'] = Db::connect('kunlun')->table("index_scanresulttask")->where($where)->order("id", 'desc')->limit(0, 10)->select()->toArray();
-        //$data['kunlun'] = [];
         $data['semgrep'] = Db::table('semgrep')->where($where)->order("id", 'desc')->limit(0, 10)->select()->toArray();
         $data['mobsfscan'] = Db::table('mobsfscan')->where($where)->order("id", 'desc')->limit(0, 10)->select()->toArray();
         $data['murphysec'] = Db::table('murphysec')->where($where)->order("id", 'desc')->limit(0, 10)->select()->toArray();
@@ -222,7 +219,6 @@ class Index extends Common
         $array = [
             'scan_time' => '2000-01-01 00:00:00',
             'sonar_scan_time' => '2000-01-01 00:00:00',
-            'kunlun_scan_time' => '2000-01-01 00:00:00',
             'semgrep_scan_time' => '2000-01-01 00:00:00',
             'mobsfscan_scan_time' => '2000-01-01 00:00:00',
             'murphysec_scan_time' => '2000-01-01 00:00:00',
@@ -419,95 +415,6 @@ class Index extends Common
         return View::fetch('semgrep_details', $data);
     }
 
-    public function kunlun_list(Request $request)
-    {
-        $data = [];
-
-        $where[] = ['is_delete', '=', 0];
-        $pageSize = 25;
-        $search = $request->param('search', '');
-        $pid = $request->param('code_id');
-        $level = $request->param('level'); // 等级
-        $Category = $request->param('Category');   // 分类
-        $filename = $request->param('filename');   // 文件名
-        $check_status = $request->param('check_status');   // 审核状态
-        if (!empty($pid)) {
-            $where[] = ['scan_project_id', '=', $pid];
-        }
-        if (!empty($level)) {
-            $where[] = ['is_active', '=', $level];
-        }
-        if (!empty($Category)) {
-            $where[] = ['result_type', '=', $Category];
-        }
-        if (!empty($filename)) {
-            $where[] = ['vulfile_path', '=', $filename];
-        }
-        if ($check_status !== null && in_array($check_status, [0, 1, 2])) {
-            $where[] = ['check_status', '=', $check_status];
-        }
-        $map = [];
-
-        $semgrepApi = Db::connect('kunlun')->table("index_scanresulttask");
-
-        $list = $semgrepApi->where($where)->order('id', 'desc')->paginate($pageSize);
-        // 获取分页显示
-        $data['list'] = $list->toArray()['data'];
-        $data['page'] = $list->render();
-
-        $projectArr = Db::connect('kunlun')->table("index_project")->where($map)->select()->toArray();
-        $projectArr = array_column($projectArr, null, 'id');
-        $data['projectArr'] = $projectArr;
-        $data['CategoryList'] = $semgrepApi->where($where)->group('result_type')->column('result_type');
-        $projectList = Db::connect('kunlun')->table("index_scanresulttask")->alias('a')
-            ->leftJoin('index_project b', 'b.id=a.scan_project_id')
-            ->where($where)
-            ->group('scan_project_id')
-            ->field('b.id,b.project_name as name')
-            ->select()
-            ->toArray();
-        $data['projectList'] = array_column($projectList, 'name', 'id');
-        $data['fileList'] = $semgrepApi->where($where)->group('vulfile_path')->column('vulfile_path');
-        $data['check_status_list'] = ['未审计', '有效漏洞', '无效漏洞'];
-        return View::fetch('kunlun_list', $data);
-    }
-
-    public function kunlun_details(Request $request)
-    {
-        $id = $request->param('id');
-        if (!$id) {
-            $this->error('参数不能为空');
-        }
-        $where[] = ['id', '=', $id];
-        $map = [];
-
-        $semgrepApi = Db::connect('kunlun')->table("index_scanresulttask");
-        $info = $semgrepApi->where($where)->find();
-        if (!$info) {
-            $this->error('数据不存在');
-        }
-        $upper_id = Db::connect('kunlun')->table("index_scanresulttask")->where($map)->where('id', '<', $id)->order('id', 'desc')->value('id');
-        $info['upper_id'] = $upper_id ?: $id;
-        $lower_id = Db::connect('kunlun')->table("index_scanresulttask")->where($map)->where('id', '>', $id)->order('id', 'asc')->value('id');
-        $info['lower_id'] = $lower_id ?: $id;
-
-        $data['info'] = $info;
-        //var_dump($info);exit;
-        return View::fetch('kunlun_details', $data);
-    }
-
-    public function kunlun_del(Request $request)
-    {
-        $id = $request->param('id');
-        $map[] = ['id', '=', $id];
-
-        if (Db::connect('kunlun')->table("index_scanresulttask")->where($map)->update(['is_delete' => 1])) {
-            return redirect($_SERVER['HTTP_REFERER']);
-        } else {
-            $this->error('删除失败');
-        }
-    }
-
     public function semgrep_list(Request $request)
     {
         $data = [];
@@ -620,7 +527,6 @@ class Index extends Common
             $data['private_key'] = $request->param('private_key');
             $data['fortify_scan_time'] = $request->param('fortify_scan_time');
             $data['semgrep_scan_time'] = $request->param('semgrep_scan_time');
-            $data['kunlun_scan_time'] = $request->param('kunlun_scan_time');
             if (Db::name('code')->where('id', $id)->update($data)) {
                 return redirect(url('code/index'));
             } else {
@@ -1036,18 +942,6 @@ class Index extends Common
             case 'fortify':
                 $data['scan_time'] = '2000-01-01 00:00:00';
                 Db::table('fortify')->where(['code_id' => $id])->delete();
-                break;
-            case 'kunlun':
-                /*$data['kunlun_scan_time']  ='2000-01-01 00:00:00';
-                $db = Db::connect('kunlun');
-                $project_id = $db->table('index_project')->where($map)->value('id');
-                if ($project_id) {
-                    $db->table('index_newevilfunc')->where('project_id',$project_id)->delete();
-                    $db->table('index_project')->where('id',$project_id)->delete();
-                    $db->table('index_projectvendors')->where('project_id',$project_id)->delete();
-                    $db->table('index_scanresulttask')->where('scan_project_id',$project_id)->delete();
-                    $db->table('index_scantask')->where('project_id',$project_id)->delete();
-                }*/
                 break;
             case 'semgrep':
                 $data['semgrep_scan_time'] = '2000-01-01 00:00:00';

@@ -54,9 +54,6 @@ $show_level = [
             <h5><span style="color:#888">SonarQube:</span> <?php /*echo $info['sonar_scan_time'] */?></h5>
         </div>-->
         <div class="col-md-4">
-            <h5><span style="color:#888">kunlun_scan_time:</span> <?php echo $info['kunlun_scan_time'] ?></h5>
-        </div>
-        <div class="col-md-4">
             <h5><span style="color:#888">semgrep:</span> <?php echo $info['semgrep_scan_time'] ?></h5>
         </div>
         <div class="col-md-4">
@@ -160,56 +157,6 @@ $show_level = [
             <?php if (empty($fortify)) { ?>
                 <tr>
                     <td colspan="8" class="text-center"><?php echo getScanStatus($info['id'], 'fortifyScan', 2); ?></td>
-                </tr>
-            <?php } ?>
-        </table>
-    </div>
-    <div class="col-auto  tuchu_col">
-        <h4 class="text-center">
-            Kunlun-M
-            <a href="<?php echo url('code/rescan', ['id'=>$info['id'],'tools_name' => 'kunlun']) ?>"
-               onClick="return confirm('确定要清空该工具数据重新扫描吗?')"
-               class="btn btn-sm btn-outline-secondary">重新扫描</a>
-            <a href="<?php echo url('kunlun/index', ['code_id' => $info['id']]) ?>"
-               class="btn btn-sm btn-outline-secondary" style="float: right">查看更多</a>
-        </h4>
-        <table class="table  table-hover table-sm table-borderless">
-            <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th> CVI ID</th>
-                <th>编程语言</th>
-                <th>VulFile Path/Title</th>
-                <th>来源</th>
-                <th>level</th>
-                <th>Type</th>
-                <th>状态</th>
-            </tr>
-            </thead>
-            <?php foreach ($kunlun as $value) { ?>
-                <tr>
-                    <td><?php echo $value['id'] ?></td>
-                    <td><?php echo $value['cvi_id'] ?></td>
-                    <td><?php echo $value['language'] ?></td>
-                    <td><?php echo $value['vulfile_path'] ?></td>
-                    <td><?php echo $value['source_code'] ?></td>
-                    <td><?php echo $value['is_active'] ?></td>
-                    <td><?php echo $value['result_type'] ?></td>
-                    <td>
-                        <select class="changCheckStatus form-select" data-id="<?php echo $value['id'] ?>">
-                            <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?> >未审核
-                            </option>
-                            <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?> >有效漏洞
-                            </option>
-                            <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?> >无效漏洞
-                            </option>
-                        </select>
-                    </td>
-                </tr>
-            <?php } ?>
-            <?php if (empty($kunlun)) { ?>
-                <tr>
-                    <td colspan="9" class="text-center"><?php echo getScanStatus($info['id'], 'kunlunScan', 2); ?></td>
                 </tr>
             <?php } ?>
         </table>

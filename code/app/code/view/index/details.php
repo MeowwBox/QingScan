@@ -46,9 +46,6 @@
             <h5><span style="color:#888">SonarQube:</span> <?php /*echo $info['sonar_scan_time'] */ ?></h5>
         </div>-->
             <div class="col-md-4">
-                <h5><span style="color:#888">kunlun_scan_time:</span> <?php echo $info['kunlun_scan_time'] ?></h5>
-            </div>
-            <div class="col-md-4">
                 <h5><span style="color:#888">semgrep:</span> <?php echo $info['semgrep_scan_time'] ?></h5>
             </div>
             <div class="col-md-4">

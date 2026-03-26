@@ -12,7 +12,7 @@ SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
 SET @@SESSION.SQL_LOG_BIN= 0;
 
 --
--- GTID state at the beginning of the backup 
+-- GTID state at the beginning of the backup
 --
 
 
@@ -23,7 +23,6 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `QingScan` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
-USE `QingScan`;
 
 --
 -- Table structure for table `app`

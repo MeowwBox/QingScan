@@ -259,55 +259,6 @@ class CodeCheckModel extends BaseModel
 
     }
 
-    public static function kunLunScan()
-    {
-        $codePath = "./data/codeCheck";
-        //判断目录是否存在
-        if (!file_exists($codePath)) {
-            mkdir($codePath, 0777, true);
-        }
-        while (true) {
-            processSleep(1);
-            $list = self::getCodeStayScanList('kunlun_scan_time');
-            foreach ($list as $value) {
-                if (!self::checkToolAuth(2, $value['id'], 'kunlun')) {
-                    continue;
-                }
-                PluginModel::addScanLog($value['id'], __METHOD__, 2, 0);
-                $prName = cleanString($value['name']);
-                $codeUrl = $value['ssh_url'];
-                $filepath = "{$codePath}/{$prName}";
-                if (!file_exists($filepath)) {
-                    //1. 拉取代码
-                    downCode($codePath, $prName, $codeUrl, $value['is_private'], $value['username'], $value['password'], $value['private_key']);
-                }
-                //扫描代码
-                $result = KunlunModel::startScan($filepath);
-                if ($result) {
-                    
-                    $scan_project_id = Db::connect('kunlun')->table("index_project")->where('code_id', 0)->where(
-                        'project_name', $prName
-                    )->value('id');
-                    if ($scan_project_id) {
-                        Db::connect('kunlun')->table("index_project")->where('code_id', 0)->where(
-                            'project_name', $prName
-                        )->update([
-                            'user_id' => $value['user_id'],
-                            'code_id' => $value['id'],
-                        ]);
-                        Db::connect('kunlun')->table("index_scanresulttask")->where('scan_project_id', $scan_project_id)->update([
-                            'user_id' => $value['user_id'],
-                            'code_id' => $value['id'],
-                        ]);
-                    }
-                    addlog(["kunlun扫描成功，相关关联数据已修改"]);
-                }
-                PluginModel::addScanLog($value['id'], __METHOD__, 2, 1);
-            }
-            sleep(30);
-        }
-    }
-
     public static function semgrep()
     {
         $codePath = trim(`pwd`)."/data/codeCheck";
