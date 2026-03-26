@@ -6,7 +6,15 @@ $menuBlacklist = getMenuBlacklist();
 
 ?>
 <!-- 左侧菜单栏内容 -->
-<div class="tuchu" style="padding-right:0;padding-left:0;margin-left:0;">
+<div class="tuchu code-sidebar" style="padding-right:0;padding-left:0;margin-left:0;overflow:hidden;">
+    <!-- 侧边栏标题 -->
+    <div class="sidebar-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span>功能菜单</span>
+    </div>
     <ul id="leftMenu">
         <!-- 代码仓库管理 -->
         <?php if (!isMenuBlacklisted('代码仓库', $menuBlacklist, null)): ?>
@@ -48,7 +56,6 @@ $menuBlacklist = getMenuBlacklist();
             </a>
             <ul class="submenu show">
                 <?php if (!isMenuBlacklisted('代码安全', $menuBlacklist, '成份分析')): ?><li><a href="/code/sbom/index.html">成份分析</a></li><?php endif; ?>
-                <?php if (!isMenuBlacklisted('代码安全', $menuBlacklist, 'WebShell检测')): ?><li><a href="/code/webshell/index.html">WebShell检测</a></li><?php endif; ?>
             </ul>
         </li>
         <?php endif; ?>

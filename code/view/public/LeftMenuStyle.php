@@ -1,150 +1,286 @@
 <style>
-    /* 左侧菜单容器 - 浅色背景风格 */
+    /* ===== 侧栏外壳（webscan 深灰侧栏） ===== */
+    .tuchu.webscan-sidebar {
+        background: #fafafa !important;
+        border-right: 1px solid #e8e8e8;
+        box-shadow: 1px 0 0 rgba(0, 0, 0, 0.02);
+    }
+
+    /* ===== 侧栏外壳（code 白底侧栏） ===== */
+    .tuchu.code-sidebar {
+        background: #ffffff !important;
+        border-right: 1px solid #ebebeb;
+        box-shadow: 1px 0 0 rgba(0, 0, 0, 0.015);
+    }
+
+    /* ===== 一级菜单项（code 侧栏专用） ===== */
+    .code-sidebar #leftMenu > li > a {
+        padding: 10px 10px 10px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .code-sidebar #leftMenu > li > a:hover {
+        padding-left: 16px;
+    }
+
+    .code-sidebar #leftMenu > li > a.active {
+        padding-left: 16px;
+    }
+
+    /* 图标在 code 侧栏更紧凑 */
+    .code-sidebar #leftMenu > li > a .icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .code-sidebar #leftMenu > li > a .toggle-btn {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+    }
+
+    /* ===== 二级菜单项（code 侧栏专用） ===== */
+    .code-sidebar #leftMenu ul.submenu li a {
+        padding: 7px 10px 7px 32px;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .code-sidebar #leftMenu ul.submenu li a::before {
+        left: 18px;
+    }
+
+    .code-sidebar #leftMenu ul.submenu li a:hover {
+        padding-left: 36px;
+    }
+
+    .code-sidebar #leftMenu ul.submenu li a.active {
+        padding-left: 36px;
+    }
+
+    /* 二级容器缩进适配 */
+    .code-sidebar #leftMenu ul.submenu {
+        margin-left: 12px;
+        border-left: 2px solid #f0f0f0;
+    }
+
+    /* ===== 侧边栏标题 ===== */
+    .sidebar-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 18px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8c8c8c;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 4px;
+    }
+    .sidebar-title svg {
+        width: 14px;
+        height: 14px;
+        stroke: #bfbfbf;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* ===== 左侧功能栏 ===== */
     #leftMenu {
         list-style: none;
-        padding: 0;
+        padding: 8px 0 12px;
         margin: 0;
-        background-color: #ffffff;
-        border-radius: 0;
+        background: transparent;
+        height: 100%;
+        min-height: calc(100vh - 70px);
+        overflow-y: auto;
+        overflow-x: hidden;
     }
-    
-    /* 菜单项间距 */
+
+    #leftMenu::-webkit-scrollbar {
+        width: 5px;
+    }
+    #leftMenu::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #leftMenu::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.12);
+        border-radius: 3px;
+    }
+
     #leftMenu li {
         margin: 0;
     }
-    
-    /* 一级菜单项 */
+
+    /* ===== 一级菜单项 ===== */
     #leftMenu > li > a {
         display: flex;
         align-items: center;
-        padding: 14px 20px;
+        gap: 10px;
+        padding: 11px 16px;
         background-color: transparent;
-        color: rgba(0, 0, 0, 0.7);
+        color: rgba(0, 0, 0, 0.72);
         border-radius: 0;
         text-decoration: none;
-        font-weight: 500;
+        font-weight: 400;
+        font-size: 14px;
         position: relative;
-        transition: all 0.3s ease;
+        transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
         border-left: 3px solid transparent;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
     }
-    
-    /* 一级菜单项悬停效果 */
+
     #leftMenu > li > a:hover {
-        background-color: rgba(0, 0, 0, 0.02);
-        color: rgba(0, 0, 0, 0.9);
-        transform: none;
+        background-color: rgba(0, 0, 0, 0.04);
+        color: rgba(0, 0, 0, 0.88);
+        padding-left: 20px;
     }
-    
-    /* 当前活动菜单项 - 与顶部菜单保持一致的选中效果 */
+
     #leftMenu > li > a.active {
-        background-color: #1890ff;
-        color: #ffffff;
+        background: rgba(24, 144, 255, 0.08);
+        color: #096dd9;
         font-weight: 500;
         border-left-color: #1890ff;
+        padding-left: 20px;
     }
-    
-    /* 二级菜单当前活动项 */
-    #leftMenu ul.submenu li a.active {
-        background-color: rgba(24, 144, 255, 0.1);
-        color: #1890ff;
-        font-weight: 500;
-    }
-    
-    /* 图标样式 */
+
+    /* ===== 图标 ===== */
     #leftMenu > li > a .icon {
-        margin-right: 12px;
-        width: 22px;
-        height: 22px;
-        vertical-align: middle;
-        fill: currentColor;
-        opacity: 1;
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+        opacity: 0.9;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        stroke: rgba(0, 0, 0, 0.45);
     }
-    
-    /* 折叠/展开按钮 */
+
+    #leftMenu > li > a:hover .icon,
+    #leftMenu > li > a.active .icon {
+        stroke: currentColor;
+        transform: scale(1.04);
+    }
+
+    /* ===== 展开/收起按钮 ===== */
     #leftMenu > li > a .toggle-btn {
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        opacity: 0.6;
-        fill: rgba(0, 0, 0, 0.6);
+        margin-left: auto;
+        width: 14px;
+        height: 14px;
+        fill: none;
+        stroke: rgba(0, 0, 0, 0.35);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.2s ease;
     }
-    
-    /* 当前活动菜单项的折叠/展开按钮 */
+
+    #leftMenu > li > a:hover .toggle-btn,
     #leftMenu > li > a.active .toggle-btn {
-        fill: #ffffff;
-        opacity: 0.8;
+        stroke: rgba(0, 0, 0, 0.55);
     }
-    
-    /* 折叠/展开按钮旋转动画 */
+
     #leftMenu > li > a .toggle-btn.rotate {
-        transform: translateY(-50%) rotate(90deg);
+        transform: rotate(90deg);
     }
-    
-    /* 二级菜单容器 */
+
+    /* ===== 二级菜单容器 ===== */
     #leftMenu ul.submenu {
         list-style: none;
-        padding: 0 0 0 12px;
+        padding: 4px 0 6px;
         margin: 0;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease, opacity 0.3s ease;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         opacity: 0;
-        background-color: rgba(0, 0, 0, 0.01);
+        background: rgba(0, 0, 0, 0.02);
+        border-left: 2px solid #f0f0f0;
+        margin-left: 18px;
     }
-    
-    /* 二级菜单展开状态 */
+
     #leftMenu ul.submenu.show {
-        max-height: 500px;
+        max-height: 600px;
         opacity: 1;
     }
-    
-    /* 二级菜单项 */
+
+    /* ===== 二级菜单项 ===== */
     #leftMenu ul.submenu li a {
-        display: block;
-        padding: 12px 20px 12px 36px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px 8px 40px;
         background-color: transparent;
-        color: rgba(0, 0, 0, 0.65);
-        border-radius: 0;
+        color: rgba(0, 0, 0, 0.55);
+        border-radius: 0 4px 4px 0;
         text-decoration: none;
         margin: 0;
         font-size: 13px;
         font-weight: 400;
-        transition: all 0.3s ease;
+        transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
         position: relative;
     }
-    
-    /* 二级菜单项悬停效果 */
-    #leftMenu ul.submenu li a:hover {
-        background-color: rgba(0, 0, 0, 0.02);
-        color: rgba(0, 0, 0, 0.9);
-        transform: none;
-    }
-    
 
-    
-    /* 响应式设计 */
+    #leftMenu ul.submenu li a::before {
+        content: '';
+        position: absolute;
+        left: 26px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.18);
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    #leftMenu ul.submenu li a:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+        color: rgba(0, 0, 0, 0.85);
+        padding-left: 44px;
+    }
+
+    #leftMenu ul.submenu li a:hover::before {
+        background: rgba(0, 0, 0, 0.35);
+        transform: translateY(-50%) scale(1.25);
+    }
+
+    #leftMenu ul.submenu li a.active {
+        background: rgba(24, 144, 255, 0.1);
+        color: #1890ff;
+        font-weight: 500;
+        padding-left: 44px;
+    }
+
+    #leftMenu ul.submenu li a.active::before {
+        background: #1890ff;
+        transform: translateY(-50%) scale(1.35);
+    }
+
     @media (max-width: 768px) {
-        #leftMenu {
-            padding: 5px 0;
-        }
-        
-        #leftMenu li {
-            margin: 0 5px 3px;
-        }
-        
         #leftMenu > li > a {
-            padding: 10px 12px;
-            font-size: 14px;
-        }
-        
-        #leftMenu ul.submenu li a {
-            padding: 8px 12px;
+            padding: 10px 14px;
             font-size: 13px;
+        }
+
+        #leftMenu ul.submenu li a {
+            padding: 8px 12px 8px 36px;
+            font-size: 12px;
+        }
+
+        #leftMenu ul.submenu li a::before {
+            left: 22px;
         }
     }
 </style>
@@ -161,76 +297,59 @@
         // 根据当前URL自动展开对应子菜单并高亮当前菜单项
         const currentUrl = window.location.pathname;
         const menuItems = document.querySelectorAll('#leftMenu a');
-        
+
         menuItems.forEach(item => {
-            // 检查菜单项的href是否与当前URL匹配（忽略参数）
             const itemUrl = item.getAttribute('href');
             if (itemUrl && currentUrl.includes(itemUrl.replace('.html', ''))) {
-                // 给当前菜单项添加active类
                 item.classList.add('active');
-                
-                // 展开其父级子菜单
+
                 const submenu = item.closest('.submenu');
                 if (submenu) {
                     submenu.classList.add('show');
                     submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                    
-                    // 更新父菜单项的箭头方向
+
                     const parentLi = submenu.closest('li');
                     const toggleBtn = parentLi.querySelector('.toggle-btn');
                     if (toggleBtn) {
-                        toggleBtn.style.transform = 'translateY(-50%) rotate(90deg)';
+                        toggleBtn.classList.add('rotate');
                     }
                 }
             }
         });
-        
+
         // 折叠/展开菜单功能
         document.querySelectorAll('#leftMenu .toggle-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const parentLi = this.closest('li');
                 const submenu = parentLi.querySelector('.submenu');
-                
+
                 if (submenu) {
-                    // 切换子菜单显示状态
                     submenu.classList.toggle('show');
-                    
-                    // 更新箭头方向
-                    if (submenu.classList.contains('show')) {
-                        this.style.transform = 'translateY(-50%) rotate(90deg)';
-                        submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                    } else {
-                        this.style.transform = 'translateY(-50%) rotate(0deg)';
-                        submenu.style.maxHeight = '0';
-                    }
+                    this.classList.toggle('rotate');
+                    submenu.style.maxHeight = submenu.classList.contains('show')
+                        ? submenu.scrollHeight + 'px'
+                        : '0';
                 }
             });
         });
-        
+
         // 点击菜单项时的处理
-        document.querySelectorAll('#leftMenu a').forEach(link => {
+        document.querySelectorAll('#leftMenu > li > a').forEach(link => {
             link.addEventListener('click', function(e) {
                 const submenu = this.nextElementSibling;
-                
-                // 如果是有子菜单的父项，则切换子菜单
+
                 if (submenu && submenu.classList.contains('submenu')) {
                     e.preventDefault();
-                    
-                    // 切换当前菜单项的子菜单
+
                     submenu.classList.toggle('show');
-                    
-                    // 更新箭头方向
                     const toggleBtn = this.querySelector('.toggle-btn');
                     if (toggleBtn) {
-                        if (submenu.classList.contains('show')) {
-                            toggleBtn.style.transform = 'translateY(-50%) rotate(90deg)';
-                            submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                        } else {
-                            toggleBtn.style.transform = 'translateY(-50%) rotate(0deg)';
-                            submenu.style.maxHeight = '0';
-                        }
+                        toggleBtn.classList.toggle('rotate');
                     }
+                    submenu.style.maxHeight = submenu.classList.contains('show')
+                        ? submenu.scrollHeight + 'px'
+                        : '0';
                 }
             });
         });
