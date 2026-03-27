@@ -1,6 +1,8 @@
 code/runtime/
 code/.env
 .idea/
+.claude/
 code/data/
 /test/
 code/public/icon/*
+/code/admin_template.html
