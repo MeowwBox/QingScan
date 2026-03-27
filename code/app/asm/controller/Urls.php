@@ -26,8 +26,15 @@ class Urls extends Common
         $data['list'] = $list->items();
         // 获取分页显示
         $data['page'] = $list->render();
+        $data['paginator'] = $list;
 
         $data['projectList'] = $this->getMyAppList();
+
+        // 统计数据
+        $data['total'] = Db::table('asm_urls')->count();
+        $data['status200'] = Db::table('asm_urls')->where('status', 'between', [200, 299])->count();
+        $data['status400'] = Db::table('asm_urls')->where('status', 'between', [400, 499])->count();
+        $data['status500'] = Db::table('asm_urls')->where('status', '>=', 500)->count();
 
         return View::fetch('index', $data);
     }
@@ -132,11 +139,30 @@ class Urls extends Common
             return $this->apiReturn(0,[],'请先选择要删除的数据');
         }
         $map[] = ['id','in',$ids];
-        
+
         if (Db::name('urls')->where($map)->update(['is_delete' => 1])) {
             return $this->apiReturn(1,[],'批量删除成功');
         } else {
             return $this->apiReturn(0,[],'批量删除失败');
         }
     }
+
+    /**
+     * 获取URL详情（API接口）
+     */
+    public function detail(Request $request)
+    {
+        $id = $request->param('id', 0, 'intval');
+        if (empty($id)) {
+            return json(['code' => 0, 'msg' => '参数错误']);
+        }
+
+        $info = Db::table('asm_urls')->find($id);
+        if (empty($info)) {
+            return json(['code' => 0, 'msg' => '数据不存在']);
+        }
+
+        return json(['code' => 1, 'data' => $info]);
+    }
+
 }

@@ -23,6 +23,7 @@ class UserLog extends Common
         ]);
         $data['list'] = $list->items();
         $data['page'] = $list->render();
+        $data['paginator'] = $list;
         return View::fetch('index', $data);
     }
 

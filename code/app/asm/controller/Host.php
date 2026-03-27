@@ -31,6 +31,7 @@ class Host extends Common
         ]);
         $data['list'] = $list->items();
         $data['page'] = $list->render();
+        $data['paginator'] = $list;
         $data['projectList'] = $this->getMyAppList();
         return View::fetch('index', $data);
     }
@@ -61,5 +62,40 @@ class Host extends Common
             $_POST['user_id'] = $this->userId;
         }
         UrlsModel::addData($_POST);
+    }
+
+    /**
+     * 获取主机详情（API接口）
+     */
+    public function detail(Request $request)
+    {
+        $id = $request->param('id', 0, 'intval');
+        if (empty($id)) {
+            return json(['code' => 0, 'msg' => '参数错误']);
+        }
+
+        $info = Db::table('asm_host')->find($id);
+        if (empty($info)) {
+            return json(['code' => 0, 'msg' => '数据不存在']);
+        }
+
+        return json(['code' => 1, 'data' => $info]);
+    }
+
+    /**
+     * 删除主机
+     */
+    public function delete(Request $request)
+    {
+        $id = $request->param('id', 0, 'intval');
+        if (empty($id)) {
+            return json(['code' => 0, 'msg' => '参数错误']);
+        }
+
+        $result = Db::table('asm_host')->where('id', $id)->delete();
+        if ($result) {
+            return json(['code' => 1, 'msg' => '删除成功']);
+        }
+        return json(['code' => 0, 'msg' => '删除失败']);
     }
 }

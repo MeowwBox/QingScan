@@ -145,8 +145,17 @@ function getFileType(array $fileList)
 
 function getGitAddr($prName, $sshUrl, $filePath, $line = "")
 {
-    // 判断类型
-    $domain_name = parse_url($sshUrl)['host'];
+    // 判断类型 - 如果sshUrl不是有效URL（如"本地"），则返回空或默认值
+    $parsedUrl = parse_url($sshUrl);
+    $domain_name = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
+
+    // 如果无法解析出host，直接返回空或简单路径
+    if (empty($domain_name)) {
+        $zhengze = "/\/data\/codeCheck\/[a-zA-Z0-9]*\//";
+        $path = preg_replace($zhengze, "", $filePath);
+        return $path . ($line != "" ? "#L{$line}" : "");
+    }
+
     if (preg_match('/gitee\.com/', $sshUrl)) {   // 码云
         $path = substr($sshUrl, strripos($sshUrl, ':') + 1, strlen($sshUrl));
         $domain_name = "https://gitee.com/{$path}";

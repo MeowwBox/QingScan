@@ -26,7 +26,26 @@ class IpPort extends Common
         ]);
         $data['list'] = $list->items();
         $data['page'] = $list->render();
-        return View::fetch('index', $data);
+        $data['paginator'] = $list;
+        return View::fetch('ip_port/index', $data);
+    }
+
+    /**
+     * 获取IP端口详情（API接口）
+     */
+    public function detail(Request $request)
+    {
+        $id = $request->param('id', 0, 'intval');
+        if (empty($id)) {
+            return json(['code' => 0, 'msg' => '参数错误']);
+        }
+
+        $info = Db::table('asm_ip_port')->find($id);
+        if (empty($info)) {
+            return json(['code' => 0, 'msg' => '数据不存在']);
+        }
+
+        return json(['code' => 1, 'data' => $info]);
     }
 
 }

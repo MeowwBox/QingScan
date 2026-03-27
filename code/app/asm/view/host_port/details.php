@@ -1,164 +1,182 @@
 {include file='public/head' /}
+{include file='public/asmLeftMenu' /}
 <style>
-    .bug-msg {
-        background-color: #fff;
+    .detail-wrapper {
+        padding: 24px;
+        background: #f8fafc;
+        min-height: calc(100vh - 64px);
     }
-
-    .vul-basic-info {
-        background-color: #fff;
-        padding: 20px;
-        margin-bottom: 10px;
-        font-size: 12px;
+    .detail-header {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04);
     }
-
-    .vul-detail-section {
-        padding: 20px;
-        line-height: 2;
-        color: #444;
-        margin-bottom: 10px;
-        background-color: #fff;
-        word-wrap: break-word;
-    }
-
-    .page-vul-detail-wrapper {
-        padding-bottom: 90px;
-    }
-
-    .vul-title-wrapper {
-        width: 100%;
-        padding: 41px 0 33px;
-    }
-
-    .vul-title-wrapper h1 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 400;
-        width: 90%;
-        min-width: 90%;
-        line-height: 1.5;
-        word-wrap: break-word;
-        word-break: break-all;
+    .detail-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 16px;
         text-align: center;
-        position: relative;
     }
-
-    .vul-basic-info dl {
-        color: #aaa;
-        overflow: hidden;
-        margin-bottom: 11px;
+    .detail-nav {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
     }
-
-    dl {
-        display: block;
-        margin-block-start: 1em;
-        margin-block-end: 1em;
-        margin-inline-start: 0px;
-        margin-inline-end: 0px;
-    }
-
-    .vul-basic-info dd, .vul-basic-info dt {
-        line-height: 20px;
-        float: left;
-    }
-
-    a {
-        color: #333;
+    .btn-outline {
+        background: transparent;
+        color: #64748b;
+        border: 1px solid #cbd5e1;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
         text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-outline:hover {
+        background: #f8fafc;
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+    .info-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04);
+    }
+    .info-card h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .info-item dt {
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .info-item dd {
+        color: #1e293b;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .content-section {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04);
+    }
+    .content-section h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 16px;
+    }
+    .content-body {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.8;
+        word-wrap: break-word;
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-blue {
+        background: #eff6ff;
+        color: #3b82f6;
+        border: 1px solid #bfdbfe;
     }
 </style>
-<div class="page-vul-detail-wrapper" style="margin-top: -50px">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="vul-title-wrapper clearfix">
-                    <h1 >
-                   <span class="pull-titile">
-                      <?php echo $info['host'];?>
-                   </span>
-                    </h1>
-                </div>
+<div class="detail-wrapper">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="detail-header">
+            <h1 class="detail-title">
+                <span><?php echo $info['host'];?></span>
+            </h1>
+            <div class="detail-nav">
+                <a href="<?php echo url('host_port/index') ?>" class="btn-outline">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    返回列表页
+                </a>
+                <a href="<?php echo url('host_port/details', ['id' => $info['upper_id']]) ?>" class="btn-outline">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    上一页
+                </a>
+                <a href="<?php echo url('host_port/details', ['id' => $info['lower_id']]) ?>" class="btn-outline">
+                    下一页
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
             </div>
-            <div class="row" style="margin-bottom: 20px;">
-                <div class="col-md-12">
-                    <div class="pull-right" style="line-height: 36px;">
-                        <span class="follow-vul j-follow-vul ">
-                          <a href="<?php echo url('hostPort/index') ?>" class="btn btn-sm btn-outline-secondary">返回列表页</a>
-                        </span>
-                        <span class="follow-vul j-follow-vul ">
-                            <a href="<?php echo url('host_port/details', ['id' => $info['upper_id']]) ?>"
-                               class="btn btn-sm btn-outline-secondary">上一页</a>
-                        </span>
-                        <span class="follow-vul j-follow-vul ">
-                            <a href="<?php echo url('host_port/details', ['id' => $info['lower_id']]) ?>"
-                               class="btn btn-sm btn-outline-secondary">下一页</a>
-                        </span>
-                    </div>
+        </div>
+
+        <div class="info-card">
+            <h3>基本信息</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <dt>端口类型：</dt>
+                    <dd><?php echo $info['type']?></dd>
+                </div>
+                <div class="info-item">
+                    <dt>端口号：</dt>
+                    <dd><span class="badge badge-blue"><?php echo $info['port']?></span></dd>
+                </div>
+                <div class="info-item">
+                    <dt>服务名称：</dt>
+                    <dd><?php echo $info['service']?></dd>
                 </div>
             </div>
         </div>
 
-        <div class="row a-ts">
-            <div class="a-st">
-                <!--漏洞基本信息 begin-->
-                <div class="bug-msg">
-                    <section class="vul-basic-info" >
-                        <div class="row">
-                            <div class="col-md-4">
-                                <dl>
-                                    <dt>端口类型：</dt>
-                                    <dd >
-                                        <?php echo $info['type']?>
-                                    </dd>
-                                </dl>
-                            </div>
-                            <div class="col-md-4">
-                                <dl>
-                                    <dt>端口号：</dt>
-                                    <dd>
-                                        <?php echo $info['port']?>
-                                    </dd>
-                                </dl>
-                            </div>
-                            <div class="col-md-4">
-                                <dl data-type="CVE-ID">
-                                    <dt>服务名称：</dt>
-                                    <dd>
-                                        <?php echo $info['service']?>
-                                    </dd>
-                                </dl>
+        <div class="content-section">
+            <h3>Headers</h3>
+            <div class="content-body">
+                <?php echo $info['headers']?>
+            </div>
+        </div>
 
-                            </div>
-                        </div>
-                    </section>
-                </div>
-                <!--漏洞基本信息 end-->
-
-                <!--漏洞详情 begin-->
-                <section class="vul-detail-section vul-detail-content">
-                    <div class="clearfix">
-                        <h3 class="pull-left">
-                            headers
-                        </h3>
-                    </div>
-                    <div class="content-holder padding-md">
-                        <?php echo $info['headers']?>
-                    </div>
-
-                </section>
-                <!--漏洞详情 end-->
-
-                <!--漏洞 PoC begin-->
-                <section >
-                    <div class="clearfix">
-                        <h3 class="pull-left">html
-                        </h3>
-                    </div>
-                    <div class="padding-md">
-                        <?php echo $info['html']?>
-                    </div>
-
-                </section>
-                <!--漏洞 PoC end-->
+        <div class="content-section">
+            <h3>HTML</h3>
+            <div class="content-body">
+                <?php echo $info['html']?>
             </div>
         </div>
     </div>

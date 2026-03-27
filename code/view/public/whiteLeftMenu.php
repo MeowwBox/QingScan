@@ -5,72 +5,50 @@
 $menuBlacklist = getMenuBlacklist();
 
 ?>
-<!-- 左侧菜单栏内容 -->
-<div class="tuchu code-sidebar" style="padding-right:0;padding-left:0;margin-left:0;overflow:hidden;">
-    <!-- 侧边栏标题 -->
-    <div class="sidebar-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
-        </svg>
-        <span>功能菜单</span>
+<aside id="sidebar" class="sidebar fixed top-[64px] left-0 w-[260px] h-[calc(100vh-64px)] bg-white border-r border-surface-300 overflow-y-auto overflow-x-hidden p-4 z-40">
+
+    <div class="py-2 px-3 mb-2">
+        <span class="menu-title">代码审计</span>
     </div>
+
     <ul id="leftMenu">
         <!-- 代码仓库管理 -->
         <?php if (!isMenuBlacklisted('代码仓库', $menuBlacklist, null)): ?>
         <li>
-            <a href="#">
-                <img src="/icon/repo.svg" class="icon">
-                代码仓库
-                <img src="/icon/right.svg" class="toggle-btn">
+            <a href="/code/index.html" class="menu-item">
+                <svg class="w-5 h-5 flex-shrink-0 text-text-secondary" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                </svg>
+                <span class="menu-text">代码仓库</span>
+                <span class="menu-badge ml-auto bg-primary text-white text-[11px] px-2 py-0.5 rounded-full font-medium">12</span>
             </a>
-            <ul class="submenu show">
-                <?php if (!isMenuBlacklisted('代码仓库', $menuBlacklist, 'Git仓库')): ?><li><a href="/code/index.html">Git仓库</a></li><?php endif; ?>
-            </ul>
         </li>
         <?php endif; ?>
-        
+
         <!-- 代码审计工具 -->
         <?php if (!isMenuBlacklisted('代码审计', $menuBlacklist, null)): ?>
         <li>
-            <a href="#">
-                <img src="/icon/code.svg" class="icon">
-                代码审计
-                <img src="/icon/right.svg" class="toggle-btn">
+            <a href="#" class="menu-item">
+                <svg class="w-5 h-5 flex-shrink-0 text-text-secondary" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                <span class="menu-text">审计工具</span>
+                <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
             </a>
-            <ul class="submenu show">
+            <ul class="submenu">
                 <?php if (!isMenuBlacklisted('代码审计', $menuBlacklist, 'CodeQL引擎')): ?><li><a href="/code/codeql/index.html">CodeQL引擎</a></li><?php endif; ?>
                 <?php if (!isMenuBlacklisted('代码审计', $menuBlacklist, 'Fortify')): ?><li><a href="/code/fortify/index.html">Fortify</a></li><?php endif; ?>
                 <?php if (!isMenuBlacklisted('代码审计', $menuBlacklist, 'SemGrep')): ?><li><a href="/code/semgrep/index.html">SemGrep</a></li><?php endif; ?>
-            </ul>
-        </li>
-        <?php endif; ?>
-        
-        <!-- 代码安全工具 -->
-        <?php if (!isMenuBlacklisted('代码安全', $menuBlacklist, null)): ?>
-        <li>
-            <a href="#">
-                <img src="/icon/tools.svg" class="icon">
-                代码安全
-                <img src="/icon/right.svg" class="toggle-btn">
-            </a>
-            <ul class="submenu show">
-                <?php if (!isMenuBlacklisted('代码安全', $menuBlacklist, '成份分析')): ?><li><a href="/code/sbom/index.html">成份分析</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('代码审计', $menuBlacklist, 'MobSF扫描')): ?><li><a href="/code/mobsfscan/index.html">MobSF扫描</a></li><?php endif; ?>
+                <?php if (!isMenuBlacklisted('代码审计', $menuBlacklist, 'Webshell检测')): ?><li><a href="/code/code_webshell/index.html">Webshell检测</a></li><?php endif; ?>
             </ul>
         </li>
         <?php endif; ?>
     </ul>
-</div>
-<script type="text/javascript">
-    // 获取当前屏幕高度
-    var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+</aside>
 
-    // 设置要修改高度的DIV的ID，这里假设该DIV的ID为"myDiv"
-    var div = document.getElementById("leftMenu");
-    screenHeight -= 56;
-    // 设置DIV的高度为当前屏幕高度
-    div.style.height = screenHeight + "px";
-</script>
 <script type="text/javascript">
     $("#codeaudit").addClass("nav-active");
 </script>

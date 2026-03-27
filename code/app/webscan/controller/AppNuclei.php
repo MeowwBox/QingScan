@@ -39,6 +39,17 @@ class AppNuclei extends Common
         return View::fetch('index', $data);
     }
 
+    // 删除单条记录
+    public function del(Request $request)
+    {
+        $id = $request->param('id');
+        if (Db::name('app_nuclei')->where('id', $id)->delete()) {
+            return redirect($_SERVER['HTTP_REFERER']);
+        } else {
+            $this->error('删除失败');
+        }
+    }
+
     // 批量删除
     public function batch_del(Request $request){
         return $this->batch_del_that($request,'app_nuclei');

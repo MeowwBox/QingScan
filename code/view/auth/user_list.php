@@ -28,10 +28,10 @@ $searchArr = [
                     <th>用户名</th>
                     <th>昵称</th>
                     <th>用户组</th>
-                    <th>用户组</th>
                     <th>性别</th>
                     <th>手机号码</th>
                     <th>邮箱地址</th>
+                    <th>状态</th>
                     <th>创建时间</th>
                     <th style="width: 200px">操作</th>
                 </tr>

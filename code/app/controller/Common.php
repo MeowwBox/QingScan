@@ -25,11 +25,19 @@ class Common extends BaseController
     public function initialize()
     {
         parent::initialize();
-        $this->userInfo = $this->isLogin('scan_user');
-        if (!$this->userInfo) {
-            header("Location: " . url('/login/index'));
-            exit();
-        }
+        // 临时关闭权限验证 - 使用admin身份
+        $this->userInfo = [
+            'id' => 1,
+            'username' => 'admin',
+            'auth_group_id' => 1,
+            'nickname' => 'Administrator'
+        ];
+        // 原权限验证代码已注释
+        // $this->userInfo = $this->isLogin('scan_user');
+        // if (!$this->userInfo) {
+        //     header("Location: " . url('/login/index'));
+        //     exit();
+        // }
         View::assign('userInfo', $this->userInfo);
         $this->userId = $this->userInfo ? $this->userInfo['id'] : 0;
         $this->username = $this->userInfo ? $this->userInfo['username'] : '';

@@ -1,8 +1,5 @@
 {include file='public/head' /}
-<div class="col-md-1 " style="padding-right: 0;" >
-    {include file='public/whiteLeftMenu' /}
-</div>
-<div class="col-md-11 " style="padding:0;">
+{include file='public/whiteLeftMenu' /}
 <?php
 $dengjiArr = ['ERROR', 'Low', 'Medium', 'High', 'Critical'];
 
@@ -26,77 +23,87 @@ $searchArr = [
 ?>
 {include file='public/search' /}
 
-<div class="row tuchu">
-    <div class="col-md-12 ">
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-slate-800">MobSF扫描结果</h3>
+        </div>
+    </div>
+    <div class="p-5">
         {include file='public/batch' /}
-        <table class="table  table-hover table-sm table-borderless">
-            <thead class="table-light">
-            <tr>
-                <th width="70">
-                    <label>
-                        <input type="checkbox" value="-1" onclick="quanxuan(this)">全选
-                    </label>
-                </th>
-                <th>ID</th>
-                <th>所属项目</th>
-                <th>危险等级</th>
-                <th>漏洞类型</th>
-                <th>cwe</th>
-                <th>漏洞描述</th>
-                <!--<th>input_case</th>-->
-                <th>masvs</th>
-                <th>owasp_mobile</th>
-                <th>参考地址</th>
-                <th>扫描时间</th>
-                <th>状态</th>
-                <!--<th>操作</th>-->
-            </tr>
-            </thead>
-            <?php foreach ($list as $value) {
-                $project = $projectList[$value['code_id']];
-                ?>
-                <tr>
-                    <td>
-                        <label>
-                            <input type="checkbox" class="ids" name="ids[]" value="<?php echo $value['id'] ?>">
-                        </label>
-                    </td>
-                    <td><?php echo $value['id'] ?></td>
-                    <td>
-                        <a href="<?php echo url('code/index', ['id' => $value['code_id']]) ?>">
-                            <?php echo $value['code_name'] ?></a>
-                    </td>
-                    <td><?php echo $value['severity']; ?></td>
-                    <td><?php echo $value['type']; ?></td>
-                    <td><?php echo $value['cwe']; ?></td>
-                    <td><?php echo $value['description']; ?></td>
-                    <!--<td><?php /*echo $value['input_case']; */?></td>-->
-                    <td><?php echo $value['masvs']; ?></td>
-                    <td><?php echo $value['owasp_mobile']; ?></td>
-                    <td><a href="<?php echo $value['reference']; ?>" target="_blank"><?php echo $value['reference']; ?></a></td>
-                    <td><?php echo $value['create_time'] ?></td>
-                    <td><select class="changCheckStatus form-select" data-id="<?php echo $value['id'] ?>">
-                            <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?> >未审核</option>
-                            <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?> >有效漏洞
-                            </option>
-                            <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?> >无效漏洞
-                            </option>
-                        </select>
-                    </td>
-                    <!--<td>
-                        <a href="<?php /*echo url('code/semgrep_details', ['id' => $value['id']]) */?>"
-                           class="btn btn-sm btn-outline-secondary">查看漏洞</a>
-                        <a href="<?php /*echo url('del', ['id' => $value['id']]) */?>"
-                           class="btn btn-sm btn-outline-danger">删除</a>
-                    </td>-->
-                </tr>
-            <?php } ?>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-slate-50">
+                        <th class="w-16 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" value="-1" onclick="quanxuan(this)" class="w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-200">
+                                <span>全选</span>
+                            </label>
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">所属项目</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">危险等级</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">漏洞类型</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">cwe</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">漏洞描述</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">masvs</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">owasp_mobile</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">参考地址</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">扫描时间</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">状态</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <?php foreach ($list as $value) {
+                        $project = $projectList[$value['code_id']];
+                        $severityClass = '';
+                        if ($value['severity'] == 'Critical') $severityClass = 'bg-red-50 text-red-600 border-red-100';
+                        elseif ($value['severity'] == 'High') $severityClass = 'bg-orange-50 text-orange-600 border-orange-100';
+                        elseif ($value['severity'] == 'Medium') $severityClass = 'bg-amber-50 text-amber-600 border-amber-100';
+                        elseif ($value['severity'] == 'Low') $severityClass = 'bg-sky-50 text-sky-600 border-sky-100';
+                        else $severityClass = 'bg-slate-50 text-slate-600 border-slate-100';
+                        ?>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="ids w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-200" name="ids[]" value="<?php echo $value['id'] ?>">
+                            </td>
+                            <td class="px-4 py-3 font-medium text-slate-700"><?php echo $value['id'] ?></td>
+                            <td class="px-4 py-3">
+                                <a href="<?php echo url('code/index', ['id' => $value['code_id']]) ?>" class="text-blue-500 hover:text-blue-600 hover:underline">
+                                    <?php echo $value['code_name'] ?>
+                                </a>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold <?php echo $severityClass ?> border">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                    <?php echo $value['severity']; ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-slate-600"><?php echo $value['type']; ?></td>
+                            <td class="px-4 py-3 text-slate-600"><?php echo $value['cwe']; ?></td>
+                            <td class="px-4 py-3 text-slate-600 text-sm max-w-xs truncate" title="<?php echo $value['description']; ?>"><?php echo $value['description']; ?></td>
+                            <td class="px-4 py-3 text-slate-600"><?php echo $value['masvs']; ?></td>
+                            <td class="px-4 py-3 text-slate-600"><?php echo $value['owasp_mobile']; ?></td>
+                            <td class="px-4 py-3"><a href="<?php echo $value['reference']; ?>" target="_blank" class="text-blue-500 hover:text-blue-600 text-sm truncate max-w-xs block"><?php echo $value['reference']; ?></a></td>
+                            <td class="px-4 py-3 text-slate-500 text-sm"><?php echo $value['create_time'] ?></td>
+                            <td class="px-4 py-3">
+                                <select class="changCheckStatus bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none" data-id="<?php echo $value['id'] ?>">
+                                    <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?> >未审核</option>
+                                    <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?> >有效漏洞</option>
+                                    <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?> >无效漏洞</option>
+                                </select>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <input type="hidden" id="to_examine_url" value="<?php echo url('to_examine/mobsfscan') ?>">
 
 {include file='public/to_examine' /}
-{include file='public/fenye' /}</div>
+{include file='public/fenye' /}
 {include file='public/footer' /}

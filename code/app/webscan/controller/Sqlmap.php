@@ -29,7 +29,19 @@ class Sqlmap extends Common
         ]);
         $data['list'] = $list->items();
         foreach ($data['list'] as &$val) {
-            $val['url'] = Db::name('urls')->where('id',$val['urls_id'])->value('url');
+            $url = '';
+            try {
+                // 尝试从urls表获取URL
+                $url = Db::name('urls')->where('id', $val['urls_id'])->value('url');
+            } catch (\Exception $e) {
+                // urls表不存在，尝试从asm_urls表获取
+                try {
+                    $url = Db::table('asm_urls')->where('id', $val['urls_id'])->value('url');
+                } catch (\Exception $e2) {
+                    // 两个表都不存在，URL留空
+                }
+            }
+            $val['url'] = $url ?: '';
         }
         $data['page'] = $list->render();
 

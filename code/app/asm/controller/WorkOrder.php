@@ -64,16 +64,27 @@ class WorkOrder extends Common
             'other' => '其他'
         ];
         
+        // 计算分页显示信息
+        $total = $work_order_page->total();
+        $currentPage = $work_order_page->currentPage();
+        $listRows = $work_order_page->listRows();
+        $page_start = ($currentPage - 1) * $listRows + 1;
+        $page_end = min($currentPage * $listRows, $total);
+
         View::assign([
             'list' => $list,
             'page' => $work_order_page,
+            'paginator' => $work_order_page,
             'work_order_status' => $work_order_status,
             'work_order_type' => $work_order_type,
             'keyword' => $keyword,
             'status' => $status,
-            'type' => $type
+            'type' => $type,
+            'total' => $total,
+            'page_start' => $page_start,
+            'page_end' => $page_end
         ]);
-        
+
         return View::fetch();
     }
     

@@ -40,20 +40,27 @@ class CodeQl extends Common
         $where = ['id' => $id];
         $info = Db::table('codeql')->where($where)->find();
 
-
-
-        $info['codeFlows'] = json_decode($info['codeFlows'], true);
-        foreach ($info['codeFlows'] as &$item) {
-            foreach ($item['threadFlows'] as &$val) {
-                foreach ($val['locations'] as &$v){
-                    $v['location'] = $this->parseSarif($v['location']);
-                }
-            }
-
+        if (empty($info)) {
+            return View::fetch('detail', ['info' => null, 'error' => '记录不存在']);
         }
 
-        $info['locations'] = $this->parseSarif(json_decode($info['locations'], true));
-        $info['prompt'] = str_replace("\n","<br>",$info['prompt']);
+        $info['codeFlows'] = json_decode($info['codeFlows'], true);
+        if (!empty($info['codeFlows'])) {
+            foreach ($info['codeFlows'] as &$item) {
+                if (!empty($item['threadFlows'])) {
+                    foreach ($item['threadFlows'] as &$val) {
+                        if (!empty($val['locations'])) {
+                            foreach ($val['locations'] as &$v){
+                                $v['location'] = $this->parseSarif($v['location']);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $info['locations'] = $this->parseSarif(json_decode($info['locations'], true) ?: []);
+        $info['prompt'] = isset($info['prompt']) ? str_replace("\n","<br>",$info['prompt']) : '';
 
 
         return View::fetch('detail', ['info' => $info]);
@@ -61,17 +68,23 @@ class CodeQl extends Common
 
     private function parseSarif($list)
     {
+        if (!is_array($list) || empty($list)) {
+            return [];
+        }
 
         $results = [];
         foreach ($list as $location) {
+            if (!is_array($location)) {
+                continue;
+            }
             if(!isset($location['physicalLocation']))  $location['physicalLocation'] = $location;
 
             if(!isset($location['physicalLocation']['artifactLocation']['uri'])) continue;
             $artifactLocation = $location['physicalLocation']['artifactLocation']['uri'];
-            $region = $location['physicalLocation']['region'];
-            $startLine = $region['startLine'];
-            $startColumn = $region['startColumn'];
-            $endColumn = $region['endColumn'];
+            $region = $location['physicalLocation']['region'] ?? [];
+            $startLine = $region['startLine'] ?? 0;
+            $startColumn = $region['startColumn'] ?? 0;
+            $endColumn = $region['endColumn'] ?? 0;
             $results[] = [
                 'file' => $artifactLocation,
                 'start_line' => $startLine,

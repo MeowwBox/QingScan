@@ -30,6 +30,7 @@ class Discover extends Common
         ]);
         $data['list'] = $list->items();
         $data['page'] = $list->render();
+        $data['paginator'] = $list;
         $data['keyword'] = $request->param('keyword', 'dedecms');
 
         $this->autoInsertData($data['list']);
@@ -103,5 +104,22 @@ class Discover extends Common
         return redirect($_SERVER['HTTP_REFERER']);
     }
 
+    /**
+     * 获取资产发现详情（API接口）
+     */
+    public function detail(Request $request)
+    {
+        $id = $request->param('id', 0, 'intval');
+        if (empty($id)) {
+            return json(['code' => 0, 'msg' => '参数错误']);
+        }
+
+        $info = Db::table('tool_fofa')->find($id);
+        if (empty($info)) {
+            return json(['code' => 0, 'msg' => '数据不存在']);
+        }
+
+        return json(['code' => 1, 'data' => $info]);
+    }
 
 }

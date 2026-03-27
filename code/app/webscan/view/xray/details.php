@@ -1,431 +1,156 @@
 {include file='public/head' /}
-<style>
-    body {
-        margin: 0;
-        color: rgba(0, 0, 0, .65);
-        font-size: 14px;
-        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
-        font-variant: tabular-nums;
-        line-height: 1.5;
-        background-color: #fff;
-        -webkit-font-feature-settings: "tnum";
-        font-feature-settings: "tnum";
-    }
+{include file='public/blackLeftMenu' /}
 
-    .ant-card {
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: rgba(0, 0, 0, .65);
-        font-size: 14px;
-        font-variant: tabular-nums;
-        line-height: 1.5;
-        list-style: none;
-        -webkit-font-feature-settings: "tnum";
-        font-feature-settings: "tnum";
-        position: relative;
-        background: #fff;
-        border-radius: 2px;
-        -webkit-transition: all .3s;
-        transition: all .3s;
-    }
+<!-- 页面标题区 -->
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-text-primary mb-2">漏洞详情</h1>
+            <nav class="flex gap-2 text-sm text-text-secondary">
+                <a href="<?php echo url('xray/index') ?>" class="hover:text-primary transition-colors">XRAY漏洞列表</a>
+                <span class="text-text-muted">/</span>
+                <span class="text-text-primary font-medium">漏洞 #<?php echo $info['id'] ?></span>
+            </nav>
+        </div>
+        <div class="flex gap-3">
+            <input type="hidden" id="to_examine_url" value="<?php echo url('to_examine/xray')?>">
+            {include file='public/to_examine' /}
+            <?php if($info['check_status'] == 0){?>
+            <button onclick="to_examine(<?php echo $info['id']?>)" class="px-5 py-2.5 rounded-xl border border-surface-400 text-text-primary font-medium hover:bg-surface-100 hover:border-primary hover:text-primary transition-all duration-200">
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    审核
+                </span>
+            </button>
+            <?php }?>
+            <a href="<?php echo url('xray/index') ?>" class="px-5 py-2.5 rounded-xl border border-surface-400 text-text-primary font-medium hover:bg-surface-100 hover:border-primary hover:text-primary transition-all duration-200">
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    返回列表
+                </span>
+            </a>
+            <div class="flex gap-2">
+                <a href="<?php echo url('xray/details', ['id' => $info['upper_id']]) ?>" class="px-4 py-2.5 rounded-xl border border-surface-400 text-text-secondary hover:bg-surface-100 hover:text-text-primary hover:border-primary transition-all">
+                    上一页
+                </a>
+                <a href="<?php echo url('xray/details', ['id' => $info['lower_id']]) ?>" class="px-4 py-2.5 rounded-xl border border-surface-400 text-text-secondary hover:bg-surface-100 hover:text-text-primary hover:border-primary transition-all">
+                    下一页
+                </a>
+            </div>
+        </div>
+    </div>
 
-    .ant-card-head {
-        min-height: 48px;
-        margin-bottom: -1px;
-        padding: 0 24px;
-        color: rgba(0, 0, 0, .85);
-        font-weight: 500;
-        font-size: 16px;
-        background: transparent;
-        border-bottom: 1px solid #e8e8e8;
-        border-radius: 2px 2px 0 0;
-        zoom: 1;
-    }
+    <!-- 漏洞概览卡片 -->
+    <div class="bg-white border border-surface-300 rounded-2xl p-6 mb-6 shadow-card">
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <h2 class="text-xl font-bold text-text-primary"><?php echo $info['plugin'] ?></h2>
+                    <?php if ($info['check_status'] == 1) { ?>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        有效漏洞
+                    </span>
+                    <?php } elseif ($info['check_status'] == 2) { ?>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-600 border border-red-100">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        无效漏洞
+                    </span>
+                    <?php } else { ?>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-50 text-sky-600 border border-sky-100">
+                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                        未审核
+                    </span>
+                    <?php } ?>
+                </div>
+                <p class="text-text-muted text-sm font-mono"><?php echo $info['detail']['addr'] ?></p>
+            </div>
+            <select class="changCheckStatus bg-surface-100 border border-surface-300 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all" data-id="<?php echo $info['id'] ?>">
+                <option value="0" <?php echo $info['check_status'] == 0 ? 'selected' : ''; ?>>未审核</option>
+                <option value="1" <?php echo $info['check_status'] == 1 ? 'selected' : ''; ?>>有效漏洞</option>
+                <option value="2" <?php echo $info['check_status'] == 2 ? 'selected' : ''; ?>>无效漏洞</option>
+            </select>
+        </div>
 
-    .ant-card {
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: rgba(0, 0, 0, .65);
-        font-size: 14px;
-        font-variant: tabular-nums;
-        line-height: 1.5;
-        list-style: none;
-        -webkit-font-feature-settings: "tnum";
-        font-feature-settings: "tnum";
-        position: relative;
-        background: #fff;
-        border-radius: 2px;
-        -webkit-transition: all .3s;
-        transition: all .3s;
-    }
-
-    .ant-layout {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-flex: 1;
-        -ms-flex: auto;
-        flex: auto;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-        flex-direction: column;
-        min-height: 0;
-        background: #f0f2f5;
-    }
-
-    .ant-card-head-wrapper {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
-        align-items: center;
-    }
-
-    .ant-card-head-title {
-        display: inline-block;
-        -webkit-box-flex: 1;
-        -ms-flex: 1;
-        flex: 1;
-        padding: 16px 0;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-
-    .ant-card-extra {
-        float: right;
-        margin-left: auto;
-        padding: 16px 0;
-        color: rgba(0, 0, 0, .65);
-        font-weight: 400;
-        font-size: 14px;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        margin-top: 0;
-        margin-bottom: .5em;
-        color: rgba(0, 0, 0, .85);
-        font-weight: 500;
-    }
-
-    h3 {
-        display: block;
-        font-size: 1.17em;
-        margin-block-start: 1em;
-        margin-block-end: 1em;
-        margin-inline-start: 0px;
-        margin-inline-end: 0px;
-        font-weight: bold;
-    }
-
-    .ant-spin-nested-loading {
-        position: relative;
-    }
-
-    .ant-spin-container {
-        position: relative;
-        -webkit-transition: opacity .3s;
-        transition: opacity .3s;
-    }
-
-    .ant-table {
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: rgba(0, 0, 0, .65);
-        font-size: 14px;
-        font-variant: tabular-nums;
-        line-height: 1.5;
-        list-style: none;
-        -webkit-font-feature-settings: "tnum";
-        font-feature-settings: "tnum";
-        position: relative;
-        clear: both;
-    }
-
-    .ant-table table {
-        width: 100%;
-        text-align: left;
-        border-radius: 4px 4px 0 0;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    thead {
-        display: table-header-group;
-        vertical-align: middle;
-        border-color: inherit;
-    }
-
-    tr {
-        display: table-row;
-        vertical-align: inherit;
-        border-color: inherit;
-    }
-
-    thead > tr > th {
-        padding: 16px 16px;
-        overflow-wrap: break-word;
-    }
-
-    .ant-table-thead > tr > th {
-        color: rgba(0, 0, 0, .85);
-        font-weight: 500;
-        text-align: left;
-        background: #fafafa;
-        border-bottom: 1px solid #e8e8e8;
-        -webkit-transition: background .3s ease;
-        transition: background .3s ease;
-    }
-
-    .ant-table-thead > tr > th .ant-table-header-column {
-        display: inline-block;
-        max-width: 100%;
-        vertical-align: top;
-    }
-
-    .ant-table-thead > tr > th .ant-table-column-sorter {
-        display: table-cell;
-        vertical-align: middle;
-    }
-
-    .ant-table-thead > tr > th .ant-table-column-sorter .ant-table-column-sorter-inner {
-        height: 1em;
-        margin-top: .35em;
-        margin-left: .57142857em;
-        color: #bfbfbf;
-        line-height: 1em;
-        text-align: center;
-        -webkit-transition: all .3s;
-        transition: all .3s;
-    }
-
-    tbody {
-        display: table-row-group;
-        vertical-align: middle;
-        border-color: inherit;
-    }
-
-    .ant-table-tbody > tr > td, .ant-table-thead > tr > th {
-        padding: 16px 16px;
-        overflow-wrap: break-word;
-    }
-
-    .ant-table-tbody > tr > td {
-        border-bottom: 1px solid #e8e8e8;
-        -webkit-transition: background .3s;
-        transition: background .3s;
-    }
-
-    td {
-        display: table-cell;
-        vertical-align: inherit;
-    }
-
-    .ant-table-tbody > tr > td {
-        border-bottom: 1px solid #e8e8e8;
-        -webkit-transition: background .3s;
-        transition: background .3s;
-    }
-
-    .ant-table-tbody > tr > td, .ant-table-thead > tr > th {
-        padding: 16px 16px;
-        overflow-wrap: break-word;
-    }
-
-    .ant-descriptions-bordered .ant-descriptions-view {
-        border: 1px solid #e8e8e8;
-    }
-
-    .expand-detail :not(.internal-detail) .ant-descriptions-item-content, .expand-detail :not(.internal-detail) .ant-descriptions-item-label {
-        border-bottom: 1px solid #e8e8e8;
-    }
-
-    .expand-detail :not(.internal-detail) .ant-descriptions-item-label {
-        width: 150px;
-    }
-
-    .ant-descriptions-bordered.ant-descriptions-middle .ant-descriptions-item-content, .ant-descriptions-bordered.ant-descriptions-middle .ant-descriptions-item-label {
-        padding: 12px 24px;
-    }
-
-    .ant-descriptions-bordered .ant-descriptions-item-label {
-        background-color: #fafafa;
-    }
-
-    .expand-detail :not(.internal-detail) pre {
-        margin: 8px 0;
-    }
-
-    pre {
-        margin-top: 0;
-        margin-bottom: 1em;
-        overflow: auto;
-    }
-</style>
-<main class="ant-layout-content" style="padding: 0px 50px; margin-top: 96px;">
-    <div style="margin-bottom: 48px;">
-        <div class="ant-card ant-card-bordered" style="width: 100%;">
-            <div class="ant-card-head">
-                <div class="ant-card-head-wrapper">
-                    <div class="ant-card-head-title"><h3>Web Vulnerabilities</h3></div>
-                    <div class="ant-card-extra">
-                        <div class="pull-right">
-                            <input type="hidden" id="to_examine_url" value="<?php echo url('to_examine/xray')?>">
-                            {include file='public/to_examine' /}
-                            <?php if($info['check_status'] == 0){?>
-                                <span class="follow-vul j-follow-vul ">
-                                <a href="javascript:;" class="btn btn-sm btn-outline-secondary" onclick="to_examine(<?php echo $info['id']?>)">审核</a>
-                            </span>
-                            <?php }?>
-                            <span class="follow-vul j-follow-vul ">
-                                <a href="<?php echo url('xray/index') ?>" class="btn btn-sm btn-outline-secondary">返回列表页</a>
-                            </span>
-                            <span class="follow-vul j-follow-vul ">
-                                <a href="<?php echo url('xray/details', ['id' => $info['upper_id']]) ?>"
-                                   class="btn btn-sm btn-outline-secondary">上一页</a>
-                            </span>
-                            <span class="follow-vul j-follow-vul ">
-                                <a href="<?php echo url('xray/details', ['id' => $info['lower_id']]) ?>"
-                                   class="btn btn-sm btn-outline-secondary">下一页</a>
-                            </span>
-                        </div>
-                    </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-surface-100 rounded-xl p-4">
+                <span class="text-xs text-text-muted uppercase tracking-wider">漏洞ID</span>
+                <div class="mt-1 font-semibold text-text-primary">#<?php echo $info['id'] ?></div>
+            </div>
+            <div class="bg-surface-100 rounded-xl p-4">
+                <span class="text-xs text-text-muted uppercase tracking-wider">发现时间</span>
+                <div class="mt-1 font-medium text-text-primary"><?php echo date('Y-m-d H:i:s', substr($info['create_time'], 0, 10)) ?></div>
+            </div>
+            <div class="bg-surface-100 rounded-xl p-4">
+                <span class="text-xs text-text-muted uppercase tracking-wider">漏洞类型</span>
+                <div class="mt-1">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-600 border border-red-100">
+                        <?php echo $info['plugin'] ?>
+                    </span>
                 </div>
             </div>
-            <div class="ant-card-body" style="padding: 0px;">
-                <div class="ant-table-wrapper">
-                    <div class="ant-spin-nested-loading">
-                        <div class="ant-spin-container">
-                            <div class="ant-table ant-table-scroll-position-left ant-table-default">
-                                <div class="ant-table-content"><!---->
-                                    <div class="ant-table-body">
-                                        <table class="">
-                                            <thead class="ant-table-thead">
-                                            <tr>
-                                                <th key="rc-table-expand-icon-cell" title="" rowspan="1"
-                                                    class="ant-table-expand-icon-th"></th>
-                                                <th key="id" class="ant-table-row-cell-break-word"><span
-                                                            class="ant-table-header-column"><div><span
-                                                                    class="ant-table-column-title">ID</span></div></span>
-                                                </th>
-                                                <th key="target"
-                                                    class="ant-table-column-has-actions ant-table-column-has-sorters">
-                                                    <span class="ant-table-header-column"><div
-                                                                class="ant-table-column-sorters"><span
-                                                                    class="ant-table-column-title">Target</span>
-                                                            </div></span>
-                                                </th>
-                                                <th key="plugin"
-                                                    class="filter-column ant-table-column-has-actions ant-table-column-has-filters ant-table-column-has-sorters">
-                                                    <span class="ant-table-header-column"><div
-                                                                class="ant-table-column-sorters"><span
-                                                                    class="ant-table-column-title">PluginName / VulnType</span>
-
-                                                        </div></span></th>
-                                                <th key="create_time"
-                                                    class="ant-table-column-has-actions ant-table-column-has-sorters ant-table-row-cell-last">
-                                                    <span class="ant-table-header-column"><div
-                                                                class="ant-table-column-sorters"><span
-                                                                    class="ant-table-column-title">CreateTime</span></div></span>
-                                                </th>
-                                                <th key="create_time"
-                                                    class="ant-table-column-has-actions ant-table-column-has-sorters ant-table-row-cell-last">
-                                                    <span class="ant-table-header-column"><div
-                                                                class="ant-table-column-sorters"><span
-                                                                    class="ant-table-column-title">审核状态</span></div></span>
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody class="ant-table-tbody">
-                                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="0">
-                                                <td class="ant-table-row-expand-icon-cell">
-                                                    <div role="button" tabindex="0" aria-label="Expand row"
-                                                         class="ant-table-row-expand-icon ant-table-row-collapsed"></div>
-                                                </td>
-                                                <td class="ant-table-row-cell-break-word"><?php echo $info['id'] ?></td>
-                                                <td class="ant-table-column-has-actions ant-table-column-has-sorters"><a
-                                                            href="<?php echo $info['detail']['addr'] ?>"
-                                                            style="display: inline-block; max-width: 50vw;">
-                                                        <?php echo $info['detail']['addr'] ?>
-                                                    </a></td>
-                                                <td class="ant-table-column-has-actions ant-table-column-has-filters ant-table-column-has-sorters filter-column">
-                                                    <?php echo $info['plugin'] ?>
-                                                </td>
-                                                <td class="ant-table-column-has-actions ant-table-column-has-sorters">
-                                                    <?php echo date('Y-m-d H:i:s', substr($info['create_time'], 0, 10)) ?>
-                                                </td>
-                                                <td class="ant-table-column-has-actions ant-table-column-has-sorters">
-                                                    <select  class="changCheckStatus form-select"  data-id="<?php echo $info['id'] ?>">
-                                                        <option value="0" <?php echo $info['check_status'] == 0 ? 'selected' : ''; ?> >未审核</option>
-                                                        <option value="1" <?php echo $info['check_status'] == 1 ? 'selected' : ''; ?> >有效漏洞</option>
-                                                        <option value="2" <?php echo $info['check_status'] == 2 ? 'selected' : ''; ?> >无效漏洞</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr data-row-key="0-extra-row"
-                                                class="ant-table-expanded-row ant-table-expanded-row-level-1" style="">
-                                                <td class=""></td>
-                                                <td colspan="4">
-                                                    <div style="margin: 0px;">
-                                                        <div class="expand-detail ant-descriptions ant-descriptions-middle ant-descriptions-bordered">
-                                                            <div class="ant-descriptions-view">
-                                                                <table>
-                                                                    <tbody>
-                                                                    <tr class="ant-descriptions-row">
-                                                                        <th class="ant-descriptions-item-label ant-descriptions-item-colon">
-                                                                            URL
-                                                                        </th>
-                                                                        <td colspan="1"
-                                                                            class="ant-descriptions-item-content"><a
-                                                                                    href="<?php echo $info['detail']['addr'] ?>"
-                                                                                    target="_blank"><?php echo $info['detail']['addr'] ?></a>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr class="ant-descriptions-row">
-                                                                        <th class="ant-descriptions-item-label ant-descriptions-item-colon">
-                                                                            Request1
-                                                                        </th>
-                                                                        <td colspan="1"
-                                                                            class="ant-descriptions-item-content">
-                                                                            <pre><?php echo trim($info['detail']['snapshot'][0][0]) ?> </pre>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr class="ant-descriptions-row">
-                                                                        <th class="ant-descriptions-item-label ant-descriptions-item-colon">
-                                                                            Response1
-                                                                        </th>
-                                                                        <td colspan="1"
-                                                                            class="ant-descriptions-item-content">
-                                                                            <pre style="max-height: 600px; max-width: 100%;"><?php echo trim($info['detail']['snapshot'][0][0]) ?> </pre>
-                                                                        </td>
-                                                                    </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="bg-surface-100 rounded-xl p-4">
+                <span class="text-xs text-text-muted uppercase tracking-wider">目标URL</span>
+                <div class="mt-1">
+                    <a href="<?php echo $info['detail']['addr'] ?>" target="_blank" class="text-primary hover:underline text-sm truncate block max-w-[200px]"><?php echo $info['detail']['addr'] ?></a>
                 </div>
             </div>
         </div>
     </div>
-</main>
+
+    <!-- 详情信息区 -->
+    <div class="grid grid-cols-1 gap-6">
+        <!-- URL信息 -->
+        <div class="bg-white border border-surface-300 rounded-2xl overflow-hidden shadow-card">
+            <div class="px-5 py-4 border-b border-surface-200 bg-surface-50">
+                <h3 class="text-lg font-bold text-text-primary flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    </svg>
+                    URL信息
+                </h3>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3">
+                    <span class="text-text-secondary">目标地址:</span>
+                    <a href="<?php echo $info['detail']['addr'] ?>" target="_blank" class="text-primary hover:underline font-mono text-sm"><?php echo $info['detail']['addr'] ?></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 请求信息 -->
+        <div class="bg-white border border-surface-300 rounded-2xl overflow-hidden shadow-card">
+            <div class="px-5 py-4 border-b border-surface-200 bg-surface-50">
+                <h3 class="text-lg font-bold text-text-primary flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                    </svg>
+                    HTTP请求
+                </h3>
+            </div>
+            <div class="p-5">
+                <pre class="bg-slate-800 rounded-xl p-4 text-sm text-slate-300 font-mono overflow-x-auto max-h-[400px]"><?php echo trim($info['detail']['snapshot'][0][0]) ?></pre>
+            </div>
+        </div>
+
+        <!-- 响应信息 -->
+        <div class="bg-white border border-surface-300 rounded-2xl overflow-hidden shadow-card">
+            <div class="px-5 py-4 border-b border-surface-200 bg-surface-50">
+                <h3 class="text-lg font-bold text-text-primary flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    HTTP响应
+                </h3>
+            </div>
+            <div class="p-5">
+                <pre class="bg-slate-800 rounded-xl p-4 text-sm text-slate-300 font-mono overflow-x-auto max-h-[600px]"><?php echo trim($info['detail']['snapshot'][0][0]) ?></pre>
+            </div>
+        </div>
+    </div>
 
 {include file='public/to_examine' /}
 {include file='public/footer' /}

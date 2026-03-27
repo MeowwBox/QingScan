@@ -1,8 +1,5 @@
 {include file='public/head' /}
-<div class="col-md-1 " style="padding-right: 0;" >
-    {include file='public/whiteLeftMenu' /}
-</div>
-<div class="col-md-11 " style="padding:0;">
+{include file='public/whiteLeftMenu' /}
 <?php
 $searchArr = [
     'action' => url('code_webshell/index'),
@@ -11,68 +8,57 @@ $searchArr = [
         ['type' => 'text', 'name' => 'search', 'placeholder' => "搜索的内容"],
         ['type' => 'select', 'name' => 'code_id', 'options' => $projectList, 'frist_option' => '项目列表'],
     ]];
+$tableArr = [
+    'title' => 'Webshell检测列表',
+    'count' => count($list),
+    'checkbox' => true,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '所属项目'],
+        ['title' => '类型'],
+        ['title' => '文件路径'],
+        ['title' => '扫描时间'],
+        ['title' => '状态'],
+        ['title' => '操作'],
+    ],
+    'showBatchDel' => true,
+];
 ?>
 {include file='public/search' /}
+{include file='public/table_start' /}
 
+<?php foreach ($list as $value) { ?>
+<tr class="hover:bg-surface-50 transition-colors">
+    <td class="px-5 py-4">
+        <input type="checkbox" class="ids w-4 h-4 rounded border-surface-400 text-primary" name="ids[]" value="<?php echo $value['id'] ?>">
+    </td>
+    <td class="px-5 py-4 font-medium text-text-primary"><?php echo $value['id'] ?></td>
+    <td class="px-5 py-4 text-text-secondary"><?php echo $value['name'] ?></td>
+    <td class="px-5 py-4">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-600 border border-red-100">
+            <?php echo $value['type'] ?>
+        </span>
+    </td>
+    <td class="px-5 py-4 text-text-secondary font-mono text-sm bg-surface-50 rounded-lg px-2 py-1"><?php echo str_replace('./extend/codeCheck/','',$value['filename']) ?></td>
+    <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time']; ?></td>
+    <td class="px-5 py-4">
+        <select class="changCheckStatus bg-surface-50 border border-surface-300 rounded-lg px-3 py-1.5 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none" data-id="<?php echo $value['id'] ?>">
+            <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?> >未审核</option>
+            <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?> >有效漏洞</option>
+            <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?> >无效漏洞</option>
+        </select>
+    </td>
+    <td class="px-5 py-4">
+        <a href="<?php echo url('code_webshell/del',['id'=>$value['id']])?>" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors">删除</a>
+    </td>
+</tr>
+<?php } ?>
 
-<div class="row tuchu">
-    <!--            <div class="col-md-1"></div>-->
-    <div class="col-md-12 ">
-        {include file='public/batch_del' /}
-        <table class="table  table-hover table-sm table-borderless">
-            <thead class="table-light">
-            <tr>
-                <th width="80">
-                    <label>
-                        <input type="checkbox" value="-1" onclick="quanxuan(this)">全选
-                    </label>
-                </th>
-                <th>ID</th>
-                <th>所属项目</th>
-                <th>类型</th>
-                <th>文件路径</th>
-                <th>扫描时间</th>
-                <th>状态</th>
-                <th style="width: 200px">操作</th>
-            </tr>
-            </thead>
-            <?php foreach ($list as $value) { ?>
-                <tr>
-                    <td>
-                        <label>
-                            <input type="checkbox" class="ids" name="ids[]" value="<?php echo $value['id'] ?>">
-                        </label>
-                    </td>
-                    <td><?php echo $value['id'] ?></td>
-                    <td><?php echo $value['name'] ?></td>
-                    <td><?php echo $value['type'] ?></td>
-                    <td><?php echo str_replace('./extend/codeCheck/','',$value['filename']) ?></td>
-                    <td><?php echo $value['create_time']; ?></td>
-                    <td><select class="changCheckStatus form-select" data-id="<?php echo $value['id'] ?>">
-                            <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?> >未审核
-                            </option>
-                            <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?> >有效漏洞
-                            </option>
-                            <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?> >无效漏洞
-                            </option>
-                        </select>
-                    </td>
-                    <td>
-                        <!--<a href="<?php /*echo url('xray/details',['id'=>$value['id']])*/?>"
-                           class="btn btn-sm btn-outline-secondary">查看漏洞</a>-->
-                        <a href="<?php echo url('code_webshell/del',['id'=>$value['id']])?>" class="btn btn-sm btn-outline-danger">删除</a>
-                    </td>
-                </tr>
-            <?php } ?>
-        </table>
-    </div>
-</div>
+{include file='public/table_end' /}
 <input type="hidden" id="to_examine_url" value="<?php echo url('to_examine/code_webshell')?>">
 
 {include file='public/to_examine' /}
-{include file='public/fenye' /}</div>
 {include file='public/footer' /}
-
 
 <script>
     function quanxuan(obj){

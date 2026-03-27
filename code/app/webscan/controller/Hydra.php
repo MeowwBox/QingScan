@@ -29,7 +29,7 @@ class Hydra extends Common
         ]);
         $data['list'] = $list->items();
         foreach ($data['list'] as &$v) {
-            $v['host'] = Db::name('host')->where('id',$v['host_id'])->value('hsot');
+            $v['host'] = Db::name('host')->where('id',$v['host_id'])->value('host');
         }
         $data['page'] = $list->render();
         //查询项目数据

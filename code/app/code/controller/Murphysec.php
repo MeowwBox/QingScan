@@ -78,6 +78,26 @@ class Murphysec extends Common
         return View::fetch('index', $data);
     }
 
+    /**
+     * 获取Murphysec详情（API接口）
+     */
+    public function detail(Request $request)
+    {
+        $id = $request->param('id', 0, 'intval');
+        if (empty($id)) {
+            return json(['code' => 0, 'msg' => '参数错误']);
+        }
+
+        $info = Db::table('murphysec')->find($id);
+        if (empty($info)) {
+            return json(['code' => 0, 'msg' => '数据不存在']);
+        }
+
+        $info['code_name'] = Db::table('code')->where('id', $info['code_id'])->value('name');
+        return json(['code' => 1, 'data' => $info]);
+    }
+}
+
     public function batch_repair(Request $request){
         $ids = $request->param('ids');
         $this->addUserLog('murphysec',"批量修复数据[$ids]");

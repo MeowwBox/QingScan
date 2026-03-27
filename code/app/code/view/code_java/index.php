@@ -1,8 +1,5 @@
 {include file='public/head' /}
-<div class="col-md-1 " style="padding-right: 0;" >
-    {include file='public/whiteLeftMenu' /}
-</div>
-<div class="col-md-11 " style="padding:0;">
+{include file='public/whiteLeftMenu' /}
 <?php
 $searchArr = [
     'action' => $_SERVER['REQUEST_URI'],
@@ -10,63 +7,48 @@ $searchArr = [
     'inputs' => [
         ['type' => 'text', 'name' => 'search', 'placeholder' => "search"],
         ['type' => 'select', 'name' => 'code_id', 'options' => $projectList, 'frist_option' => '项目列表'],
-]];
+    ]];
+$tableArr = [
+    'title' => 'Java依赖列表',
+    'count' => count($list),
+    'checkbox' => true,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '所属项目'],
+        ['title' => 'modelVersion'],
+        ['title' => 'groupId'],
+        ['title' => 'artifactId'],
+        ['title' => 'version'],
+        ['title' => 'name'],
+        ['title' => '时间'],
+        ['title' => '操作'],
+    ],
+    'showBatchDel' => true,
+];
 ?>
 {include file='public/search' /}
+{include file='public/table_start' /}
 
+<?php foreach ($list as $value) { ?>
+<tr class="hover:bg-surface-50 transition-colors">
+    <td class="px-5 py-4">
+        <input type="checkbox" class="ids w-4 h-4 rounded border-surface-400 text-primary" name="ids[]" value="<?php echo $value['id'] ?>">
+    </td>
+    <td class="px-5 py-4 font-medium text-text-primary"><?php echo $value['id'] ?></td>
+    <td class="px-5 py-4 text-text-secondary"><?php echo $value['code_name'] ?></td>
+    <td class="px-5 py-4 text-text-secondary"><?php echo $value['modelVersion'] ?></td>
+    <td class="px-5 py-4 text-text-secondary"><?php echo $value['groupId'] ?></td>
+    <td class="px-5 py-4 text-text-secondary"><?php echo $value['artifactId'] ?></td>
+    <td class="px-5 py-4 text-text-secondary"><?php echo $value['version'] ?></td>
+    <td class="px-5 py-4 text-text-secondary"><?php echo $value['name'] ?></td>
+    <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+    <td class="px-5 py-4">
+        <a href="<?php echo url('del',['id'=>$value['id']])?>" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors">删除</a>
+    </td>
+</tr>
+<?php } ?>
 
-<div class="col-md-12 ">
-    <div class="row tuchu">
-        <!--            <div class="col-md-1"></div>-->
-        <div class="col-md-12 ">
-
-            {include file='public/batch_del' /}
-
-            <table class="table  table-hover table-sm table-borderless">
-                <thead class="table-light">
-                <tr>
-                    <th width="80">
-                        <label>
-                            <input type="checkbox" value="-1" onclick="quanxuan(this)">全选
-                        </label>
-                    </th>
-                    <th>ID</th>
-                    <th>所属项目</th>
-                    <th>modelVersion</th>
-                    <th>groupId</th>
-                    <th>artifactId</th>
-                    <th>version</th>
-                    <th>name</th>
-                    <th>时间</th>
-                    <th style="width: 200px">操作</th>
-                </tr>
-                </thead>
-                <?php foreach ($list as $value) { ?>
-                    <tr>
-                        <td>
-                            <label>
-                                <input type="checkbox" class="ids" name="ids[]" value="<?php echo $value['id'] ?>">
-                            </label>
-                        </td>
-                        <td><?php echo $value['id'] ?></td>
-                        <td><?php echo $value['code_name'] ?></td>
-                        <td><?php echo $value['modelVersion'] ?></td>
-                        <td><?php echo $value['groupId'] ?></td>
-                        <td><?php echo $value['artifactId'] ?></td>
-                        <td><?php echo $value['version'] ?></td>
-                        <td><?php echo $value['name'] ?></td>
-                        <td><?php echo $value['create_time'] ?></td>
-                        <td>
-                            <a href="<?php echo url('del',['id'=>$value['id']])?>" class="btn btn-sm btn-outline-danger">删除</a>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </table>
-        </div>
-    </div>
-
-    {include file='public/fenye' /}
-</div></div>
+{include file='public/table_end' /}
 {include file='public/footer' /}
 
 <script>

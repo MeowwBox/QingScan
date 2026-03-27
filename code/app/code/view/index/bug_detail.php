@@ -1,202 +1,460 @@
 {include file='public/head' /}
-    <script type="text/javascript" src="scripts/shCore.js"></script>
-    <script type="text/javascript" src="scripts/shBrushJScript.js"></script>
-    <link type="text/css" rel="stylesheet" href="styles/shCoreDefault.css">
-    <div class="row">
+{include file='public/whiteLeftMenu' /}
 
-        <div class="col-md-9 ">
-            <div class=" row tuchu">
-                <table class="table  table-hover table-sm table-borderless">
-                    <thead class="table-light">
-                    <tr>
-                        <th style="width:150px;">项目信息</th>
-                        <th>项目内容</th>
-                    </tr>
-                    </thead>
-                    <tr>
-                        <td>项目地址</td>
-                        <td><a href="<?php echo $project['web_url'] ?>" target="_blank"><?php echo $project['web_url'] ?></a></td>
-                    </tr>
-                    <tr>
-                        <td>漏洞类型</td>
-                        <td><?php echo $base['Category'] ?></td>
-                    </tr>
-                    <tr>
-                        <td>危害等级</td>
-                        <td><?php echo $base['Folder'] ?></td>
-                    </tr>
-                    <tr>
-                        <td>项目ID</td>
-                        <td><?php echo $base['code_id'] ?></td>
-                    </tr>
-                    <tr>
-                        <td>漏洞描述</td>
-                        <td><?php echo isset($base['Abstract'])?$base['Abstract']:'' ?></td>
-                    </tr>
-                </table>
-            </div>
-            <?php if (!empty($Source)) { ?>
-                <div class=" row tuchu">
-                    <table class="table  table-hover table-sm table-borderless">
-                        <thead class="table-light">
-                        <tr>
-                            <th style="width:150px;">检测项</th>
-                            <th>污染源信息</th>
-                        </tr>
-                        </thead>
-                        <tr>
-                            <td>参数来源</td>
-                            <td>
-                                <a title="<?php echo $project['web_url'] ?>/-/blob/master/<?php echo $Source['FilePath'] ?>"
-                                   href="<?php echo $project['web_url'] ?>/-/blob/master/<?php echo $Source['FilePath'] ?>"
-                                   target="_blank"><?php echo $Source['FilePath'] ?></a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>行号</td>
-                            <td><?php echo isset($Source['LineStart'])?$Source['LineStart']:'' ?></td>
-                        </tr>
-                        <tr>
-                            <td>漏洞位置</td>
-                            <td>
-                                <pre><div contenteditable="false" style="border:none">
-                                <?php echo syntax_highlight($Source['Snippet']) ?>
-                                </div></pre>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>目标函数</td>
-                            <td><?php echo isset($Source['TargetFunction'])?$Source['TargetFunction']:'' ?></td>
-                        </tr>
-                        <tr>
-                            <td>源码内容</td>
-                            <td>
-                                <a class="btn btn-default" id="sourceBtn">查看源码</a>
-                                <div id="sourceCode" style="display:none">
-                                <pre><div contenteditable="false" style="border:none">
-                                <?php echo getCode($project['id'], $Source['FilePath']) ?>
-                                </div></pre>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            <?php } ?>
-            <div class=" row tuchu">
-                <table class="table  table-hover table-sm table-borderless">
-                    <thead class="table-light">
-                    <tr>
-                        <th style="width:150px;">检测项</th>
-                        <th>执行点信息</th>
-                    </tr>
-                    </thead>
-                    <tr>
-                        <td>触发文件</td>
-                        <td>
-                            <a title="<?php echo $project['web_url'] ?>/-/blob/master/<?php echo $Primary['FilePath'] ?>"
-                               href="<?php echo $project['web_url'] ?>/-/blob/master/<?php echo $Primary['FilePath'] ?>"
-                               target="_blank"><?php echo $Primary['FilePath'] ?></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>行号</td>
-                        <td><?php echo $Primary['LineStart'] ?></td>
-                    </tr>
-                    <tr>
-                        <td>漏洞位置</td>
-                        <td>
-                                <pre><div contenteditable="false" style="border:none">
-                                <?php echo syntax_highlight($Primary['Snippet']) ?>
-                                </div></pre>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>目标函数</td>
-                        <td><?php echo isset($Primary['TargetFunction'])?$Primary['TargetFunction']:'' ?></td>
-                    </tr>
-                    <tr>
-                        <td>源码内容</td>
-                        <td>
-                            <a class="btn btn-default" id="PrimaryBtn">查看源码</a>
-                            <div id="PrimaryCode" style="display:none">
-                                <pre><div contenteditable="false" style="border:none">
-                                <?php echo getCode($project['id'], $Primary['FilePath']) ?>
-                                </div></pre>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+<?php
+$dengjiArr = ['Low', 'Medium', 'High', 'Critical'];
+$dengjiArrColor = ['Low' => 'slate', 'Medium' => 'blue', 'High' => 'amber', 'Critical' => 'red'];
+$dengjiArrBg = ['Low' => 'bg-surface-100 text-text-secondary', 'Medium' => 'bg-blue-100 text-blue-600', 'High' => 'bg-amber-100 text-amber-600', 'Critical' => 'bg-red-100 text-red-600'];
+$show_level = [
+    1 => '强烈建议修复',
+    2 => '建议修复',
+    3 => '可选修复'
+];
+?>
+
+<!-- 基本信息卡片 -->
+<div class="bg-white border border-surface-300 rounded-2xl shadow-card p-6 mb-6">
+    <h2 class="text-lg font-bold text-text-primary mb-4 pb-4 border-b border-surface-300">基本信息</h2>
+    <div class="grid grid-cols-3 gap-6">
+        <div>
+            <span class="text-text-secondary text-sm">ID</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['id'] ?></p>
         </div>
-        <div class="col-md-3 ">
-            <div class=" row tuchu">
-                <a class="btn btn-sm btn-outline-secondary"
-                   href="/index.php?s=code_check/bug_list&=<?php echo $base['code_id'] ?>">返回列表</a>
-                <a class="btn btn-sm btn-outline-secondary" href="/index.php?s=code_check/bug_detail&id=<?php echo $base['id'] + 1 ?>">下一个</a>
-                <a class="btn btn-sm btn-outline-secondary" href="/index.php?s=code_check/bug_detail&id=<?php echo $base['id'] - 1 ?>">上一个</a>
-            </div>
-            <div class=" row tuchu">
-                <form class="form-horizontal"
-                      action="<?php echo U('code_check/_bug_comment', ['id' => $base['id']]) ?>">
-                    <div class="mb-3">
-                        <label for="inputEmail3" class="col-sm-2 control-label">评论</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" name="comment" rows="5"><?php echo $base['comment'] ?></textarea>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="inputEmail3" class="col-sm-2 control-label">审核状态</label>
-                        <div class="col-sm-10">
-                            <label class="radio-inline">
-                                <input type="radio"
-                                       name="check_status" <?php echo ($base['check_status'] == 0) ? 'checked' : '' ?>
-                                       value="0"> 未处理
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio"
-                                       name="check_status" <?php echo ($base['check_status'] == 1) ? 'checked' : '' ?>
-                                       value="1"> 有效漏洞
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio"
-                                       name="check_status" <?php echo ($base['check_status'] == 2) ? 'checked' : '' ?>
-                                       value="2"> 无效漏洞
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-default">添加评论</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+        <div>
+            <span class="text-text-secondary text-sm">名称</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['name'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">扫描状态</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['status'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">项目描述</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['desc'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">SSH URL</span>
+            <p class="text-text-primary font-medium mt-1 font-mono text-sm truncate"><?php echo $info['ssh_url'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">创建时间</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['create_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">Star</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['star'] ?></p>
         </div>
     </div>
+</div>
 
-    <script>
-        $(function () {
-            $("#sourceBtn").click(function () {
-                if ($("#sourceBtn").html() == "隐藏源码") {
-                    $("#sourceCode").css("display", "none");
-                    $("#sourceBtn").html("查看源码");
-                } else {
-                    $("#sourceCode").css("display", "block");
-                    $("#sourceBtn").html("隐藏源码");
-                }
-            });
+<!-- 工具扫描动态卡片 -->
+<div class="bg-white border border-surface-300 rounded-2xl shadow-card p-6 mb-6">
+    <h2 class="text-lg font-bold text-text-primary mb-4 pb-4 border-b border-surface-300">工具扫描动态</h2>
+    <div class="grid grid-cols-3 gap-6">
+        <div>
+            <span class="text-text-secondary text-sm">Fortify</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['scan_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">SemGrep</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['semgrep_scan_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">MobSFScan</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['mobsfscan_scan_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">MurphySec</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['murphysec_scan_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">Composer组件</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['composer_scan_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">Java组件</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['java_scan_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">Python组件</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['python_scan_time'] ?></p>
+        </div>
+        <div>
+            <span class="text-text-secondary text-sm">河马WebShell</span>
+            <p class="text-text-primary font-medium mt-1"><?php echo $info['webshell_scan_time'] ?></p>
+        </div>
+    </div>
+</div>
 
-            $("#PrimaryBtn").click(function () {
-                if ($("#PrimaryBtn").html() == "隐藏源码") {
-                    $("#PrimaryCode").css("display", "none");
-                    $("#PrimaryBtn").html("查看源码");
-                } else {
-                    $("#PrimaryCode").css("display", "block");
-                    $("#PrimaryBtn").html("隐藏源码");
-                }
-            });
-        });
+<?php
+$toolbarRight = '<a href="'.url('fortify/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'fortify']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => 'Fortify',
+    'count' => count($fortify),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '漏洞类型'],
+        ['title' => '危险等级'],
+        ['title' => '污染来源'],
+        ['title' => '执行位置'],
+        ['title' => '扫描时间'],
+        ['title' => '状态'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($fortify as $value) {
+        $value['Source'] = json_decode(($value['Source'] === null) ? '[]' : $value['Source'], true);
+        $value['Primary'] = json_decode($value['Primary'], true);
+    ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['Category'] ?></td>
+        <td class="px-5 py-4">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium <?php echo $dengjiArrBg[$value['Friority']] ?>"><?php echo $value['Friority'] ?></span>
+        </td>
+        <?php
+        if ($projectArr[$value['code_id']]['is_online'] == 1) {
+            $url = isset($projectArr[$value['code_id']]) ? $projectArr[$value['code_id']]['ssh_url'] : '';
+            $url .= '/-/blob/master/';
+            $url .= $value['Source']['FilePath'] ?? '';
+        } else {
+            $url = url('get_code', ['id' => $value['id'], 'type' => 1]);
+        }
+        ?>
+        <td class="px-5 py-4 text-text-primary font-mono text-sm truncate max-w-xs" title="<?php echo htmlentities($value['Source']['Snippet'] ?? '') ?>">
+            <a href="<?php echo $url; ?>" target="_blank" class="text-blue-600 hover:underline"><?php echo $value['Source']['FileName'] ?? '' ?></a>
+        </td>
+        <?php
+        if ($projectArr[$value['code_id']]['is_online'] == 1) {
+            $url = isset($projectArr[$value['code_id']]) ? $projectArr[$value['code_id']]['ssh_url'] : '';
+            $url .= '/-/blob/master/' . $value['Primary']['FilePath'];
+        } else {
+            $url = url('get_code', ['id' => $value['id'], 'type' => 1]);
+        }
+        ?>
+        <td class="px-5 py-4 text-text-primary font-mono text-sm truncate max-w-xs" title="<?php echo htmlentities($value['Primary']['Snippet'] ?? '') ?>">
+            <a href="<?php echo $url; ?>" target="_blank" class="text-blue-600 hover:underline"><?php echo isset($value['Primary']) ? $value['Primary']['FileName'] : '' ?></a>
+        </td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+        <td class="px-5 py-4">
+            <select class="changCheckStatus bg-surface-50 border border-surface-400 rounded-lg px-3 py-1.5 text-sm focus:border-primary focus:outline-none" data-id="<?php echo $value['id'] ?>">
+                <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?>>未审核</option>
+                <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?>>有效漏洞</option>
+                <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?>>无效漏洞</option>
+            </select>
+        </td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($fortify)) { ?>
+    <tr>
+        <td colspan="7" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'fortifyScan', 2); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
 
-    </script>
+<?php
+$toolbarRight = '<a href="'.url('semgrep/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'semgrep']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => 'SemGrep',
+    'count' => count($semgrep),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '漏洞类型'],
+        ['title' => '危险等级'],
+        ['title' => '污染来源'],
+        ['title' => '代码行号'],
+        ['title' => '扫描时间'],
+        ['title' => '状态'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($semgrep as $value) {
+        $project = getCodeInfo($value['code_id']);
+    ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary text-sm"><?php echo str_replace('data.tools.semgrep.', "", $value['check_id']) ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['extra_severity'] ?></td>
+        <td class="px-5 py-4 text-text-primary font-mono text-sm truncate max-w-xs">
+            <?php
+            $path = preg_replace("/\/data\/codeCheck\/[a-zA-Z0-9]*\//", "", $value['path']);
+            if ($projectArr[$value['code_id']]['is_online'] == 1) {
+                $url = getGitAddr($project['name'], $project['ssh_url'], $value['path'], $value['end_line']);
+            } else {
+                $url = url('get_code', ['id' => $value['id'], 'type' => 2]);
+            }
+            ?>
+            <a title="<?php echo htmlentities($value['extra_lines'] ?? '') ?>" href="<?php echo $url ?>" target="_blank" class="text-blue-600 hover:underline"><?php echo $path ?></a>
+        </td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['end_line']; ?></td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+        <td class="px-5 py-4">
+            <select class="changCheckStatus bg-surface-50 border border-surface-400 rounded-lg px-3 py-1.5 text-sm focus:border-primary focus:outline-none" data-id="<?php echo $value['id'] ?>">
+                <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?>>未审核</option>
+                <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?>>有效漏洞</option>
+                <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?>>无效漏洞</option>
+            </select>
+        </td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($semgrep)) { ?>
+    <tr>
+        <td colspan="7" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'semgrepScan'); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
+
+<?php
+$toolbarRight = '<a href="'.url('mobsfscan/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'mobsfscan']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => 'mobsfscan',
+    'count' => count($mobsfscan),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '漏洞类型'],
+        ['title' => 'CWE'],
+        ['title' => '漏洞描述'],
+        ['title' => '危险等级'],
+        ['title' => '扫描时间'],
+        ['title' => '状态'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($mobsfscan as $value) { ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary text-sm"><?php echo $value['type']; ?></td>
+        <td class="px-5 py-4 text-text-primary text-sm"><?php echo $value['cwe']; ?></td>
+        <td class="px-5 py-4 text-text-primary text-sm truncate max-w-xs"><?php echo $value['description']; ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['severity']; ?></td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+        <td class="px-5 py-4">
+            <select class="changCheckStatus bg-surface-50 border border-surface-400 rounded-lg px-3 py-1.5 text-sm focus:border-primary focus:outline-none" data-id="<?php echo $value['id'] ?>">
+                <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?>>未审核</option>
+                <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?>>有效漏洞</option>
+                <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?>>无效漏洞</option>
+            </select>
+        </td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($mobsfscan)) { ?>
+    <tr>
+        <td colspan="7" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'mobsfscan'); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
+
+<?php
+$toolbarRight = '<a href="'.url('murphysec/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'murphysec']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => 'murphysec',
+    'count' => count($murphysec),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '缺陷组件'],
+        ['title' => '处置建议'],
+        ['title' => '当前版本'],
+        ['title' => '最小修复版本'],
+        ['title' => '语言'],
+        ['title' => '修复状态'],
+        ['title' => '时间'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($murphysec as $value) { ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['comp_name'] ?></td>
+        <td class="px-5 py-4 text-text-primary text-sm"><?php echo $show_level[$value['show_level']] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['version'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['min_fixed_version'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['language'] ?></td>
+        <td class="px-5 py-4">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium <?php echo $value['repair_status'] == 1 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600' ?>">
+                <?php echo $value['repair_status'] == 1 ? '未修复' : '已修复' ?>
+            </span>
+        </td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($murphysec)) { ?>
+    <tr>
+        <td colspan="8" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'crawlergoScan'); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
+
+<?php
+$toolbarRight = '<a href="'.url('code_webshell/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'webshell']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => '河马(WebShell)',
+    'count' => count($hema),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '类型'],
+        ['title' => '文件路径'],
+        ['title' => '扫描时间'],
+        ['title' => '状态'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($hema as $value) { ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['type'] ?></td>
+        <td class="px-5 py-4 text-text-primary font-mono text-sm"><?php echo str_replace('./extend/codeCheck/', '', $value['filename']) ?></td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time']; ?></td>
+        <td class="px-5 py-4">
+            <select class="changCheckStatus bg-surface-50 border border-surface-400 rounded-lg px-3 py-1.5 text-sm focus:border-primary focus:outline-none" data-id="<?php echo $value['id'] ?>">
+                <option value="0" <?php echo $value['check_status'] == 0 ? 'selected' : ''; ?>>未审核</option>
+                <option value="1" <?php echo $value['check_status'] == 1 ? 'selected' : ''; ?>>有效漏洞</option>
+                <option value="2" <?php echo $value['check_status'] == 2 ? 'selected' : ''; ?>>无效漏洞</option>
+            </select>
+        </td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($hema)) { ?>
+    <tr>
+        <td colspan="5" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'code_webshell_scan', 2); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
+
+<?php
+$toolbarRight = '<a href="'.url('code_java/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'java']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => 'JAVA',
+    'count' => count($java),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => 'modelVersion'],
+        ['title' => 'groupId'],
+        ['title' => 'artifactId'],
+        ['title' => 'version'],
+        ['title' => '时间'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($java as $value) { ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['modelVersion'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['groupId'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['artifactId'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['version'] ?></td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($java)) { ?>
+    <tr>
+        <td colspan="6" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'code_java', 2); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
+
+<?php
+$toolbarRight = '<a href="'.url('code_python/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'python']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => 'Python依赖',
+    'count' => count($python),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => '依赖库'],
+        ['title' => '时间'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($python as $value) { ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['name'] ?></td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($python)) { ?>
+    <tr>
+        <td colspan="3" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'code_python', 2); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
+
+<?php
+$toolbarRight = '<a href="'.url('code_composer/index', ['code_id' => $info['id']]).'" class="px-4 py-2 rounded-lg text-sm text-text-primary hover:bg-surface-100 transition-colors">查看更多</a>';
+$toolbarRight .= '<a href="'.url('code/rescan', ['id' => $info['id'], 'tools_name' => 'php']).'" onClick="return confirm(\'确定要清空该工具数据重新扫描吗?\')" class="px-4 py-2 rounded-lg text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">重新扫描</a>';
+$tableArr = [
+    'title' => 'PHP依赖(Composer)',
+    'count' => count($php),
+    'checkbox' => false,
+    'columns' => [
+        ['title' => 'ID'],
+        ['title' => 'name'],
+        ['title' => 'version'],
+        ['title' => 'source'],
+        ['title' => 'require'],
+        ['title' => '时间'],
+    ],
+    'toolbarRight' => $toolbarRight,
+    'noPagination' => true,
+    'noEmpty' => true,
+];
+?>
+{include file='public/table_start' /}
+    <?php foreach ($php as $value) { ?>
+    <tr class="hover:bg-surface-50 transition-colors">
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['id'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['name'] ?></td>
+        <td class="px-5 py-4 text-text-primary"><?php echo $value['version'] ?></td>
+        <td class="px-5 py-4 text-text-primary text-sm"><pre class="whitespace-pre-wrap"><?php echo $value['source'] ?></pre></td>
+        <td class="px-5 py-4 text-text-primary text-sm"><pre class="whitespace-pre-wrap"><?php echo $value['require'] ?></pre></td>
+        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
+    </tr>
+    <?php } ?>
+    <?php if (empty($php)) { ?>
+    <tr>
+        <td colspan="6" class="px-5 py-12 text-center text-text-secondary"><?php echo getScanStatus($info['id'], 'code_php', 2); ?></td>
+    </tr>
+    <?php } ?>
+{include file='public/table_end' /}
 {include file='public/footer' /}

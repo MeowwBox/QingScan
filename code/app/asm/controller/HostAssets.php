@@ -90,6 +90,11 @@ class HostAssets extends Common
         View::assign([
             'list' => $list,
             'page' => $host_page,
+            'paginator' => $host_page,
+            'total' => $host_page->total(),
+            'running_count' => Db::table('asm_host_assets')->where('status', 'in', ['RUNNING', 'Running', 'running'])->count(),
+            'stopped_count' => Db::table('asm_host_assets')->where('status', 'in', ['STOPPED', 'Stopped', 'stopped', 'SHUTOFF'])->count(),
+            'hids_installed_count' => Db::table('asm_host_assets')->where('hids_installed', 1)->count(),
             'platforms' => $platforms,
             'hids_status' => $hids_status,
             'instance_status' => $instance_status,
