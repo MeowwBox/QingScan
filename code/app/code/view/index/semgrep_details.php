@@ -66,7 +66,7 @@
                                 'Medium' => 'bg-amber-50 text-amber-600 border-amber-100',
                                 'Low' => 'bg-blue-50 text-blue-600 border-blue-100'
                             ];
-                            $levelColor = $levelColors[$info['extra_severity']] ?? 'bg-surface-50 text-text-secondary border-surface-200';
+                            $levelColor = $levelColors[$info['extra_severity']] ?? 'bg-slate-50 text-slate-600 border-slate-100';
                             ?>
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold <?php echo $levelColor; ?> border">
                                 <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
@@ -100,8 +100,8 @@
                 <h3 class="text-lg font-bold text-text-primary">错误代码</h3>
             </div>
             <div class="p-6">
-                <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto shadow-card">
-                    <pre class="text-sm text-text-muted font-mono"><code><?php echo htmlspecialchars($info['extra_lines']) ?></code></pre>
+                <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
+                    <pre class="text-sm text-slate-300 font-mono"><code><?php echo htmlspecialchars($info['extra_lines']) ?></code></pre>
                 </div>
             </div>
         </div>

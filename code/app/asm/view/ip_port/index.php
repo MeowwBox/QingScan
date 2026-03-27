@@ -82,115 +82,37 @@
     ?>
     {include file='public/search' /}
 
-    <!-- 页面标题 -->
-    <div class="flex justify-between items-start mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-text-primary mb-2">IP端口列表</h1>
-            <nav class="flex gap-2 text-sm text-text-secondary">
-                <a href="#" class="hover:text-primary transition-colors">首页</a>
-                <span class="text-text-muted">/</span>
-                <a href="#" class="hover:text-primary transition-colors">资产管理</a>
-                <span class="text-text-muted">/</span>
-                <span class="text-text-primary font-medium">IP端口列表</span>
-            </nav>
+    <div class="content-card">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>IP</th>
+                        <th>端口</th>
+                        <th>位置</th>
+                        <th>ISP</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($list as $value) { ?>
+                        <tr>
+                            <td><span class="badge badge-blue">#<?php echo $value['id'] ?></span></td>
+                            <td><?php echo $value['ip'] ?></td>
+                            <td><?php echo $value['port'] ?></td>
+                            <td><?php echo $value['location'] ?></td>
+                            <td><?php echo $value['isp'] ?></td>
+                            <td style="color: #64748b;"><?php echo $value['create_time'] ?></td>
+                            <td>
+                                <a href="#" class="btn-danger">删除</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
         </div>
+        {include file='public/fenye' /}
     </div>
-
-    <?php
-$tableArr = [
-    'title' => 'IP端口列表',
-    'count' => count($list),
-    'columns' => [
-        ['title' => 'ID'],
-        ['title' => 'IP'],
-        ['title' => '端口'],
-        ['title' => '位置'],
-        ['title' => 'ISP'],
-        ['title' => '创建时间'],
-        ['title' => '操作'],
-    ],
-];
-?>
-{include file='public/table_start' /}
-
-<?php foreach ($list as $value) { ?>
-<tr class="hover:bg-surface-50 transition-colors">
-    <td class="px-5 py-4">
-        <span class="badge badge-blue">#<?php echo $value['id'] ?></span>
-    </td>
-    <td class="px-5 py-4 font-medium text-text-primary"><?php echo $value['ip'] ?></td>
-    <td class="px-5 py-4"><?php echo $value['port'] ?></td>
-    <td class="px-5 py-4"><?php echo $value['location'] ?></td>
-    <td class="px-5 py-4"><?php echo $value['isp'] ?></td>
-    <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
-    <td class="px-5 py-4">
-        <div class="flex gap-2">
-            <button onclick="showIpPortDetail(<?php echo $value['id'] ?>)" class="btn-outline">详情</button>
-            <a href="#" class="btn-danger">删除</a>
-        </div>
-    </td>
-</tr>
-<?php } ?>
-
-{include file='public/table_end' /}
-{include file='public/drawer' /}
-
-<script>
-function showIpPortDetail(id) {
-    openDrawer('view', 'IP端口详情', 520);
-    setDrawerContent('<div class="flex items-center justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>');
-
-    fetch('<?php echo url("detail"); ?>?id=' + id)
-        .then(response => response.json())
-        .then(res => {
-            if (res.code === 1 && res.data) {
-                const data = res.data;
-                const html = `
-                    <div class="space-y-6">
-                        <div class="bg-surface-50 rounded-xl p-4">
-                            <h4 class="text-sm font-semibold text-text-muted mb-3">网络信息</h4>
-                            <div class="space-y-3">
-                                <div class="flex justify-between">
-                                    <span class="text-text-muted">IP</span>
-                                    <span class="font-medium text-primary">${data.ip || '-'}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-text-muted">端口</span>
-                                    <span class="font-medium">${data.port || '-'}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-surface-50 rounded-xl p-4">
-                            <h4 class="text-sm font-semibold text-text-muted mb-3">地理位置</h4>
-                            <div class="space-y-3">
-                                <div class="flex justify-between">
-                                    <span class="text-text-muted">位置</span>
-                                    <span class="font-medium">${data.location || '-'}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-text-muted">ISP</span>
-                                    <span class="font-medium">${data.isp || '-'}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-surface-50 rounded-xl p-4">
-                            <h4 class="text-sm font-semibold text-text-muted mb-3">时间信息</h4>
-                            <div class="flex justify-between">
-                                <span class="text-text-muted">创建时间</span>
-                                <span class="text-text-secondary">${data.create_time || '-'}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                setDrawerContent(html);
-            } else {
-                setDrawerContent('<div class="text-center py-12 text-red-500">' + (res.msg || '加载失败') + '</div>');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            setDrawerContent('<div class="text-center py-12 text-red-500">加载失败，请稍后重试</div>');
-        });
-}
-</script>
 {include file='public/footer' /}

@@ -24,19 +24,44 @@
     .breadcrumb-nav a:hover {
         color: #3b82f6;
     }
-    .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        border-radius: 8px;
+    .content-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 6px 20px 0 rgb(0 0 0 / 0.04);
+        overflow: hidden;
+    }
+    .table-container {
+        overflow-x: auto;
+    }
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table thead {
+        background: #f8fafc;
+    }
+    .table th {
+        padding: 16px 20px;
+        text-align: left;
         font-size: 12px;
         font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #e2e8f0;
     }
-    .badge-blue {
-        background: #eff6ff;
-        color: #3b82f6;
-        border: 1px solid #bfdbfe;
+    .table td {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        font-size: 14px;
+    }
+    .table tbody tr:hover {
+        background: #f8fafc;
+    }
+    .table tbody tr:last-child td {
+        border-bottom: none;
     }
     .btn-primary {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
@@ -93,6 +118,34 @@
         background: #fef2f2;
         border-color: #ef4444;
     }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-blue {
+        background: #eff6ff;
+        color: #3b82f6;
+        border: 1px solid #bfdbfe;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        background: #f1f5f9;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+    }
     .sub-menu {
         display: flex;
         gap: 8px;
@@ -133,127 +186,44 @@
     ?>
     {include file='public/search' /}
 
-    <!-- 页面标题 -->
-    <div class="flex justify-between items-start mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-text-primary mb-2">资产发现</h1>
-            <nav class="flex gap-2 text-sm text-text-secondary">
-                <a href="#" class="hover:text-primary transition-colors">首页</a>
-                <span class="text-text-muted">/</span>
-                <a href="#" class="hover:text-primary transition-colors">资产管理</a>
-                <span class="text-text-muted">/</span>
-                <span class="text-text-primary font-medium">资产发现</span>
-            </nav>
-        </div>
-    </div>
-
-    <div class="bg-white border border-surface-300 rounded-2xl overflow-hidden shadow-card">
+    <div class="content-card">
         {include file='discover/sub_menu' /}
 
-        <?php
-        $tableArr = [
-            'title' => '',
-            'count' => null,
-            'checkbox' => false,
-            'columns' => [
-                ['title' => 'ID'],
-                ['title' => '标题'],
-                ['title' => 'IP'],
-                ['title' => 'Host'],
-                ['title' => '端口'],
-                ['title' => '产品类型'],
-                ['title' => '创建时间'],
-                ['title' => '操作'],
-            ],
-            'noPagination' => true,
-        ];
-        ?>
-        {include file='public/table_start' /}
-
-        <?php foreach ($list as $value) { ?>
-            <tr class="hover:bg-surface-50 transition-colors">
-                <td class="px-5 py-4"><span class="badge badge-blue">#<?php echo $value['id'] ?></span></td>
-                <td class="px-5 py-4"><?php echo substr($value['title'], 0, 27) ?></td>
-                <td class="px-5 py-4"><?php echo $value['ip'] ?></td>
-                <td class="px-5 py-4"><?php echo $value['host'] ?></td>
-                <td class="px-5 py-4"><?php echo $value['port'] ?></td>
-                <td class="px-5 py-4"><?php echo $value['product_category'] ?></td>
-                <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
-                <td class="px-5 py-4">
-                    <div class="flex gap-2">
-                        <button onclick="showDiscoverDetail(<?php echo $value['id'] ?>)" class="btn-outline">详情</button>
-                        <a href="{:URL('_del',['id'=>$value['id']])}" class="btn-danger">删除</a>
-                    </div>
-                </td>
-            </tr>
-        <?php } ?>
-
-        {include file='public/table_end' /}
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>标题</th>
+                        <th>IP</th>
+                        <th>Host</th>
+                        <th>端口</th>
+                        <th>产品类型</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($list as $value) { ?>
+                        <tr>
+                            <td><span class="badge badge-blue">#<?php echo $value['id'] ?></span></td>
+                            <td><?php echo substr($value['title'], 0, 27) ?></td>
+                            <td><?php echo $value['ip'] ?></td>
+                            <td><?php echo $value['host'] ?></td>
+                            <td><?php echo $value['port'] ?></td>
+                            <td><?php echo $value['product_category'] ?></td>
+                            <td style="color: #64748b;"><?php echo $value['create_time'] ?></td>
+                            <td>
+                                <a href="{:URL('_del',['id'=>$value['id']])}" class="btn-danger">删除</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
         {include file='public/fenye' /}
     </div>
 <script>
     $("#scan_result").addClass("active");
-
-    function showDiscoverDetail(id) {
-        openDrawer('view', '资产详情', 520);
-        setDrawerContent('<div class="flex items-center justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>');
-
-        fetch('<?php echo url("detail"); ?>?id=' + id)
-            .then(response => response.json())
-            .then(res => {
-                if (res.code === 1 && res.data) {
-                    const data = res.data;
-                    const html = `
-                        <div class="space-y-6">
-                            <div class="bg-surface-50 rounded-xl p-4">
-                                <h4 class="text-sm font-semibold text-text-muted mb-3">基本信息</h4>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <span class="text-text-muted">标题</span>
-                                        <span class="font-medium text-right max-w-[280px]">${data.title || '-'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-text-muted">IP</span>
-                                        <span class="font-medium">${data.ip || '-'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-text-muted">Host</span>
-                                        <span class="font-medium text-primary">${data.host || '-'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-surface-50 rounded-xl p-4">
-                                <h4 class="text-sm font-semibold text-text-muted mb-3">服务信息</h4>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <span class="text-text-muted">端口</span>
-                                        <span class="font-medium">${data.port || '-'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-text-muted">产品类型</span>
-                                        <span class="font-medium">${data.product_category || '-'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-surface-50 rounded-xl p-4">
-                                <h4 class="text-sm font-semibold text-text-muted mb-3">时间信息</h4>
-                                <div class="flex justify-between">
-                                    <span class="text-text-muted">创建时间</span>
-                                    <span class="text-text-secondary">${data.create_time || '-'}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    setDrawerContent(html);
-                } else {
-                    setDrawerContent('<div class="text-center py-12 text-red-500">' + (res.msg || '加载失败') + '</div>');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                setDrawerContent('<div class="text-center py-12 text-red-500">加载失败，请稍后重试</div>');
-            });
-    }
 </script>
-{include file='public/drawer' /}
 {include file='public/footer' /}

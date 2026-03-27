@@ -1,35 +1,44 @@
 {include file='public/head' /}
 {include file='public/asmLeftMenu' /}
 <style>
-    /* 页面标题样式 */
-    .page-header {
-        margin-bottom: 24px;
-    }
-    .page-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 8px;
-    }
-    .breadcrumb-nav {
-        display: flex;
-        gap: 8px;
-        font-size: 14px;
-        color: #64748b;
-    }
-    .breadcrumb-nav a {
-        color: #64748b;
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    .breadcrumb-nav a:hover {
-        color: #3b82f6;
-    }
-
     /* 页面容器样式 */
     .page-container {
         background: #f8fafc;
         min-height: calc(100vh - 64px);
+    }
+    /* 表格容器样式 */
+    .table-container {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 6px 20px 0 rgb(0 0 0 / 0.04);
+        overflow: hidden;
+    }
+    /* 表头样式 */
+    .table-container thead tr {
+        background: #f1f5f9;
+    }
+    .table-container thead th {
+        padding: 16px 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    /* 表格内容样式 */
+    .table-container tbody td {
+        padding: 16px 20px;
+        color: #1e293b;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    .table-container tbody tr:hover {
+        background: #f8fafc;
+    }
+    .table-container tbody tr:last-child td {
+        border-bottom: none;
     }
     /* 状态标签样式 */
     .status-badge {
@@ -97,20 +106,6 @@
     }
 </style>
 
-<!-- 页面标题 -->
-<div class="flex justify-between items-start mb-6">
-    <div>
-        <h1 class="text-2xl font-bold text-text-primary mb-2">工单列表</h1>
-        <nav class="flex gap-2 text-sm text-text-secondary">
-            <a href="#" class="hover:text-primary transition-colors">首页</a>
-            <span class="text-text-muted">/</span>
-            <a href="#" class="hover:text-primary transition-colors">资产管理</a>
-            <span class="text-text-muted">/</span>
-            <span class="text-text-primary font-medium">工单列表</span>
-        </nav>
-    </div>
-</div>
-
 <!-- 工单列表 -->
 <?php
 $searchArr = [
@@ -123,58 +118,63 @@ $searchArr = [
     ]]; ?>
 {include file='public/search' /}
 
-<?php
-$tableArr = [
-    'title' => '工单列表',
-    'count' => count($list),
-    'checkbox' => false,
-    'columns' => [
-        ['title' => 'ID'],
-        ['title' => '工单标题'],
-        ['title' => '工单类型'],
-        ['title' => '状态'],
-        ['title' => '安全owner'],
-        ['title' => '业务owner'],
-        ['title' => '修复人'],
-        ['title' => '创建时间'],
-        ['title' => '更新时间'],
-        ['title' => '操作', 'class' => 'w-[200px]'],
-    ],
-];
-?>
-{include file='public/table_start' /}
+<div class="table-container">
+    <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+        <div class="flex items-center gap-3">
+            <h2 class="text-lg font-bold text-slate-800">工单列表</h2>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>工单标题</th>
+                <th>工单类型</th>
+                <th>状态</th>
+                <th>安全owner</th>
+                <th>业务owner</th>
+                <th>修复人</th>
+                <th>创建时间</th>
+                <th>更新时间</th>
+                <th style="width: 200px">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($list as $value) { ?>
+                <tr>
+                    <td class="font-semibold"><?php echo $value['id'] ?></td>
+                    <td><?php echo $value['title'] ?></td>
+                    <td>
+                        <span class="status-badge type-badge">
+                            <?php echo $work_order_type[$value['type']] ?? $value['type'] ?>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-<?php echo $value['status'] ?>">
+                            <span class="dot"></span>
+                            <?php echo $work_order_status[$value['status']] ?? $value['status'] ?>
+                        </span>
+                    </td>
+                    <td><?php echo $value['security_owner'] ?></td>
+                    <td><?php echo $value['business_owner'] ?></td>
+                    <td><?php echo $value['fixer'] ?></td>
+                    <td class="text-slate-500 text-sm"><?php echo $value['created_at'] ?></td>
+                    <td class="text-slate-500 text-sm"><?php echo $value['updated_at'] ?></td>
+                    <td>
+                        <div class="flex gap-2">
+                            <a href="<?php echo url('asm/workorder/detail', ['id' => $value['id']]) ?>" class="btn-action">查看详情</a>
+                            <a href="javascript:void(0)" class="btn-action btn-primary" onclick="feishuCreateGroup(<?php echo $value['id'] ?>)">飞书拉群</a>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<?php foreach ($list as $value) { ?>
-    <tr class="hover:bg-surface-50 transition-colors">
-        <td class="px-5 py-4 font-semibold"><?php echo $value['id'] ?></td>
-        <td class="px-5 py-4"><?php echo $value['title'] ?></td>
-        <td class="px-5 py-4">
-            <span class="status-badge type-badge">
-                <?php echo $work_order_type[$value['type']] ?? $value['type'] ?>
-            </span>
-        </td>
-        <td class="px-5 py-4">
-            <span class="status-badge status-<?php echo $value['status'] ?>">
-                <span class="dot"></span>
-                <?php echo $work_order_status[$value['status']] ?? $value['status'] ?>
-            </span>
-        </td>
-        <td class="px-5 py-4"><?php echo $value['security_owner'] ?></td>
-        <td class="px-5 py-4"><?php echo $value['business_owner'] ?></td>
-        <td class="px-5 py-4"><?php echo $value['fixer'] ?></td>
-        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['created_at'] ?></td>
-        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['updated_at'] ?></td>
-        <td class="px-5 py-4">
-            <div class="flex gap-2">
-                <a href="<?php echo url('asm/workorder/detail', ['id' => $value['id']]) ?>" class="btn-action">查看详情</a>
-                <a href="javascript:void(0)" class="btn-action btn-primary" onclick="feishuCreateGroup(<?php echo $value['id'] ?>)">飞书拉群</a>
-            </div>
-        </td>
-    </tr>
-<?php } ?>
-
-{include file='public/table_end' /}
-
+{include file='public/fenye' /}
 <script>
 function feishuCreateGroup(id) {
     if (confirm('确定要通过飞书机器人创建群组并发送工单通知吗？')) {
