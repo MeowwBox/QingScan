@@ -4,72 +4,99 @@
 <!-- 页面标题 -->
 <div class="flex justify-between items-start mb-6 p-6 pb-0">
     <div>
-        <h1 class="text-2xl font-bold text-text-primary mb-2">Nuclei扫描结果</h1>
-        <nav class="flex gap-2 text-sm text-text-secondary">
-            <a href="<?php echo url('index/index') ?>" class="hover:text-primary transition-colors">首页</a>
-            <span class="text-text-muted">/</span>
-            <a href="#" class="hover:text-primary transition-colors">Web扫描</a>
-            <span class="text-text-muted">/</span>
-            <span class="text-text-primary font-medium">Nuclei扫描</span>
+        <h1 class="text-2xl font-bold text-slate-800 mb-2">Nuclei扫描结果</h1>
+        <nav class="flex gap-2 text-sm text-slate-500">
+            <a href="#" class="hover:text-blue-500 transition-colors">首页</a>
+            <span class="text-slate-300">/</span>
+            <a href="#" class="hover:text-blue-500 transition-colors">Web扫描</a>
+            <span class="text-slate-300">/</span>
+            <span class="text-slate-700 font-medium">Nuclei扫描</span>
         </nav>
     </div>
 </div>
 
-<?php
-$searchArr = [
-    'action' => url('app_nuclei/index'),
-    'method' => 'get',
-    'inputs' => [
-        ['type' => 'text', 'name' => 'search', 'label' => '搜索', 'placeholder' => '搜索的内容'],
-        ['type' => 'select', 'name' => 'app_id', 'options' => $projectList, 'frist_option' => '项目列表'],
-    ],
-];
-?>
-{include file='public/search' /}
+<!-- 搜索区域 -->
+<div class="bg-white border border-slate-200 rounded-2xl p-5 mb-6 mx-6 shadow-sm">
+    <form method="get" action="<?php echo url('app_nuclei/index')?>">
+        <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex flex-col gap-2">
+                <label class="text-sm text-slate-600 font-medium">搜索</label>
+                <input type="text" name="search" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all w-[200px]" placeholder="搜索的内容">
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="text-sm text-slate-600 font-medium">项目列表</label>
+                <select name="app_id" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all w-[180px]">
+                    <option value="">项目列表</option>
+                    <?php foreach ($projectList as $k => $v) { ?>
+                        <option value="<?php echo $k ?>"><?php echo $v ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        查询
+                    </span>
+                </button>
+                <a href="<?php echo url('app_nuclei/index')?>" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-all duration-200">
+                    重置
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
 
-<?php
-$tableArr = [
-    'title' => '扫描结果',
-    'count' => count($list),
-    'checkbox' => true,
-    'columns' => [
-        ['title' => 'ID'],
-        ['title' => '所属项目'],
-        ['title' => 'Name'],
-        ['title' => 'Host'],
-        ['title' => '扫描时间'],
-        ['title' => '操作'],
-    ],
-    'showBatchDel' => true,
-];
-?>
-{include file='public/table_start' /}
+<!-- 表格区域 -->
+<div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm mx-6">
+    <!-- 表头 -->
+    <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div class="flex items-center gap-3">
+            <h2 class="text-lg font-bold text-slate-800">扫描结果</h2>
+        </div>
+        <div class="flex gap-2">
+            {include file='public/batch_del' /}
+        </div>
+    </div>
 
-<?php foreach ($list as $value) { ?>
-<tr class="hover:bg-surface-50 transition-colors">
-    <td class="px-5 py-4">
-        <input type="checkbox" class="ids w-4 h-4 rounded border-surface-400 text-primary focus:ring-primary/20 cursor-pointer" name="ids[]" value="<?php echo $value['id'] ?>">
-    </td>
-    <td class="px-5 py-4 font-semibold text-text-primary"><?php echo $value['id'] ?></td>
-    <td class="px-5 py-4">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-50 text-violet-600 border border-violet-100">
-            <?php echo $value['app_name'] ?>
-        </span>
-    </td>
-    <td class="px-5 py-4 text-text-secondary"><?php echo $value['name'] ?></td>
-    <td class="px-5 py-4 text-text-secondary text-sm font-mono"><?php echo $value['host'] ?></td>
-    <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
-    <td class="px-5 py-4">
-        <a href="<?php echo url('app_nuclei/del',['id'=>$value['id']])?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            删除
-        </a>
-    </td>
-</tr>
-<?php } ?>
+    <!-- 表格 -->
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                    <th class="w-12 px-5 py-4 text-left">
+                        <input type="checkbox" value="-1" onclick="quanxuan(this)" class="w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-500/20 cursor-pointer">
+                    </th>
+                    <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                    <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">所属项目</th>
+                    <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                    <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Host</th>
+                    <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">扫描时间</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                <?php foreach ($list as $value) { ?>
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-5 py-4">
+                            <input type="checkbox" class="ids w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-500/20 cursor-pointer" name="ids[]" value="<?php echo $value['id'] ?>">
+                        </td>
+                        <td class="px-5 py-4 font-semibold text-slate-700"><?php echo $value['id'] ?></td>
+                        <td class="px-5 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-50 text-violet-600 border border-violet-100">
+                                <?php echo $value['app_name'] ?>
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-slate-600"><?php echo $value['name'] ?></td>
+                        <td class="px-5 py-4 text-slate-500 text-sm font-mono"><?php echo $value['host'] ?></td>
+                        <td class="px-5 py-4 text-slate-500 text-sm"><?php echo $value['create_time'] ?></td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-{include file='public/table_end' /}
-
+{include file='public/fenye' /}
 {include file='public/footer' /}

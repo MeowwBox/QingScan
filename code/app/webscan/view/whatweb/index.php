@@ -3,13 +3,13 @@
 <main class="p-6 min-h-screen">
     <!-- 页面标题 -->
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-text-primary mb-2">WhatWeb 扫描结果</h1>
-        <nav class="flex gap-2 text-sm text-text-secondary">
-            <a href="/" class="hover:text-primary transition-colors">首页</a>
-            <span class="text-primary">/</span>
-            <a href="#" class="hover:text-primary transition-colors">Web扫描</a>
-            <span class="text-primary">/</span>
-            <span class="text-text-primary font-medium">WhatWeb</span>
+        <h1 class="text-2xl font-bold text-slate-800 mb-2">WhatWeb 扫描结果</h1>
+        <nav class="flex gap-2 text-sm text-slate-500">
+            <a href="/" class="hover:text-blue-500 transition-colors">首页</a>
+            <span class="text-slate-300">/</span>
+            <a href="#" class="hover:text-blue-500 transition-colors">Web扫描</a>
+            <span class="text-slate-300">/</span>
+            <span class="text-slate-700 font-medium">WhatWeb</span>
         </nav>
     </div>
 
@@ -23,77 +23,73 @@
     ]]; ?>
     {include file='public/search' /}
 
-    <?php
-    $tableArr = [
-        'title' => '扫描结果列表',
-        'count' => count($list ?? []),
-        'checkbox' => true,
-        'columns' => [
-            ['title' => 'ID'],
-            ['title' => '所属项目'],
-            ['title' => 'Target'],
-            ['title' => 'HTTP Status'],
-            ['title' => 'Plugins'],
-            ['title' => '发布时间'],
-            ['title' => '操作', 'class' => 'w-[100px]'],
-        ],
-        'showBatchDel' => true,
-    ];
-    ?>
-    {include file='public/table_start' /}
+    <!-- 表格卡片 -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center gap-3">
+                <h2 class="text-lg font-bold text-slate-800">扫描结果列表</h2>
+                <span class="bg-blue-500 text-white text-xs px-2.5 py-1 rounded-full font-medium"><?php echo count($list) ?? 0 ?></span>
+            </div>
+            {include file='public/batch_del' /}
+        </div>
 
-    <?php foreach ($list as $value) { ?>
-    <tr class="hover:bg-surface-50 transition-colors">
-        <td class="px-5 py-4">
-            <input type="checkbox" class="ids w-4 h-4 rounded border-surface-400 text-primary focus:ring-primary/20 cursor-pointer" name="ids[]" value="<?php echo $value['id'] ?>">
-        </td>
-        <td class="px-5 py-4 font-semibold text-text-primary"><?php echo $value['id'] ?></td>
-        <td class="px-5 py-4 text-text-secondary"><?php echo $value['app_name'] ?></td>
-        <td class="px-5 py-4">
-            <?php
-            $targetArr = json_decode($value['target'], true);
-            $targetUrl = is_array($targetArr) && isset($targetArr[0]) ? $targetArr[0] : $value['target'];
-            ?>
-            <span class="text-text-primary font-mono text-sm bg-surface-100 px-2 py-1 rounded"><?php echo htmlspecialchars($targetUrl); ?></span>
-        </td>
-        <td class="px-5 py-4">
-            <?php
-            $statusArr = json_decode($value['http_status'], true);
-            $status = is_array($statusArr) && isset($statusArr[0]) ? $statusArr[0] : $value['http_status'];
-            $statusClass = 'bg-surface-50 text-text-secondary border-surface-200';
-            if ($status >= 200 && $status < 300) {
-                $statusClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
-            } elseif ($status >= 300 && $status < 400) {
-                $statusClass = 'bg-amber-50 text-amber-600 border-amber-100';
-            } elseif ($status >= 400) {
-                $statusClass = 'bg-red-50 text-red-600 border-red-100';
-            }
-            ?>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border <?php echo $statusClass ?>">
-                <?php echo htmlspecialchars($status); ?>
-            </span>
-        </td>
-        <td class="px-5 py-4 text-text-secondary max-w-xs truncate" title="<?php echo htmlspecialchars($value['plugins']); ?>">
-            <?php
-            $pluginsArr = json_decode($value['plugins'], true);
-            $plugins = is_array($pluginsArr) && isset($pluginsArr[0]) ? $pluginsArr[0] : $value['plugins'];
-            echo htmlspecialchars($plugins);
-            ?>
-        </td>
-        <td class="px-5 py-4 text-text-secondary text-sm"><?php echo $value['create_time'] ?></td>
-        <td class="px-5 py-4">
-            <a href="<?php echo url('whatweb/del', ['id' => $value['id']]) ?>"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-                删除
-            </a>
-        </td>
-    </tr>
-    <?php } ?>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="w-12 px-5 py-4 text-left">
+                            <input type="checkbox" value="-1" onclick="quanxuan(this)" class="w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-200 cursor-pointer">
+                        </th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">所属项目</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Target</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">HTTP Status</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Plugins</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">发布时间</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <?php foreach ($list as $value) { ?>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-5 py-4">
+                            <input type="checkbox" class="ids w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-200 cursor-pointer" name="ids[]" value="<?php echo $value['id'] ?>">
+                        </td>
+                        <td class="px-5 py-4 font-semibold text-slate-700"><?php echo $value['id'] ?></td>
+                        <td class="px-5 py-4 text-slate-600"><?php echo $value['app_name'] ?></td>
+                        <td class="px-5 py-4">
+                            <span class="text-slate-700 font-mono text-sm bg-slate-100 px-2 py-1 rounded"><?php dump(json_decode($value['target'], true)[0]); ?></span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                <?php dump(json_decode($value['http_status'], true)[0]); ?>
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-slate-600"><?php dump(json_decode($value['plugins'], true)[0]); ?></td>
+                        <td class="px-5 py-4 text-slate-500 text-sm"><?php echo $value['create_time'] ?></td>
+                        <td class="px-5 py-4">
+                            <a href="<?php echo url('whatweb/del', ['id' => $value['id']]) ?>"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                删除
+                            </a>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
 
-    {include file='public/table_end' /}
+        <!-- 分页 -->
+        <div class="flex justify-between items-center px-5 py-4 border-t border-slate-100 bg-slate-50">
+            <div class="text-sm text-slate-500">
+                共找到相关记录
+            </div>
+            {include file='public/fenye' /}
+        </div>
+    </div>
 
     <input type="hidden" id="to_examine_url" value="<?php echo url('to_examine/xray') ?>">
     {include file='public/to_examine' /}
