@@ -24,7 +24,7 @@ class TaskScan extends Common
         $data['list'] = $list->items();
         $data['page'] = $list->render();
 
-        return View::fetch('index', $data);
+        return View::fetch('taskscan/index', $data);
     }
 
 

@@ -33,7 +33,7 @@ class AppCrawlergo extends Common
         $data['page'] = $list->render();
         //查询项目数据
         $data['projectList'] = $this->getMyAppList();
-        return View::fetch('index', $data);
+        return View::fetch('appcrawlergo/index', $data);
     }
 
     // 批量删除

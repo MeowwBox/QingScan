@@ -33,7 +33,7 @@ class OneForAll extends Common
         $data['page'] = $list->render();
         //查询项目数据
         $data['projectList'] = $this->getMyAppList();
-        return View::fetch('index', $data);
+        return View::fetch('oneforall/index', $data);
     }
 
     public function del(Request $request)
